@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { joinPresale, joinWaitlist, subscribe } from "@/lib/community";
 import { createCheckoutLink, infinitepayConfigured } from "@/lib/infinitepay";
+import { createOrder, setCheckoutUrl } from "@/lib/orders";
 import { normalizePhone } from "@/lib/phone";
 import { getStockLive } from "@/lib/stock";
 
@@ -41,7 +42,9 @@ export async function presaleAction(_: FormState, form: FormData): Promise<FormS
   if (infinitepayConfigured()) {
     let url: string;
     try {
-      url = await createCheckoutLink({ personId, name, phone, paymentPreference });
+      const order = await createOrder({ personId, paymentPreference });
+      url = await createCheckoutLink({ orderId: order.id, amount: order.amount, name, phone, paymentPreference });
+      await setCheckoutUrl(order.id, url);
     } catch (e) {
       console.error(e);
       return { ok: true, message: "Seu Oráculo está reservado. O pagamento não abriu agora, então vamos te chamar no WhatsApp para finalizar." };

@@ -50,6 +50,28 @@ export const messages = pgTable("messages", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Um pedido por checkout aberto na InfinitePay. order_nsu = "pedido-<id>". "divergente": a InfinitePay confirmou
+// um valor diferente do cobrado, ou deixou de confirmar um pagamento numa nova conferência.
+export type OrderStatus = "aguardando" | "pago" | "divergente";
+
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  personId: integer("person_id").notNull(),
+  paymentPreference: text("payment_preference").$type<"a_vista" | "parcelado">().notNull(),
+  amount: integer("amount").notNull(), // centavos
+  checkoutUrl: text("checkout_url"),
+  status: text("status").$type<OrderStatus>().notNull().default("aguardando"),
+  paidAmount: integer("paid_amount"),
+  installments: integer("installments"),
+  captureMethod: text("capture_method"), // "pix" | "credit_card"
+  transactionNsu: text("transaction_nsu"),
+  invoiceSlug: text("invoice_slug"),
+  receiptUrl: text("receipt_url"),
+  paidAt: timestamp("paid_at", { withTimezone: true }),
+  checkedAt: timestamp("checked_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 // Configurações do site editáveis no /admin (ex.: vendas esgotadas).
 export const settings = pgTable("settings", {
   key: text("key").primaryKey(),
@@ -102,4 +124,22 @@ create table if not exists settings (
   key text primary key,
   value jsonb not null
 );
+create table if not exists orders (
+  id serial primary key,
+  person_id integer not null,
+  payment_preference text not null,
+  amount integer not null,
+  checkout_url text,
+  status text not null default 'aguardando',
+  paid_amount integer,
+  installments integer,
+  capture_method text,
+  transaction_nsu text,
+  invoice_slug text,
+  receipt_url text,
+  paid_at timestamptz,
+  checked_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create index if not exists orders_person_idx on orders (person_id);
 `;

@@ -7,6 +7,7 @@ import { checkPassword, endSession, requireAdmin, startSession } from "@/lib/aut
 import { cancelCampaign, createCampaign, dispatchCampaign, personalize } from "@/lib/campaigns";
 import { markPurchased } from "@/lib/community";
 import type { CampaignKind, Segment } from "@/lib/db/schema";
+import { recheckOrders } from "@/lib/orders";
 import { normalizePhone } from "@/lib/phone";
 import { STOCK_TAG, setManualSoldOut } from "@/lib/stock";
 import { sendTemplate } from "@/lib/whatsapp";
@@ -32,6 +33,15 @@ export async function markPurchasedAction(form: FormData) {
   await markPurchased(id, order.startsWith("Nº") ? order : `Nº ${order.padStart(4, "0")}`);
   updateTag(STOCK_TAG);
   revalidatePath("/admin");
+}
+
+// Conferência com a InfinitePay: um pedido (orderId) ou todos que já tiveram pagamento avisado.
+export async function recheckOrdersAction(form: FormData) {
+  await requireAdmin();
+  const id = Number(form.get("orderId")) || undefined;
+  await recheckOrders(id);
+  updateTag(STOCK_TAG);
+  revalidatePath("/admin/pedidos");
 }
 
 export async function setSoldOutAction(form: FormData) {

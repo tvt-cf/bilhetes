@@ -10,7 +10,8 @@ export const produto = {
   parcelamento: "em até 10x de R$ 59,90",
   parcelas: "10x de R$ 59,90",
   precoAVista: "R$ 499 à vista",
-  // valores cobrados no checkout da InfinitePay, em centavos (manter em sincronia com os textos acima)
+  // valores do checkout da InfinitePay, em centavos (manter em sincronia com os textos acima):
+  // a_vista é o preço no Pix, parcelado é o preço no cartão
   precoCentavos: { a_vista: 49900, parcelado: 59900 },
   frete: "Frete incluso para todo o Brasil",
 };
