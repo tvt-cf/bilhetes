@@ -95,7 +95,7 @@ export function PresaleForm() {
         disabled={pending}
         className="mx-auto flex w-full items-center justify-center gap-2.5 rounded-full bg-verdade px-10 py-5 text-[17px] font-medium text-leveza transition active:scale-[0.98] hover:bg-verdade/90 disabled:opacity-60 sm:w-auto"
       >
-        {pending ? "Abrindo pagamento…" : "Eu quero"} <span aria-hidden>→</span>
+        {pending ? "Abrindo pagamento…" : "Reservar meu Oráculo"} <span aria-hidden>→</span>
       </button>
       <Feedback state={state} />
     </form>
