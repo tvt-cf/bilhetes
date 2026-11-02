@@ -61,10 +61,10 @@ function Hero({ soldOut }: { soldOut: boolean }) {
           <span className="hidden sm:inline"> NUMERADAS À MÃO</span>
         </span>
       )}
-      <h1 className="mt-8 font-display text-[72px] font-semibold leading-none tracking-[-0.04em] text-tinta md:mt-9 md:text-[128px]">
+      <h1 className="mt-8 font-display text-[72px] font-semibold leading-none tracking-[-0.04em] text-tinta md:mt-9 md:text-[clamp(88px,8.6vw,128px)]">
         {produto.nome}.
       </h1>
-      <p className="mt-3 text-[22px] italic leading-tight text-verdade md:text-[31px]">{produto.slogan}</p>
+      <p className="mt-3 text-[22px] italic leading-tight text-verdade md:text-[clamp(24px,2.1vw,31px)]">{produto.slogan}</p>
       <p className="mt-5 max-w-[620px] text-base leading-relaxed text-tinta-suave md:max-w-none md:whitespace-nowrap md:text-[17px]">
         Uma caixa viva com {produto.bilhetes} bilhetes que encontram você na hora exata.
       </p>
@@ -79,7 +79,7 @@ function Hero({ soldOut }: { soldOut: boolean }) {
           Avisamos pelo WhatsApp quando o próximo lote estiver disponível.
         </p>
       )}
-      <div className="relative -mx-5 mt-14 h-[480px] w-[calc(100%+2.5rem)] max-w-[1312px] overflow-hidden rounded-t-[28px] md:mx-0 md:mt-12 md:h-[760px] md:w-full">
+      <div className="relative -mx-5 mt-14 h-[480px] w-[calc(100%+2.5rem)] max-w-[1312px] overflow-hidden rounded-t-[28px] md:mx-0 md:mt-12 md:h-[clamp(420px,64svh,720px)] md:w-full">
         <Image
           src="/images/oraculo-228.jpg"
           alt="Mãos abrindo a caixa: a tampa de madeira gravada “toda grande mudança começa pequena.” sobre a caixa com o livreto bordô"
@@ -106,11 +106,11 @@ function Assinatura() {
 
 function Ritual() {
   return (
-    <section id="ritual" className="scroll-mt-20 bg-vinho pb-2 pt-24 md:pt-32">
+    <section id="ritual" className="scroll-mt-20 bg-vinho pb-2 pt-24 md:pt-[clamp(72px,10svh,128px)]">
       <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-14 px-5 md:px-24 lg:flex-row lg:items-end">
         <div className="flex flex-col gap-6">
           <Eyebrow className="text-luz">O RITUAL</Eyebrow>
-          <h2 className="text-[44px] leading-[1.05] tracking-[-0.02em] text-leveza md:text-[59px]">
+          <h2 className="text-[44px] leading-[1.05] tracking-[-0.02em] text-leveza md:text-[clamp(36px,3.6vw,52px)]">
             Três gestos.
             <br />
             Toda manhã.
@@ -131,9 +131,9 @@ function Ritual() {
           <p className="mt-2 font-hand text-[17px] text-luz">Volte sempre que precisar.</p>
         </div>
       </div>
-      <div className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:mt-22 md:grid md:grid-cols-4 md:overflow-visible">
+      <div className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:mt-[clamp(48px,7svh,88px)] md:grid md:grid-cols-4 md:overflow-visible">
         {faixa.map(([src, alt]) => (
-          <div key={src} className="relative h-[440px] w-[78vw] shrink-0 snap-start overflow-hidden rounded-md md:h-[460px] md:w-auto">
+          <div key={src} className="relative h-[440px] w-[78vw] shrink-0 snap-start overflow-hidden rounded-md md:h-[clamp(300px,44svh,460px)] md:w-auto">
             <Image src={src} alt={alt} fill sizes="(min-width: 768px) 25vw, 78vw" className="object-cover" />
           </div>
         ))}
@@ -144,20 +144,20 @@ function Ritual() {
 
 function ManifestoSection() {
   return (
-    <section className="bg-[#F6F4EF] px-5 py-24 md:px-24 md:pb-32 md:pt-36">
+    <section className="bg-[#F6F4EF] px-5 py-24 md:px-24 md:py-[clamp(56px,8svh,112px)]">
       <div className="mx-auto flex max-w-[1248px] flex-col gap-10">
         <div className="flex flex-col gap-2.5">
           <Eyebrow className="text-recomeco">MANIFESTO</Eyebrow>
           <span className="h-px w-14 bg-recomeco" />
         </div>
-        <div className="flex flex-col gap-1 text-[30px] font-medium leading-[1.08] tracking-[-0.025em] md:text-[46px]">
+        <div className="flex flex-col gap-1 text-[30px] font-medium leading-[1.08] tracking-[-0.025em] md:text-[clamp(30px,3.2vw,46px)]">
           <p className="text-[#2A1A1D]">{manifesto.abertura}</p>
           <p className="whitespace-pre-line text-[#A79C93]">{manifesto.estrofes[0]}</p>
           <p className="text-verdade">
             Muitas vezes as respostas já estão com a gente, mas precisamos silenciar os ruídos para conseguir ouvir.
           </p>
         </div>
-        <div className="relative h-[200px] overflow-hidden rounded-[20px] md:h-[300px]">
+        <div className="relative h-[200px] overflow-hidden rounded-[20px] md:h-[clamp(180px,26svh,300px)]">
           <Image
             src="/images/manifesto-tecido.jpg"
             alt="Tecido terracota translúcido voando contra o céu nublado"
@@ -173,23 +173,23 @@ function ManifestoSection() {
 
 function Bilhetes() {
   return (
-    <section id="bilhetes" className="scroll-mt-20 bg-[#EBE7DF] px-5 py-24 md:px-[100px] md:pb-35 md:pt-40">
-      <div className="mx-auto flex max-w-[1225px] flex-col items-center gap-14 md:gap-18">
-        <div className="flex max-w-[800px] flex-col items-center gap-5 text-center">
-          <p className="font-hand text-[21px] text-verdade">Os Bilhetes</p>
-          <h2 className="text-[44px] font-medium leading-[1.02] tracking-[-0.025em] text-[#1F1517] md:text-[67px]">
+    <section id="bilhetes" className="scroll-mt-20 bg-[#EBE7DF] px-5 py-24 md:px-[100px] md:py-[clamp(56px,8svh,112px)]">
+      <div className="mx-auto flex max-w-[1120px] flex-col items-center gap-12">
+        <div className="flex max-w-[720px] flex-col items-center gap-4 text-center">
+          <p className="font-hand text-lg text-verdade">Os Bilhetes</p>
+          <h2 className="text-[40px] font-medium leading-[1.04] tracking-[-0.025em] text-[#1F1517] md:text-[clamp(36px,3.6vw,52px)]">
             {produto.bilhetes} bilhetes.
             <br />
             Uma caixa viva.
           </h2>
-          <p className="text-[17px] leading-[1.65] text-[#6E645D]">
+          <p className="text-base leading-[1.65] text-[#6E645D]">
             Os Bilhetes nasceram das nossas descobertas e da vontade de que outras pessoas também reconheçam seus
             desejos, se escutem e vivam com mais coragem.
           </p>
         </div>
 
         <div className="flex w-full flex-col gap-5">
-          <div className="flex flex-col gap-5 md:h-[640px] md:flex-row">
+          <div className="flex flex-col gap-4 md:h-[clamp(360px,calc(100svh-340px),480px)] md:flex-row">
             <div className="relative h-[460px] overflow-hidden rounded-[28px] md:h-auto md:flex-1">
               <Image
                 src="/images/oraculo-154.jpg"
@@ -198,16 +198,16 @@ function Bilhetes() {
                 sizes="(min-width: 768px) 765px, 100vw"
                 className="object-cover"
               />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 to-transparent p-8 pt-32 md:p-10 md:pt-40">
-                <h3 className="text-[22px] font-medium tracking-[-0.03em] text-white">Bilhetes para lembrar.</h3>
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 to-transparent p-7 pt-28 md:p-8 md:pt-32">
+                <h3 className="text-xl font-medium tracking-[-0.03em] text-white">Bilhetes para lembrar.</h3>
               </div>
             </div>
-            <div className="flex flex-col gap-3.5 rounded-[28px] bg-verdade p-8 md:w-[440px] md:p-11">
+            <div className="flex flex-col gap-3 rounded-[24px] bg-verdade p-7 md:w-[380px] md:p-8">
               <p className="text-sm font-medium text-luz">Caixa viva</p>
-              <h3 className="text-[24px] font-medium leading-[1.1] tracking-[-0.025em] text-leveza md:text-[27px]">
+              <h3 className="text-[21px] font-medium leading-[1.15] tracking-[-0.02em] text-leveza md:text-[22px]">
                 Feita à mão, em madeira natural. Nenhuma caixa é igual à outra.
               </h3>
-              <div className="relative mt-2 min-h-[280px] flex-1 overflow-hidden rounded-2xl">
+              <div className="relative mt-2 min-h-[240px] flex-1 overflow-hidden rounded-2xl md:min-h-0">
                 <Image
                   src="/images/caixas-empilhadas.jpg"
                   alt="Caixas de madeira em tons diferentes, empilhadas"
@@ -219,16 +219,16 @@ function Bilhetes() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-5 md:h-[333px] md:flex-row">
-            <div className="flex flex-col gap-9 rounded-[28px] bg-[#F6F4EF] p-8 md:flex-1 md:p-12">
-              <h3 className="text-[24px] font-medium tracking-[-0.025em] text-[#1F1517] md:text-[27px]">
+          <div className="flex flex-col gap-4 md:h-[250px] md:flex-row">
+            <div className="flex flex-col gap-6 rounded-[24px] bg-[#F6F4EF] p-7 md:flex-1 md:p-8">
+              <h3 className="text-[21px] font-medium tracking-[-0.02em] text-[#1F1517] md:text-[22px]">
                 Cada cor, uma intenção.
               </h3>
-              <ul className="grid grid-cols-4 gap-2 md:grid-cols-7 md:gap-3">
+              <ul className="grid grid-cols-4 gap-2 md:flex-1 md:grid-cols-7 md:gap-2.5">
                 {cores.map(([nome, cor, texto]) => (
                   <li
                     key={nome}
-                    className={`flex h-[120px] items-end rounded-xl p-2.5 md:h-[168px] md:p-3 ${texto} ${nome === "leveza" ? "border border-verdade/12" : ""}`}
+                    className={`flex h-[110px] items-end rounded-xl p-2.5 md:h-auto md:min-h-0 md:p-3 ${texto} ${nome === "leveza" ? "border border-verdade/12" : ""}`}
                     style={{ background: cor }}
                   >
                     <span className="font-script text-[11px] font-light md:text-[13px]">{nome}</span>
@@ -236,12 +236,12 @@ function Bilhetes() {
                 ))}
               </ul>
             </div>
-            <div className="flex flex-col justify-between gap-10 rounded-[28px] bg-recomeco p-8 md:w-[440px] md:p-12">
+            <div className="flex flex-col justify-between gap-8 rounded-[24px] bg-recomeco p-7 md:w-[380px] md:p-8">
               <div className="flex flex-col gap-3">
                 <p className="text-sm font-medium text-luz">Produção limitada</p>
-                <p className="font-mono text-[56px] leading-none text-leveza md:text-[72px]">Nº 001</p>
+                <p className="font-mono text-5xl leading-none text-leveza md:text-[52px]">Nº 001</p>
               </div>
-              <p className="text-base leading-[1.65] text-leveza/80">
+              <p className="text-[15px] leading-[1.6] text-leveza/80">
                 Cada caixa da primeira edição é numerada e assinada à mão pelas criadoras. Quando acabar, acabou.
               </p>
             </div>
@@ -254,21 +254,21 @@ function Bilhetes() {
 
 function Criadoras() {
   return (
-    <section id="criadoras" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-24 md:py-36">
-      <div className="mx-auto flex max-w-[1248px] flex-col gap-14 md:gap-18">
+    <section id="criadoras" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-24 md:py-[clamp(56px,8svh,112px)]">
+      <div className="mx-auto flex max-w-[1248px] flex-col gap-14 md:gap-[clamp(40px,6svh,72px)]">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="flex flex-col gap-5">
             <Eyebrow className="text-tinta">CRIADORAS</Eyebrow>
-            <h2 className="text-[40px] leading-none tracking-[-0.02em] text-verdade md:text-[59px]">
+            <h2 className="text-[40px] leading-none tracking-[-0.02em] text-verdade md:text-[clamp(36px,3.6vw,52px)]">
               A vida é a arte
               <br />
               do encontro.
             </h2>
           </div>
-          <p className="font-hand text-[22px] text-verdade md:text-[30px]">por Gabriela Lima &amp; Julia Lima Villa</p>
+          <p className="font-hand text-[22px] text-verdade md:text-[clamp(20px,2vw,28px)]">por Gabriela Lima &amp; Julia Lima Villa</p>
         </div>
         <div className="flex flex-col gap-14 lg:flex-row lg:gap-24">
-          <div className="relative h-[520px] w-full shrink-0 md:h-[700px] lg:w-[640px]">
+          <div className="relative h-[520px] w-full shrink-0 md:h-[clamp(380px,calc(100svh-440px),600px)] lg:w-[46%]">
             <div className="absolute left-0 top-0 h-[80%] w-[60%] overflow-hidden rounded-3xl">
               <Image
                 src="/images/criadoras-jardim-pb.jpg"
@@ -289,7 +289,7 @@ function Criadoras() {
             </div>
           </div>
           <div className="flex flex-col gap-6 lg:pt-6">
-            <p className="text-2xl leading-[1.2] text-tinta">
+            <p className="text-2xl leading-[1.2] text-tinta md:text-[clamp(20px,1.7vw,24px)]">
               Somos amigas de longa data, mas foi buscando por algo novo que nossa história (re)começa.
             </p>
             <span className="h-px w-10 bg-luz" />
@@ -318,18 +318,18 @@ function Legenda({ children }: { children: React.ReactNode }) {
 
 function JeitoCerto({ soldOut }: { soldOut: boolean }) {
   return (
-    <section className="bg-[#F6F4EF] px-5 py-24 md:px-24 md:pb-35 md:pt-40">
-      <div className="mx-auto flex max-w-[1248px] flex-col gap-14 md:gap-22">
+    <section className="bg-[#F6F4EF] px-5 py-24 md:px-24 md:py-[clamp(56px,8svh,112px)]">
+      <div className="mx-auto flex max-w-[1248px] flex-col gap-14 md:gap-[clamp(32px,5svh,56px)]">
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-5">
             <Eyebrow className="text-tinta-suave">NA SUA CASA</Eyebrow>
-            <h2 className="text-[40px] leading-[1.08] tracking-[-0.025em] text-tinta md:text-[64px]">
+            <h2 className="text-[40px] leading-[1.08] tracking-[-0.025em] text-tinta md:text-[clamp(36px,3.6vw,52px)]">
               Não existe jeito certo,
               <br />
               existe o seu.
             </h2>
           </div>
-          <div className="flex max-w-[440px] flex-col gap-4.5 text-[17px] leading-[1.65] text-[#4F4944]">
+          <div className="flex max-w-[440px] flex-col gap-4 text-base leading-[1.65] text-[#4F4944]">
             <p>
               Nossas caixas são numeradas à mão, uma diferente da outra, para que cada um crie o seu próprio jeito de se
               escutar.
@@ -341,9 +341,10 @@ function JeitoCerto({ soldOut }: { soldOut: boolean }) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-          <figure className="flex flex-1 flex-col gap-3.5">
-            <div className="relative h-[460px] overflow-hidden rounded-[4px] lg:h-[771px]">
+        {/* no desktop a galeria acompanha a altura da janela, para a seção caber numa tela só */}
+        <div className="flex flex-col gap-6 lg:h-[clamp(300px,calc(100svh-460px),560px)] lg:flex-row lg:gap-5">
+          <figure className="flex flex-1 flex-col gap-3 lg:min-h-0">
+            <div className="relative h-[460px] overflow-hidden rounded-[4px] lg:h-auto lg:flex-1">
               <Image
                 src="/images/casa-sala.jpg"
                 alt="Caixa sobre o aparador da sala, ao lado de um vaso de madeira e da vitrola"
@@ -354,9 +355,9 @@ function JeitoCerto({ soldOut }: { soldOut: boolean }) {
             </div>
             <Legenda>01 — NA SALA</Legenda>
           </figure>
-          <div className="flex flex-col gap-6 lg:w-[520px]">
-            <figure className="flex flex-col gap-3.5">
-              <div className="relative h-[340px] overflow-hidden rounded-[4px] md:h-[420px]">
+          <div className="flex flex-col gap-6 lg:w-[42%] lg:gap-5">
+            <figure className="flex flex-col gap-3 lg:min-h-0 lg:flex-[3]">
+              <div className="relative h-[340px] overflow-hidden rounded-[4px] md:h-[420px] lg:h-auto lg:flex-1">
                 <Image
                   src="/images/casa-aparador.jpg"
                   alt="Caixa de madeira clara sobre o aparador, perto da vitrola"
@@ -367,9 +368,9 @@ function JeitoCerto({ soldOut }: { soldOut: boolean }) {
               </div>
               <Legenda>02 — NO APARADOR</Legenda>
             </figure>
-            <div className="flex items-start gap-6">
-              <figure className="flex flex-1 flex-col gap-3.5">
-                <div className="relative h-[220px] overflow-hidden rounded-[4px] md:h-[300px]">
+            <div className="flex items-start gap-6 lg:min-h-0 lg:flex-[2] lg:items-stretch lg:gap-5">
+              <figure className="flex flex-1 flex-col gap-3 lg:min-h-0">
+                <div className="relative h-[220px] overflow-hidden rounded-[4px] md:h-[300px] lg:h-auto lg:flex-1">
                   <Image
                     src="/images/casa-escritorio.jpg"
                     alt="Três caixas de madeira empilhadas sobre a mesa"
@@ -380,7 +381,7 @@ function JeitoCerto({ soldOut }: { soldOut: boolean }) {
                 </div>
                 <Legenda>03 — NO ESCRITÓRIO</Legenda>
               </figure>
-              <div className="flex h-[220px] flex-1 items-center justify-center md:h-[300px]">
+              <div className="flex h-[220px] flex-1 items-center justify-center md:h-[300px] lg:h-auto">
                 <Link
                   href="#comprar"
                   className="flex items-center gap-2.5 rounded-full bg-verdade px-7 py-4 text-[15px] font-semibold text-leveza transition active:scale-[0.98] hover:bg-verdade/90 md:px-9 md:py-4.5"
@@ -404,12 +405,12 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
     ["Livreto do ritual", "Para começar sem pressa"],
   ];
   return (
-    <section id="comprar" className="scroll-mt-20 bg-vinho px-5 py-24 text-center text-leveza md:px-24 md:py-30">
+    <section id="comprar" className="scroll-mt-20 bg-vinho px-5 py-24 text-center text-leveza md:px-24 md:py-[clamp(56px,8svh,112px)]">
       <div className="mx-auto flex max-w-[1248px] flex-col items-center">
         <Eyebrow className="text-luz">
           {produto.edicao.toUpperCase()} · {soldOut ? "ESGOTADA" : "COMPRA ONLINE"}
         </Eyebrow>
-        <h2 className="mt-6 text-[34px] leading-[1.1] tracking-[-0.02em] md:text-[50px]">
+        <h2 className="mt-6 text-[34px] leading-[1.1] tracking-[-0.02em] md:text-[clamp(36px,3.6vw,52px)]">
           {soldOut ? "Esgotou. O próximo lote já está a caminho." : `Apenas ${produto.tiragem} caixas de Bilhetes. Uma delas é sua.`}
         </h2>
         <ul className="mt-14 grid w-full grid-cols-2 gap-y-8 border-y border-leveza/20 py-8 md:grid-cols-4">
@@ -460,11 +461,11 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
 
 function Movimento() {
   return (
-    <section id="movimento" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-24 md:py-36">
+    <section id="movimento" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-24 md:py-[clamp(56px,8svh,112px)]">
       <div className="mx-auto flex max-w-[1248px] flex-col items-center gap-16 lg:flex-row lg:gap-24">
         <div className="flex flex-1 flex-col">
           <Eyebrow className="text-verdade">COMUNIDADE</Eyebrow>
-          <h2 className="mt-6 text-[40px] leading-[1.05] tracking-[-0.02em] md:text-[50px]">
+          <h2 className="mt-6 text-[40px] leading-[1.05] tracking-[-0.02em] md:text-[clamp(36px,3.6vw,52px)]">
             Faça parte
             <br />
             do movimento.

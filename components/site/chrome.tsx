@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getStock } from "@/lib/stock";
 import { instagram, produto } from "@/lib/site";
 import { Logo } from "./logo";
+import { StickyHeader } from "./sticky-header";
 
 const links = [
   ["Manifesto", "/manifesto"],
@@ -17,10 +18,10 @@ function ctaLabel(soldOut: boolean) {
 export async function Nav() {
   const { soldOut } = await getStock();
   return (
-    <header className="sticky top-0 z-30 border-b border-verdade/10 bg-leveza/90 backdrop-blur">
-      <nav className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 md:px-16 md:py-5">
+    <StickyHeader>
+      <nav className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-3 transition-[padding] duration-300 group-data-[compact=true]:py-2 md:px-16 md:py-4 md:group-data-[compact=true]:py-2.5">
         <Link href="/" aria-label="bilhetes, página inicial" className="text-verdade">
-          <Logo className="w-[118px] md:w-[150px]" />
+          <Logo className="w-[108px] transition-[width] duration-300 group-data-[compact=true]:w-[92px] md:w-[132px] md:group-data-[compact=true]:w-[104px]" />
         </Link>
         <div className="hidden items-center gap-10 text-sm text-tinta lg:flex">
           {links.map(([label, href]) => (
@@ -37,7 +38,7 @@ export async function Nav() {
         </Link>
         <MobileMenu soldOut={soldOut} />
       </nav>
-    </header>
+    </StickyHeader>
   );
 }
 
