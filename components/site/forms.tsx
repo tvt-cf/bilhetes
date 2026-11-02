@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, type ComponentProps } from "react";
 import { presaleAction, subscribeAction, waitlistAction, type FormState } from "@/app/actions";
 import { produto } from "@/lib/site";
 
@@ -26,13 +26,9 @@ export function SubscribeForm() {
           <label className="sr-only" htmlFor="sub-phone">
             WhatsApp
           </label>
-          <input
+          <PhoneInput
             id="sub-phone"
-            name="phone"
-            type="tel"
-            inputMode="tel"
             autoComplete="tel-national"
-            required
             placeholder="(11) 90000-0000"
             className="min-w-0 flex-1 bg-transparent text-base text-tinta outline-none placeholder:text-[#9a938c]"
           />
@@ -133,16 +129,7 @@ function ContactFields() {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <input name="name" required autoComplete="name" placeholder="Seu nome" aria-label="Seu nome" className={field} />
-      <input
-        name="phone"
-        type="tel"
-        inputMode="tel"
-        autoComplete="tel"
-        required
-        placeholder="WhatsApp com DDD"
-        aria-label="WhatsApp com DDD"
-        className={field}
-      />
+      <PhoneInput placeholder="WhatsApp com DDD" aria-label="WhatsApp com DDD" className={field} />
     </div>
   );
 }
@@ -152,5 +139,32 @@ function WhatsIcon() {
     <svg viewBox="0 0 24 24" className="size-[18px]" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
       <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" strokeLinejoin="round" />
     </svg>
+  );
+}
+
+// Máscara de celular brasileiro enquanto digita: (11) 99798-0408. Aceita colar com +55 na frente.
+export function maskPhone(value: string) {
+  let d = value.replace(/\D/g, "");
+  if (d.length > 11 && d.startsWith("55")) d = d.slice(2);
+  d = d.slice(0, 11);
+  if (d.length <= 2) return d ? `(${d}` : "";
+  const split = d.length === 11 ? 7 : 6;
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, split)}-${d.slice(split)}`;
+}
+
+function PhoneInput(props: Omit<ComponentProps<"input">, "value" | "onChange" | "name" | "type">) {
+  const [value, setValue] = useState("");
+  return (
+    <input
+      autoComplete="tel"
+      {...props}
+      name="phone"
+      type="tel"
+      inputMode="tel"
+      required
+      value={value}
+      onChange={(e) => setValue(maskPhone(e.target.value))}
+    />
   );
 }
