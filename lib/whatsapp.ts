@@ -9,6 +9,7 @@ const templateByKind: Record<CampaignKind, string | undefined> = {
   sabedoria: process.env.WHATSAPP_TEMPLATE_SABEDORIA,
   evento: process.env.WHATSAPP_TEMPLATE_EVENTO,
   pedido: process.env.WHATSAPP_TEMPLATE_PEDIDO,
+  lote: process.env.WHATSAPP_TEMPLATE_LOTE,
 };
 
 export function whatsappConfigured(): boolean {

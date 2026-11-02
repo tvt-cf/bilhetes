@@ -1,7 +1,7 @@
 import { boolean, integer, jsonb, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
-// status de uma pessoa na jornada: comunidade -> pré-venda -> comprou
-export type PersonStatus = "comunidade" | "pre_venda" | "comprou";
+// status de uma pessoa na jornada: comunidade -> fila de espera (se esgotado) -> pré-venda -> comprou
+export type PersonStatus = "comunidade" | "fila_espera" | "pre_venda" | "comprou";
 
 export const people = pgTable("people", {
   id: serial("id").primaryKey(),
@@ -13,13 +13,14 @@ export const people = pgTable("people", {
   status: text("status").$type<PersonStatus>().notNull().default("comunidade"),
   paymentPreference: text("payment_preference"), // "a_vista" | "parcelado"
   presaleAt: timestamp("presale_at", { withTimezone: true }),
+  waitlistAt: timestamp("waitlist_at", { withTimezone: true }),
   orderNumber: text("order_number"),
   purchasedAt: timestamp("purchased_at", { withTimezone: true }),
   optedOutAt: timestamp("opted_out_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export type CampaignKind = "sabedoria" | "evento" | "pedido";
+export type CampaignKind = "sabedoria" | "evento" | "pedido" | "lote";
 export type CampaignStatus = "agendado" | "enviando" | "concluido" | "falhou";
 export type Segment = PersonStatus;
 
@@ -47,6 +48,12 @@ export const messages = pgTable("messages", {
   error: text("error"),
   repliedAt: timestamp("replied_at", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Configurações do site editáveis no /admin (ex.: vendas esgotadas).
+export const settings = pgTable("settings", {
+  key: text("key").primaryKey(),
+  value: jsonb("value").notNull(),
 });
 
 // Criação idempotente das tabelas. Evita depender de um passo de migração para subir o projeto.
@@ -90,4 +97,9 @@ create table if not exists messages (
 );
 create index if not exists messages_campaign_idx on messages (campaign_id);
 create index if not exists messages_person_idx on messages (person_id);
+alter table people add column if not exists waitlist_at timestamptz;
+create table if not exists settings (
+  key text primary key,
+  value jsonb not null
+);
 `;

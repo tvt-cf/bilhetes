@@ -1,14 +1,21 @@
 import Link from "next/link";
-import { instagram, lancamento, produto } from "@/lib/site";
+import { getStock } from "@/lib/stock";
+import { instagram, produto } from "@/lib/site";
 import { Logo } from "./logo";
 
 const links = [
   ["Manifesto", "/manifesto"],
   ["Oráculo", "/#oraculo"],
   ["Ritual", "/#ritual"],
+  ["Movimento", "/#movimento"],
 ] as const;
 
-export function Nav() {
+function ctaLabel(soldOut: boolean) {
+  return soldOut ? "Fila de espera" : "Eu quero";
+}
+
+export async function Nav() {
+  const { soldOut } = await getStock();
   return (
     <header className="sticky top-0 z-30 border-b border-verdade/10 bg-leveza/90 backdrop-blur">
       <nav className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 md:px-16 md:py-5">
@@ -21,48 +28,28 @@ export function Nav() {
               {label}
             </Link>
           ))}
-          <Link
-            href="/#lancamento"
-            className="flex items-center gap-2 rounded-full border border-coragem/35 bg-coragem/8 py-1.5 pl-2.5 pr-3.5 font-semibold text-verdade transition hover:bg-coragem/15"
-          >
-            <span className="relative flex size-3.5 items-center justify-center rounded-full bg-coragem/20">
-              <span className="absolute size-3.5 animate-ping rounded-full bg-coragem/30" />
-              <span className="size-1.5 rounded-full bg-coragem" />
-            </span>
-            Lançamento
-            <span className="rounded-full bg-coragem px-1.5 py-0.5 font-mono text-[11px] font-bold text-white">
-              {lancamento.dataCurta}
-            </span>
-          </Link>
-          <Link href="/#movimento" className="transition hover:text-verdade">
-            Movimento
-          </Link>
         </div>
         <Link
-          href="/#reserva"
-          className="hidden rounded-full bg-verdade px-5 py-2.5 text-sm font-medium text-leveza transition hover:bg-verdade/90 lg:block"
+          href="/#comprar"
+          className="hidden rounded-full bg-verdade px-6 py-2.5 text-sm font-semibold text-leveza transition hover:bg-verdade/90 lg:block"
         >
-          Reservar o Oráculo
+          {ctaLabel(soldOut)}
         </Link>
-        <MobileMenu />
+        <MobileMenu soldOut={soldOut} />
       </nav>
     </header>
   );
 }
 
 // Menu do celular sem JavaScript: <details> abre e fecha um painel sob a barra.
-function MobileMenu() {
+function MobileMenu({ soldOut }: { soldOut: boolean }) {
   return (
-    <div className="flex items-center gap-2 lg:hidden">
+    <div className="flex items-center gap-1.5 lg:hidden">
       <Link
-        href="/#lancamento"
-        className="flex items-center gap-1.5 rounded-full border border-coragem/35 bg-coragem/8 py-1.5 pl-2 pr-2.5 text-xs font-semibold text-verdade"
+        href="/#comprar"
+        className="flex h-9 items-center rounded-full bg-verdade px-4 text-[13px] font-semibold text-leveza active:scale-[0.97]"
       >
-        <span className="relative flex size-2.5 items-center justify-center">
-          <span className="absolute size-2.5 animate-ping rounded-full bg-coragem/40" />
-          <span className="size-1.5 rounded-full bg-coragem" />
-        </span>
-        {lancamento.dataCurta}
+        {ctaLabel(soldOut)}
       </Link>
       <details className="group">
         <summary
@@ -76,27 +63,25 @@ function MobileMenu() {
         </summary>
         <div className="absolute inset-x-0 top-full border-b border-verdade/10 bg-leveza px-5 pb-8 pt-4 shadow-[0_24px_40px_-24px_rgba(91,31,46,0.25)]">
           <ul className="flex flex-col">
-            {[...links, ["Lançamento", "/#lancamento"] as const, ["Movimento", "/#movimento"] as const].map(
-              ([label, href]) => (
-                <li key={href}>
-                  <Link
-                    href={href}
-                    className="flex items-center justify-between border-b border-verdade/10 py-4 font-serif text-[28px] text-tinta"
-                  >
-                    {label}
-                    <span aria-hidden className="text-base text-verdade">
-                      →
-                    </span>
-                  </Link>
-                </li>
-              ),
-            )}
+            {links.map(([label, href]) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className="flex items-center justify-between border-b border-verdade/10 py-4 font-serif text-[28px] text-tinta"
+                >
+                  {label}
+                  <span aria-hidden className="text-base text-verdade">
+                    →
+                  </span>
+                </Link>
+              </li>
+            ))}
           </ul>
           <Link
-            href="/#reserva"
+            href="/#comprar"
             className="mt-6 flex h-14 items-center justify-center rounded-full bg-verdade font-medium text-leveza"
           >
-            Reservar o Oráculo
+            {soldOut ? "Entrar na fila de espera" : "Eu quero"}
           </Link>
         </div>
       </details>
@@ -104,19 +89,20 @@ function MobileMenu() {
   );
 }
 
-// Barra fixa no rodapé do celular: preço e reserva sempre a um toque.
-export function MobileBuyBar() {
+// Barra fixa no rodapé do celular: preço e compra sempre a um toque.
+export async function MobileBuyBar() {
+  const { soldOut } = await getStock();
   return (
     <div className="fixed inset-x-3 bottom-3 z-40 flex items-center justify-between gap-3 rounded-full border border-verdade/10 bg-leveza/85 py-2 pl-5 pr-2 shadow-[0_12px_32px_-8px_rgba(46,36,32,0.35)] backdrop-blur-xl pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden">
-      <div className="flex flex-col leading-tight">
-        <span className="font-serif text-lg text-tinta">{produto.nome}</span>
-        <span className="text-xs text-tinta-suave">{produto.precoAVista}</span>
+      <div className="flex min-w-0 flex-col leading-tight">
+        <span className="font-serif text-lg text-tinta">{produto.nome},</span>
+        <span className="truncate font-serif text-[15px] italic text-verdade">ritual para viver maior.</span>
       </div>
       <Link
-        href="/#reserva"
+        href="/#comprar"
         className="flex h-11 items-center rounded-full bg-verdade px-5 text-sm font-semibold text-leveza active:scale-[0.97]"
       >
-        Reservar
+        {ctaLabel(soldOut)}
       </Link>
     </div>
   );
@@ -137,7 +123,6 @@ export function Footer() {
               <Link href="/manifesto">Manifesto</Link>
               <Link href="/#oraculo">Oráculo</Link>
               <Link href="/#ritual">Ritual</Link>
-              <Link href="/#lancamento">Lançamento</Link>
             </div>
             <div className="flex flex-col gap-3.5">
               <span className="font-mono text-xs tracking-[0.2em] text-luz">CONVERSAR</span>

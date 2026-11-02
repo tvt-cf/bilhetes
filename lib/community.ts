@@ -1,5 +1,5 @@
 import "server-only";
-import { and, count, desc, eq, ilike, isNotNull, isNull, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import { getDb, schema } from "./db";
 import type { PersonStatus } from "./db/schema";
 import { produto } from "./site";
@@ -33,7 +33,7 @@ export async function subscribe(input: {
 export async function joinPresale(input: { name: string; phone: string; paymentPreference: string }) {
   const db = await getDb();
   const now = new Date();
-  await db
+  const [row] = await db
     .insert(people)
     .values({ ...input, source: "pre-venda", status: "pre_venda", presaleAt: now })
     .onConflictDoUpdate({
@@ -46,7 +46,36 @@ export async function joinPresale(input: { name: string; phone: string; paymentP
         status: sql`case when ${people.status} = 'comprou' then 'comprou' else 'pre_venda' end`,
         optedOutAt: null,
       },
+    })
+    .returning({ id: people.id });
+  return row.id;
+}
+
+// Esgotado: entra na fila de espera do próximo lote. Quem já reservou ou comprou mantém o status.
+export async function joinWaitlist(input: { name: string; phone: string }) {
+  const db = await getDb();
+  const now = new Date();
+  await db
+    .insert(people)
+    .values({ ...input, source: "fila de espera", status: "fila_espera", waitlistAt: now })
+    .onConflictDoUpdate({
+      target: people.phone,
+      set: {
+        name: input.name,
+        waitlistAt: sql`coalesce(${people.waitlistAt}, ${now.toISOString()}::timestamptz)`,
+        status: sql`case when ${people.status} in ('pre_venda', 'comprou') then ${people.status} else 'fila_espera' end`,
+        optedOutAt: null,
+      },
     });
+}
+
+// Pagamento confirmado pela InfinitePay. O Nº da edição continua sendo dado no /admin.
+export async function markPaid(personId: number) {
+  const db = await getDb();
+  await db
+    .update(people)
+    .set({ status: "comprou", purchasedAt: new Date() })
+    .where(and(eq(people.id, personId), ne(people.status, "comprou")));
 }
 
 export async function markPurchased(personId: number, orderNumber: string) {
@@ -69,6 +98,7 @@ export async function getStats() {
       total: sql<number>`count(*) filter (where ${people.optedOutAt} is null)`,
       lastWeek: sql<number>`count(*) filter (where ${people.createdAt} > now() - interval '7 days')`,
       presale: sql<number>`count(*) filter (where ${people.status} = 'pre_venda' and ${people.optedOutAt} is null)`,
+      waitlist: sql<number>`count(*) filter (where ${people.status} = 'fila_espera' and ${people.optedOutAt} is null)`,
       buyers: sql<number>`count(*) filter (where ${people.status} = 'comprou')`,
       wisdom: sql<number>`count(*) filter (where ${people.wantsWisdom} and ${people.optedOutAt} is null)`,
       optedOut: sql<number>`count(*) filter (where ${people.optedOutAt} is not null)`,
@@ -79,6 +109,7 @@ export async function getStats() {
     total: n(row?.total),
     lastWeek: n(row?.lastWeek),
     presale: n(row?.presale),
+    waitlist: n(row?.waitlist),
     buyers: n(row?.buyers),
     wisdom: n(row?.wisdom),
     optedOut: n(row?.optedOut),
@@ -99,6 +130,7 @@ export async function getSegmentCounts() {
   const counts: Record<SegmentFilter, number> = {
     todos: 0,
     comunidade: 0,
+    fila_espera: 0,
     pre_venda: 0,
     comprou: 0,
     descadastrados: 0,

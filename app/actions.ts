@@ -1,7 +1,10 @@
 "use server";
 
-import { joinPresale, subscribe } from "@/lib/community";
+import { redirect } from "next/navigation";
+import { joinPresale, joinWaitlist, subscribe } from "@/lib/community";
+import { createCheckoutLink, infinitepayConfigured } from "@/lib/infinitepay";
 import { normalizePhone } from "@/lib/phone";
+import { getStockLive } from "@/lib/stock";
 
 export type FormState = { ok: boolean; message: string } | null;
 
@@ -27,6 +30,32 @@ export async function presaleAction(_: FormState, form: FormData): Promise<FormS
   const paymentPreference = form.get("payment") === "parcelado" ? "parcelado" : "a_vista";
   if (!name) return { ok: false, message: "Como podemos te chamar?" };
   if (!phone) return { ok: false, message: "Confira o número: DDD + celular, ex. (11) 98765-4321." };
-  await joinPresale({ name, phone, paymentPreference });
+  // a página pode estar em cache: confere o estoque real antes de abrir o pagamento
+  if ((await getStockLive()).soldOut) {
+    await joinWaitlist({ name, phone });
+    return { ok: false, message: "Esgotou agora há pouco. Você entrou na fila de espera e avisamos no WhatsApp quando o próximo lote chegar." };
+  }
+  const personId = await joinPresale({ name, phone, paymentPreference });
+
+  // com a InfinitePay configurada, vai direto para o checkout; sem ela, segue a reserva pelo WhatsApp
+  if (infinitepayConfigured()) {
+    let url: string;
+    try {
+      url = await createCheckoutLink({ personId, name, phone, paymentPreference });
+    } catch (e) {
+      console.error(e);
+      return { ok: true, message: "Seu Oráculo está reservado. O pagamento não abriu agora, então vamos te chamar no WhatsApp para finalizar." };
+    }
+    redirect(url);
+  }
   return { ok: true, message: "Seu Oráculo está reservado. Vamos te chamar no WhatsApp para finalizar o pagamento." };
+}
+
+export async function waitlistAction(_: FormState, form: FormData): Promise<FormState> {
+  const name = String(form.get("name") ?? "").trim();
+  const phone = normalizePhone(String(form.get("phone") ?? ""));
+  if (!name) return { ok: false, message: "Como podemos te chamar?" };
+  if (!phone) return { ok: false, message: "Confira o número: DDD + celular, ex. (11) 98765-4321." };
+  await joinWaitlist({ name, phone });
+  return { ok: true, message: "Você está na fila. Avisamos no WhatsApp assim que o próximo lote estiver disponível." };
 }

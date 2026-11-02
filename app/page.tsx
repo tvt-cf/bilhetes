@@ -1,10 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Eyebrow, Footer, MobileBuyBar, Nav } from "@/components/site/chrome";
-import { PresaleForm, SubscribeForm } from "@/components/site/forms";
-import { Logo } from "@/components/site/logo";
+import { PresaleForm, SubscribeForm, WaitlistForm } from "@/components/site/forms";
 import { manifesto } from "@/lib/manifesto";
-import { lancamento, produto } from "@/lib/site";
+import { produto } from "@/lib/site";
+import { getStock } from "@/lib/stock";
 
 const cores = [
   ["Verdade", "#5B1F2E", "text-leveza"],
@@ -25,17 +25,17 @@ const faixa = [
   ["/images/oraculo-186.jpg", "Pausa em meditação"],
 ] as const;
 
-export default function Home() {
+export default async function Home() {
+  const { soldOut } = await getStock();
   return (
     <>
       <Nav />
       <main>
-        <Hero />
+        <Hero soldOut={soldOut} />
         <ManifestoSection />
         <Oraculo />
         <Ritual />
-        <Reserva />
-        <Lancamento />
+        <Comprar soldOut={soldOut} />
         <Movimento />
       </main>
       <Footer />
@@ -44,14 +44,20 @@ export default function Home() {
   );
 }
 
-function Hero() {
+function Hero({ soldOut }: { soldOut: boolean }) {
   return (
     <section className="flex flex-col items-center px-5 pt-16 text-center md:px-16 md:pt-24">
-      <span className="flex items-center gap-2.5 rounded-full border border-verdade/25 px-3.5 py-1.5 font-mono text-[11px] tracking-[0.12em] text-verdade md:text-xs">
-        <span className="size-1.5 rounded-full bg-coragem" />
-        {produto.edicao.toUpperCase()} · {produto.tiragem} CAIXAS
-        <span className="hidden sm:inline"> NUMERADAS À MÃO</span>
-      </span>
+      {soldOut ? (
+        <span className="flex items-center gap-2.5 rounded-full bg-coragem px-3.5 py-1.5 font-mono text-[11px] font-bold tracking-[0.12em] text-white md:text-xs">
+          ESGOTADO · {produto.edicao.toUpperCase()}
+        </span>
+      ) : (
+        <span className="flex items-center gap-2.5 rounded-full border border-verdade/25 px-3.5 py-1.5 font-mono text-[11px] tracking-[0.12em] text-verdade md:text-xs">
+          <span className="size-1.5 rounded-full bg-coragem" />
+          {produto.edicao.toUpperCase()} · {produto.tiragem} CAIXAS
+          <span className="hidden sm:inline"> NUMERADAS À MÃO</span>
+        </span>
+      )}
       <h1 className="mt-8 font-serif text-[92px] leading-none tracking-[-0.03em] text-tinta md:mt-9 md:text-[168px]">
         {produto.nome}.
       </h1>
@@ -60,17 +66,26 @@ function Hero() {
         Uma caixa viva em madeira natural e {produto.bilhetes} bilhetes que encontram você na hora exata. Feita à mão,
         em tiragem limitada.
       </p>
-      <div className="mt-9 flex w-full flex-col items-center gap-5 sm:mt-10 sm:w-auto sm:flex-row sm:gap-7">
-        <Link
-          href="#reserva"
-          className="flex h-14 w-full items-center justify-center rounded-full bg-verdade px-8 font-medium text-leveza transition active:scale-[0.98] hover:bg-verdade/90 sm:w-auto"
-        >
-          Reservar o meu · {produto.preco}
-        </Link>
-        <Link href="/manifesto" className="flex items-center gap-1.5 font-medium text-verdade">
-          Ler o manifesto <span aria-hidden>→</span>
-        </Link>
-      </div>
+      <Link
+        href="#comprar"
+        className="mt-9 flex h-15 w-full items-center justify-center gap-2.5 rounded-full bg-verdade px-12 text-[17px] font-semibold text-leveza transition active:scale-[0.98] hover:bg-verdade/90 sm:mt-10 sm:w-auto"
+      >
+        {soldOut ? "Entrar na fila de espera" : "Eu quero"} <span aria-hidden>→</span>
+      </Link>
+      {soldOut ? (
+        <p className="mt-5 text-sm text-tinta-suave">
+          Avisamos pelo WhatsApp quando o próximo lote estiver disponível.
+        </p>
+      ) : (
+        <div className="mt-5 flex flex-col items-center gap-0.5">
+          <span className="text-[15px] font-semibold text-tinta">{produto.precoAVista}</span>
+          <span className="text-sm text-tinta-suave">ou {produto.parcelas}</span>
+          <span className="mt-1 text-xs text-tinta-suave">{produto.frete}</span>
+        </div>
+      )}
+      <Link href="/manifesto" className="mt-7 flex items-center gap-1.5 text-[15px] font-medium text-verdade">
+        Ler o manifesto <span aria-hidden>→</span>
+      </Link>
       <div className="relative -mx-5 mt-14 flex h-[480px] w-[calc(100%+2.5rem)] max-w-[1312px] justify-center overflow-hidden rounded-t-[28px] md:mx-0 md:mt-18 md:w-full bg-[radial-gradient(ellipse_at_50%_45%,#E6DFD5_0%,#D3C9BC_100%)] md:h-[760px]">
         <div className="absolute bottom-[40px] left-1/2 h-[70px] w-[440px] -translate-x-1/2 rounded-full bg-[#5A4A3A]/20 blur-[40px]" />
         <Image
@@ -253,7 +268,7 @@ function Ritual() {
   );
 }
 
-function Reserva() {
+function Comprar({ soldOut }: { soldOut: boolean }) {
   const itens = [
     ["Madeira natural", "Feita à mão, peça a peça"],
     [`${produto.bilhetes} bilhetes`, "Sete cores, frases gravadas"],
@@ -261,11 +276,13 @@ function Reserva() {
     ["Livreto do ritual", "Para começar sem pressa"],
   ];
   return (
-    <section id="reserva" className="scroll-mt-20 px-5 py-24 text-center md:px-24 md:py-30">
+    <section id="comprar" className="scroll-mt-20 px-5 py-24 text-center md:px-24 md:py-30">
       <div className="mx-auto flex max-w-[1248px] flex-col items-center">
-        <Eyebrow className="text-coragem">{produto.edicao.toUpperCase()} · PRÉ-VENDA</Eyebrow>
+        <Eyebrow className="text-coragem">
+          {produto.edicao.toUpperCase()} · {soldOut ? "ESGOTADA" : "COMPRA ONLINE"}
+        </Eyebrow>
         <h2 className="mt-6 font-serif text-[44px] leading-[1.05] tracking-[-0.02em] md:text-[72px]">
-          Apenas {produto.tiragem} Oráculos. Um deles é seu.
+          {soldOut ? "Esgotou. O próximo lote já está a caminho." : `Apenas ${produto.tiragem} Oráculos. Um deles é seu.`}
         </h2>
         <ul className="mt-14 grid w-full grid-cols-2 gap-y-8 border-y border-verdade/15 py-8 md:grid-cols-4">
           {itens.map(([titulo, desc]) => (
@@ -275,103 +292,28 @@ function Reserva() {
             </li>
           ))}
         </ul>
-        <div className="mt-14 flex flex-col items-center gap-1">
-          <span className="font-serif text-[44px] leading-none">{produto.preco}</span>
-          <span className="text-sm text-tinta-suave">{produto.parcelamento}</span>
-          <span className="text-[15px] font-semibold text-coragem">ou {produto.precoAVista}</span>
-          <span className="mt-1.5 text-[13px] text-tinta-suave">{produto.frete}</span>
-        </div>
-        <div className="mt-10 w-full">
-          <PresaleForm />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Lancamento() {
-  const fatos = [
-    ["QUANDO", lancamento.data, lancamento.horario],
-    ["ONDE", lancamento.local, lancamento.endereco],
-    ["QUEM", `${lancamento.vagas} mulheres`, `Convidadas por ${lancamento.anfitrias}`],
-  ];
-  return (
-    <section id="lancamento" className="scroll-mt-20 bg-recomeco px-5 py-24 md:px-24 md:py-36">
-      <div className="mx-auto flex max-w-[1248px] flex-col gap-16">
-        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-          <div className="flex flex-col gap-5">
-            <Eyebrow className="text-luz">LANÇAMENTO · RSVP</Eyebrow>
-            <h2 className="font-serif text-5xl leading-none tracking-[-0.02em] text-leveza md:text-[80px]">
-              Seu bilhete para
-              <br />o primeiro encontro.
-            </h2>
-          </div>
-          <p className="max-w-[420px] text-lg leading-relaxed text-leveza/75">
-            {lancamento.anfitrias} convidam para uma manhã de café, yoga e o ritual de lançamento dos Bilhetes. Apenas{" "}
-            {lancamento.vagas} lugares — a confirmação acontece pelo lu.ma.
-          </p>
-        </div>
-
-        <div className="flex flex-col overflow-hidden rounded-[28px] bg-leveza lg:flex-row">
-          <div className="relative h-80 lg:h-auto lg:w-[280px] lg:shrink-0">
-            <Image
-              src="/images/oraculo-184.jpg"
-              alt="Gabriela e Julia abraçadas, sorrindo"
-              fill
-              sizes="(min-width: 1024px) 280px, 100vw"
-              className="object-cover"
-            />
-          </div>
-          <div className="flex flex-1 flex-col gap-8 p-8 md:p-11">
-            <div className="flex items-start justify-between gap-4">
-              <Logo className="text-xl text-verdade" />
-              <span className="font-mono text-[13px] tracking-[0.12em] text-tinta-suave">ADMITE 1</span>
+        {soldOut ? (
+          <>
+            <p className="mt-14 max-w-md text-lg leading-relaxed text-tinta-suave">
+              Cada caixa é feita à mão, então os lotes são pequenos. Deixe seu nome e WhatsApp: você fica na fila e
+              recebe o aviso antes de todo mundo.
+            </p>
+            <div className="mt-10 w-full">
+              <WaitlistForm />
             </div>
-            <dl className="grid gap-6 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-verdade/15">
-              {fatos.map(([k, a, b]) => (
-                <div key={k} className="flex flex-col gap-2 sm:px-6 sm:first:pl-0 sm:last:pr-0">
-                  <dt className="font-mono text-xs tracking-[0.17em] text-coragem">{k}</dt>
-                  <dd className="font-serif text-[28px] leading-tight">{a}</dd>
-                  <dd className="text-sm leading-snug text-tinta-suave">{b}</dd>
-                </div>
-              ))}
-            </dl>
-            <div className="border-t border-verdade/15 pt-6">
-              <p className="font-mono text-xs tracking-[0.17em] text-coragem">PROGRAMAÇÃO</p>
-              <ul className="mt-3">
-                {lancamento.programacao.map(([hora, o_que], i) => (
-                  <li key={hora} className={`flex items-center gap-6 py-3 ${i ? "border-t border-verdade/8" : ""}`}>
-                    <span className="w-14 shrink-0 font-serif text-[26px] text-verdade">{hora}</span>
-                    <span className="font-mono text-[15px] sm:text-[17px]">{o_que}</span>
-                  </li>
-                ))}
-              </ul>
+          </>
+        ) : (
+          <>
+            <div className="mt-14 flex flex-col items-center gap-1">
+              <span className="font-serif text-[44px] leading-none">{produto.precoAVista}</span>
+              <span className="text-[15px] text-tinta-suave">ou {produto.parcelas}</span>
+              <span className="mt-1.5 text-[13px] text-tinta-suave">{produto.frete}</span>
             </div>
-          </div>
-          <div
-            aria-hidden
-            className="hidden w-0.5 bg-[repeating-linear-gradient(to_bottom,rgba(91,31,46,0.25)_0_8px,transparent_8px_18px)] lg:block"
-          />
-          <div className="flex flex-col justify-between gap-10 bg-verdade p-9 lg:w-80 lg:shrink-0">
-            <div className="flex flex-col gap-2.5">
-              <span className="font-serif text-[42px] text-leveza">{lancamento.vagas} lugares</span>
-              <p className="leading-normal text-leveza/75">
-                Uma manhã para abrir o Oráculo juntas, com quem também quer viver maior.
-              </p>
+            <div className="mt-10 w-full">
+              <PresaleForm />
             </div>
-            <div className="flex flex-col gap-3.5">
-              <a
-                href={lancamento.lumaUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center justify-center gap-2.5 rounded-full bg-leveza px-6 py-4.5 font-semibold text-verdade transition hover:bg-white"
-              >
-                Confirmar presença <span aria-hidden>↗</span>
-              </a>
-              <span className="text-center font-mono text-xs text-leveza/60">RSVP via lu.ma</span>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </section>
   );
@@ -426,7 +368,7 @@ function ChatPreview() {
       </Bubble>
       <div className="flex w-[340px] max-w-full items-center gap-3 rounded-[4px_18px_18px_18px] bg-recomeco px-4 py-3.5 text-sm text-leveza">
         <span className="text-luz">✦</span>
-        Lançamento: {lancamento.dataCurta}, {lancamento.horario}. Garanta seu bilhete.
+        Novo encontro da comunidade em breve. Você recebe o convite aqui.
       </div>
     </div>
   );

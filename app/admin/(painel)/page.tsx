@@ -3,12 +3,14 @@ import { Suspense } from "react";
 import { requireAdmin } from "@/lib/auth";
 import { getSegmentCounts, getStats, listPeople, type SegmentFilter } from "@/lib/community";
 import { formatPhone } from "@/lib/phone";
-import { markPurchasedAction } from "../actions";
+import { getStockLive } from "@/lib/stock";
+import { markPurchasedAction, setSoldOutAction } from "../actions";
 import { Card, DeliveryText, PageHeader, StatusBadge, td, th } from "./ui";
 
 const tabs: [SegmentFilter, string][] = [
   ["todos", "Todos"],
   ["comunidade", "Só comunidade"],
+  ["fila_espera", "Fila de espera"],
   ["pre_venda", "Pré-venda"],
   ["comprou", "Compraram"],
   ["descadastrados", "Descadastrados"],
@@ -49,11 +51,46 @@ async function Comunidade({ searchParams }: { searchParams: PageProps<"/admin">[
   const params = await searchParams;
   const segment = (tabs.find(([k]) => k === params.segmento)?.[0] ?? "todos") as SegmentFilter;
   const q = typeof params.q === "string" ? params.q.trim() : "";
-  const [stats, counts, rows] = await Promise.all([getStats(), getSegmentCounts(), listPeople({ segment, q })]);
+  const [stats, counts, rows, stock] = await Promise.all([
+    getStats(),
+    getSegmentCounts(),
+    listPeople({ segment, q }),
+    getStockLive(),
+  ]);
   const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : 0);
 
   return (
     <>
+      <Card className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
+        <div className="flex items-center gap-3">
+          <span className={`size-2.5 rounded-full ${stock.soldOut ? "bg-coragem" : "bg-[#6FCF8A]"}`} />
+          <div>
+            <p className="text-sm font-semibold">
+              {stock.soldOut ? "Esgotado: o site mostra a fila de espera" : "À venda: o site mostra “Eu quero”"}
+            </p>
+            <p className="text-xs text-tinta-suave">
+              {stock.buyers >= stats.edition
+                ? `As ${stats.edition} caixas foram vendidas.`
+                : `${fmt.format(stats.edition - stock.buyers)} caixas disponíveis · ${fmt.format(stats.waitlist)} pessoas na fila de espera`}
+            </p>
+          </div>
+        </div>
+        {stock.buyers < stats.edition && (
+          <form action={setSoldOutAction}>
+            <input type="hidden" name="soldOut" value={stock.manual ? "0" : "1"} />
+            <button
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                stock.manual
+                  ? "bg-presenca text-white hover:bg-presenca/90"
+                  : "border border-coragem/40 text-coragem hover:bg-coragem/5"
+              }`}
+            >
+              {stock.manual ? "Reabrir vendas" : "Marcar como esgotado"}
+            </button>
+          </form>
+        )}
+      </Card>
+
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <Kpi label="Cadastrados no WhatsApp" value={stats.total} sub={`+${fmt.format(stats.lastWeek)} nos últimos 7 dias`} />
         <Kpi label="Pré-venda do Oráculo" value={stats.presale} sub={`${pct(stats.presale, stats.total)}% dos cadastrados`} />

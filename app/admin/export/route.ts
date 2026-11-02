@@ -1,7 +1,7 @@
 import { isAdmin } from "@/lib/auth";
 import { listPeople } from "@/lib/community";
 
-const statusLabel = { comunidade: "Comunidade", pre_venda: "Pré-venda", comprou: "Comprou" } as const;
+const statusLabel = { comunidade: "Comunidade", fila_espera: "Fila de espera", pre_venda: "Pré-venda", comprou: "Comprou" } as const;
 
 function cell(v: unknown) {
   const s = v == null ? "" : String(v);

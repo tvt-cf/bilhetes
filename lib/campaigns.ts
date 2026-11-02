@@ -16,6 +16,7 @@ function audienceWhere(kind: CampaignKind, segments: Segment[]) {
   const filters = [isNull(people.optedOutAt), inArray(people.status, segments)];
   if (kind === "sabedoria") filters.push(eq(people.wantsWisdom, true));
   if (kind === "evento") filters.push(eq(people.wantsEvents, true));
+  // "lote" vai para quem pediu o aviso na fila de espera, então não depende das outras preferências
   return and(...filters);
 }
 

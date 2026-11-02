@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { presaleAction, subscribeAction, type FormState } from "@/app/actions";
+import { presaleAction, subscribeAction, waitlistAction, type FormState } from "@/app/actions";
 import { produto } from "@/lib/site";
 
 function Feedback({ state }: { state: FormState }) {
@@ -75,29 +75,12 @@ export function PresaleForm() {
   }
   return (
     <form action={action} className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <input
-          name="name"
-          required
-          autoComplete="name"
-          placeholder="Seu nome"
-          className="rounded-full border border-verdade/15 bg-white px-6 py-4 outline-none focus:border-verdade/50"
-        />
-        <input
-          name="phone"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          required
-          placeholder="WhatsApp com DDD"
-          className="rounded-full border border-verdade/15 bg-white px-6 py-4 outline-none focus:border-verdade/50"
-        />
-      </div>
+      <ContactFields />
       <fieldset className="flex flex-wrap justify-center gap-3">
         <legend className="sr-only">Forma de pagamento</legend>
         {[
           ["a_vista", produto.precoAVista],
-          ["parcelado", `${produto.preco} ${produto.parcelamento}`],
+          ["parcelado", produto.parcelas],
         ].map(([value, label], i) => (
           <label
             key={value}
@@ -112,10 +95,55 @@ export function PresaleForm() {
         disabled={pending}
         className="mx-auto flex w-full items-center justify-center gap-2.5 rounded-full bg-verdade px-10 py-5 text-[17px] font-medium text-leveza transition active:scale-[0.98] hover:bg-verdade/90 disabled:opacity-60 sm:w-auto"
       >
-        {pending ? "Reservando…" : "Reservar o meu Oráculo"} <span aria-hidden>→</span>
+        {pending ? "Abrindo pagamento…" : "Eu quero"} <span aria-hidden>→</span>
       </button>
       <Feedback state={state} />
     </form>
+  );
+}
+
+// Edição esgotada: guarda o contato para avisar quando o próximo lote chegar.
+export function WaitlistForm() {
+  const [state, action, pending] = useActionState(waitlistAction, null);
+  if (state?.ok) {
+    return (
+      <div className="mx-auto flex max-w-md flex-col items-center gap-3 text-center">
+        <p className="font-serif text-3xl text-verdade">Você está na fila.</p>
+        <Feedback state={state} />
+      </div>
+    );
+  }
+  return (
+    <form action={action} className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+      <ContactFields />
+      <button
+        disabled={pending}
+        className="mx-auto flex w-full items-center justify-center gap-2.5 rounded-full bg-verdade px-10 py-5 text-[17px] font-medium text-leveza transition active:scale-[0.98] hover:bg-verdade/90 disabled:opacity-60 sm:w-auto"
+      >
+        {pending ? "Entrando…" : "Entrar na fila de espera"}
+      </button>
+      <Feedback state={state} />
+    </form>
+  );
+}
+
+function ContactFields() {
+  const field =
+    "rounded-full border border-verdade/15 bg-white px-6 py-4 text-base outline-none focus:border-verdade/50";
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <input name="name" required autoComplete="name" placeholder="Seu nome" aria-label="Seu nome" className={field} />
+      <input
+        name="phone"
+        type="tel"
+        inputMode="tel"
+        autoComplete="tel"
+        required
+        placeholder="WhatsApp com DDD"
+        aria-label="WhatsApp com DDD"
+        className={field}
+      />
+    </div>
   );
 }
 

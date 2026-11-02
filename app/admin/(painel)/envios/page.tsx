@@ -6,10 +6,15 @@ import { cancelCampaignAction } from "../../actions";
 import { Card, PageHeader, td, th } from "../ui";
 import { Composer } from "./composer";
 
-const KINDS: CampaignKind[] = ["sabedoria", "evento", "pedido"];
-const SEGMENTS: Segment[] = ["comunidade", "pre_venda", "comprou"];
+const KINDS: CampaignKind[] = ["sabedoria", "evento", "pedido", "lote"];
+const SEGMENTS: Segment[] = ["comunidade", "fila_espera", "pre_venda", "comprou"];
 
-const segmentLabel: Record<Segment, string> = { comunidade: "Comunidade", pre_venda: "Pré-venda", comprou: "Compraram" };
+const segmentLabel: Record<Segment, string> = {
+  comunidade: "Comunidade",
+  fila_espera: "Fila de espera",
+  pre_venda: "Pré-venda",
+  comprou: "Compraram",
+};
 const statusStyle: Record<CampaignStatus, [string, string]> = {
   agendado: ["Agendado", "bg-luz/20 text-[#7A5A1E]"],
   enviando: ["Enviando", "bg-recomeco/12 text-recomeco"],

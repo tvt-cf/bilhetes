@@ -27,6 +27,7 @@ export function Card({ children, className = "" }: { children?: React.ReactNode;
 const statusStyle: Record<PersonStatus, [string, string]> = {
   comprou: ["Comprou", "bg-presenca/15 text-[#4F5636]"],
   pre_venda: ["Pré-venda", "bg-luz/20 text-[#7A5A1E]"],
+  fila_espera: ["Fila de espera", "bg-intuicao/35 text-verdade"],
   comunidade: ["Comunidade", "bg-recomeco/12 text-recomeco"],
 };
 

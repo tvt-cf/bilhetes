@@ -8,9 +8,11 @@ const kinds: [CampaignKind, string, string][] = [
   ["sabedoria", "Bilhete de sabedoria", "Vai só para quem aceitou mensagens de sabedoria."],
   ["evento", "Convite de evento", "Vai só para quem aceitou receber eventos."],
   ["pedido", "Aviso de pedido", "Para avisos sobre a compra, como envio e entrega."],
+  ["lote", "Aviso de novo lote", "Para avisar a fila de espera que o Oráculo voltou."],
 ];
 const segments: [Segment, string][] = [
   ["comunidade", "Só comunidade"],
+  ["fila_espera", "Fila de espera"],
   ["pre_venda", "Pré-venda"],
   ["comprou", "Compraram"],
 ];
@@ -19,7 +21,7 @@ const fmt = new Intl.NumberFormat("pt-BR");
 
 export function Composer({ audience }: { audience: Record<CampaignKind, Record<Segment, number>> }) {
   const [kind, setKind] = useState<CampaignKind>("sabedoria");
-  const [selected, setSelected] = useState<Segment[]>(["comunidade", "pre_venda", "comprou"]);
+  const [selected, setSelected] = useState<Segment[]>(["comunidade", "fila_espera", "pre_venda", "comprou"]);
   const [body, setBody] = useState("Bom dia, {{nome}}. O silêncio também é resposta.");
   const [when, setWhen] = useState<"agora" | "agendar">("agendar");
   const [localDate, setLocalDate] = useState("");
@@ -64,7 +66,14 @@ export function Composer({ audience }: { audience: Record<CampaignKind, Record<S
         <Step title="2. Tipo de mensagem">
           <div className="flex flex-wrap gap-2">
             {kinds.map(([k, label]) => (
-              <Option key={k} on={kind === k} onClick={() => setKind(k)}>
+              <Option
+                key={k}
+                on={kind === k}
+                onClick={() => {
+                  setKind(k);
+                  if (k === "lote") setSelected(["fila_espera"]);
+                }}
+              >
                 {label}
               </Option>
             ))}

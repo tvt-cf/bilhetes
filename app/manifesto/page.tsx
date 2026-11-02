@@ -57,7 +57,7 @@ export default function ManifestoPage() {
               <p className="mt-1">{manifesto.convite}</p>
             </div>
             <Link
-              href="/#reserva"
+              href="/#comprar"
               className="mt-12 self-start rounded-full bg-leveza px-8 py-4 font-medium text-verdade transition hover:bg-white"
             >
               Conhecer o Oráculo →

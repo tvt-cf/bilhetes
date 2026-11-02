@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { checkPassword, endSession, requireAdmin, startSession } from "@/lib/auth";
@@ -8,6 +8,7 @@ import { cancelCampaign, createCampaign, dispatchCampaign, personalize } from "@
 import { markPurchased } from "@/lib/community";
 import type { CampaignKind, Segment } from "@/lib/db/schema";
 import { normalizePhone } from "@/lib/phone";
+import { STOCK_TAG, setManualSoldOut } from "@/lib/stock";
 import { sendTemplate } from "@/lib/whatsapp";
 
 export type ActionState = { ok: boolean; message: string } | null;
@@ -29,11 +30,19 @@ export async function markPurchasedAction(form: FormData) {
   const order = String(form.get("orderNumber") ?? "").trim();
   if (!id || !order) return;
   await markPurchased(id, order.startsWith("Nº") ? order : `Nº ${order.padStart(4, "0")}`);
+  updateTag(STOCK_TAG);
   revalidatePath("/admin");
 }
 
-const KINDS: CampaignKind[] = ["sabedoria", "evento", "pedido"];
-const SEGMENTS: Segment[] = ["comunidade", "pre_venda", "comprou"];
+export async function setSoldOutAction(form: FormData) {
+  await requireAdmin();
+  await setManualSoldOut(form.get("soldOut") === "1");
+  updateTag(STOCK_TAG); // o site público passa a mostrar a fila de espera (ou volta a vender)
+  revalidatePath("/admin");
+}
+
+const KINDS: CampaignKind[] = ["sabedoria", "evento", "pedido", "lote"];
+const SEGMENTS: Segment[] = ["comunidade", "fila_espera", "pre_venda", "comprou"];
 
 export async function createCampaignAction(_: ActionState, form: FormData): Promise<ActionState> {
   await requireAdmin();
