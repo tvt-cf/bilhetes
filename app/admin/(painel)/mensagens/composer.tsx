@@ -158,7 +158,7 @@ export function Composer({ audience }: { audience: Record<CampaignKind, Record<S
       <div className="flex w-full flex-col gap-3.5 xl:w-[340px]">
         <span className="text-[11px] font-semibold tracking-wider text-[#9a938c]">PRÉ-VISUALIZAÇÃO</span>
         <div className="overflow-hidden rounded-3xl border border-tinta/12 bg-[#E9E1D6]">
-          <div className="flex items-center gap-2.5 bg-verdade px-4 py-3.5">
+          <div className="flex items-center gap-2.5 bg-vinho px-4 py-3.5">
             <span className="flex size-[34px] items-center justify-center rounded-full bg-leveza/12 font-script text-2xl text-luz">
               b
             </span>

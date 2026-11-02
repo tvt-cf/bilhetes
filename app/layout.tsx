@@ -1,37 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Caveat,
-  Courier_Prime,
-  Instrument_Sans,
-  Instrument_Serif,
-  Mrs_Saint_Delafield,
-} from "next/font/google";
+import { Cutive_Mono, Instrument_Sans, Montserrat, Playwrite_BR } from "next/font/google";
 import "./globals.css";
 
-const sans = Instrument_Sans({ variable: "--font-instrument-sans", subsets: ["latin"] });
-const serif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-});
-// fontes de detalhe não entram no preload, para o primeiro carregamento ficar leve
-const mono = Courier_Prime({
-  variable: "--font-courier-prime",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  preload: false,
-});
-const hand = Caveat({ variable: "--font-caveat", subsets: ["latin"], preload: false });
-const script = Mrs_Saint_Delafield({ variable: "--font-mrs-saint-delafield", subsets: ["latin"], weight: "400" });
+// fontes da marca: Montserrat nos títulos e no texto corrido, Cutive Mono nos detalhes datilografados
+const sans = Montserrat({ variable: "--font-montserrat", subsets: ["latin"], style: ["normal", "italic"] });
+const mono = Cutive_Mono({ variable: "--font-cutive-mono", subsets: ["latin"], weight: "400" });
+// só o "Bilhetes." do hero usa a Instrument Sans
+const display = Instrument_Sans({ variable: "--font-instrument-sans", subsets: ["latin"], weight: "600" });
+// cursiva só nos nomes das cores (essa família não tem subsets, então não entra no preload)
+const script = Playwrite_BR({ variable: "--font-playwrite", weight: ["300"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: "Oráculo · bilhetes — Um ritual para viver maior",
-  description:
-    "Uma caixa viva em madeira natural e 22 bilhetes que encontram você na hora exata. Feita à mão, em tiragem limitada.",
+  title: "Bilhetes — Um ritual para viver maior",
+  description: "Uma caixa viva com 22 bilhetes que encontram você na hora exata. Feita à mão, em tiragem limitada.",
   openGraph: {
-    title: "Oráculo · bilhetes",
+    title: "Bilhetes",
     description: "Um ritual para viver maior.",
     images: ["/images/oraculo-6.jpg"],
     locale: "pt_BR",
@@ -47,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${sans.variable} ${serif.variable} ${mono.variable} ${hand.variable} ${script.variable} antialiased`}
+      className={`${sans.variable} ${mono.variable} ${display.variable} ${script.variable} antialiased`}
     >
       <body className="min-h-full font-sans">{children}</body>
     </html>

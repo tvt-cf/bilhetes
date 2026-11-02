@@ -1,8 +1,14 @@
+// Logo oficial (vetor do BILHETES.ai) como máscara, para herdar a cor do texto via currentColor.
+// O tamanho vem da largura passada em className; a altura segue a proporção do desenho.
 export function Logo({ className = "", tagline = true }: { className?: string; tagline?: boolean }) {
+  const src = tagline ? "/brand/bilhetes-logo.svg" : "/brand/bilhetes-wordmark.svg";
+  const mask = `url(${src}) center / contain no-repeat`;
   return (
-    <span className={`inline-flex flex-col items-center leading-none ${className}`}>
-      <span className="font-script text-[2.75em] leading-[0.9]">bilhetes</span>
-      {tagline && <span className="mt-0.5 text-[0.5em] tracking-[0.35em]">PARA VIVER MAIOR</span>}
-    </span>
+    <span
+      role="img"
+      aria-label={tagline ? "bilhetes, para viver maior" : "bilhetes"}
+      className={`inline-block bg-current ${className}`}
+      style={{ aspectRatio: tagline ? "1015 / 320" : "1015 / 232", mask, WebkitMask: mask }}
+    />
   );
 }

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { getAdmin } from "@/lib/auth";
 import { whatsappConfigured } from "@/lib/whatsapp";
 import { logoutAction } from "../actions";
+import { Logo } from "@/components/site/logo";
 import { SideNav } from "./side-nav";
 
 export const metadata: Metadata = { title: "Admin · bilhetes", robots: { index: false } };
@@ -12,9 +13,9 @@ export default function PainelLayout({ children }: LayoutProps<"/admin">) {
   const connected = whatsappConfigured();
   return (
     <div className="flex min-h-screen bg-leveza">
-      <aside className="sticky top-0 flex h-screen w-62 shrink-0 flex-col gap-7 self-start bg-verdade px-4 py-7">
+      <aside className="sticky top-0 flex h-screen w-62 shrink-0 flex-col gap-7 self-start bg-vinho px-4 py-7">
         <div className="flex items-center gap-2.5 px-2.5">
-          <span className="font-script text-[38px] leading-none text-luz">bilhetes</span>
+          <Logo tagline={false} className="w-[104px] text-luz" />
           <span className="rounded-md bg-leveza/12 px-2 py-0.5 text-[11px] font-semibold tracking-wider text-leveza/80">
             admin
           </span>

@@ -32,7 +32,7 @@ export default function ManifestoPage() {
               <span className="h-px w-10 bg-luz" />
               <Eyebrow className="text-luz">MANIFESTO</Eyebrow>
             </div>
-            <h1 className="mt-9 font-serif text-6xl leading-[1.02] tracking-[-0.02em] md:text-[96px]">
+            <h1 className="mt-9 text-[44px] leading-[1.05] tracking-[-0.02em] md:text-[68px]">
               {manifesto.abertura}
             </h1>
             <div className="mt-14 flex flex-col gap-9">
@@ -41,7 +41,7 @@ export default function ManifestoPage() {
                   key={i}
                   className={`whitespace-pre-line ${
                     i === 0
-                      ? "font-serif text-3xl italic leading-snug text-intuicao"
+                      ? "text-[22px] italic leading-snug text-intuicao md:text-[26px]"
                       : "max-w-[620px] text-lg leading-[1.7] text-leveza/80"
                   }`}
                 >
@@ -49,7 +49,7 @@ export default function ManifestoPage() {
                 </p>
               ))}
             </div>
-            <p className="mt-14 whitespace-pre-line font-serif text-4xl leading-tight text-luz md:text-5xl">
+            <p className="mt-14 whitespace-pre-line text-[28px] leading-tight text-luz md:text-[34px]">
               {manifesto.fecho}
             </p>
             <div className="mt-14 border-t border-leveza/15 pt-10 font-mono text-leveza/70">
@@ -60,7 +60,7 @@ export default function ManifestoPage() {
               href="/#comprar"
               className="mt-12 self-start rounded-full bg-leveza px-8 py-4 font-medium text-verdade transition hover:bg-white"
             >
-              Conhecer o Oráculo →
+              Conhecer os Bilhetes →
             </Link>
           </article>
         </section>

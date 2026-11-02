@@ -4,10 +4,13 @@ import { useActionState, useState, type ComponentProps } from "react";
 import { presaleAction, subscribeAction, waitlistAction, type FormState } from "@/app/actions";
 import { produto } from "@/lib/site";
 
-function Feedback({ state }: { state: FormState }) {
+type Tone = "light" | "dark";
+
+function Feedback({ state, tone = "light" }: { state: FormState; tone?: Tone }) {
   if (!state) return null;
+  const color = tone === "dark" ? (state.ok ? "text-luz" : "text-intuicao") : state.ok ? "text-presenca" : "text-coragem";
   return (
-    <p role="status" className={`text-sm ${state.ok ? "text-presenca" : "text-coragem"}`}>
+    <p role="status" className={`text-sm ${color}`}>
       {state.message}
     </p>
   );
@@ -54,24 +57,40 @@ export function SubscribeForm() {
         ))}
       </fieldset>
       <Feedback state={state} />
-      <p className="font-mono text-xs text-tinta-suave">Sem spam. Só o que importa. Para sair, responda “sair”.</p>
+      <p className="text-[13px] text-tinta-suave">Sem spam, prometemos! Para sair, é só responder “sair”.</p>
     </form>
   );
 }
 
-export function PresaleForm() {
+const ui = {
+  light: {
+    done: "text-verdade",
+    chip: "border-verdade/15 has-[:checked]:border-verdade has-[:checked]:bg-verdade/5 has-[:checked]:text-verdade",
+    radio: "accent-verdade",
+    button: "bg-verdade text-leveza hover:bg-verdade/90",
+  },
+  dark: {
+    done: "text-leveza",
+    chip: "border-leveza/20 text-leveza/85 has-[:checked]:border-luz has-[:checked]:bg-leveza/10 has-[:checked]:text-leveza",
+    radio: "accent-luz",
+    button: "bg-leveza text-vinho hover:bg-white",
+  },
+} as const;
+
+export function PresaleForm({ tone = "light" }: { tone?: Tone }) {
   const [state, action, pending] = useActionState(presaleAction, null);
+  const t = ui[tone];
   if (state?.ok) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-3 text-center">
-        <p className="font-serif text-3xl text-verdade">Reservado.</p>
-        <Feedback state={state} />
+        <p className={`text-3xl ${t.done}`}>Reservado.</p>
+        <Feedback state={state} tone={tone} />
       </div>
     );
   }
   return (
     <form action={action} className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-      <ContactFields />
+      <ContactFields tone={tone} />
       <fieldset className="flex flex-wrap justify-center gap-3">
         <legend className="sr-only">Forma de pagamento</legend>
         {[
@@ -80,52 +99,55 @@ export function PresaleForm() {
         ].map(([value, label], i) => (
           <label
             key={value}
-            className="flex cursor-pointer items-center gap-2 rounded-full border border-verdade/15 px-4 py-2 text-sm has-[:checked]:border-verdade has-[:checked]:bg-verdade/5 has-[:checked]:font-semibold has-[:checked]:text-verdade"
+            className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm has-[:checked]:font-semibold ${t.chip}`}
           >
-            <input type="radio" name="payment" value={value} defaultChecked={i === 0} className="accent-verdade" />
+            <input type="radio" name="payment" value={value} defaultChecked={i === 0} className={t.radio} />
             {label}
           </label>
         ))}
       </fieldset>
       <button
         disabled={pending}
-        className="mx-auto flex w-full items-center justify-center gap-2.5 rounded-full bg-verdade px-10 py-5 text-[17px] font-medium text-leveza transition active:scale-[0.98] hover:bg-verdade/90 disabled:opacity-60 sm:w-auto"
+        className={`mx-auto flex w-full items-center justify-center gap-2.5 rounded-full px-10 py-5 text-base font-semibold transition active:scale-[0.98] disabled:opacity-60 sm:w-auto ${t.button}`}
       >
-        {pending ? "Abrindo pagamento…" : "Reservar meu Oráculo"} <span aria-hidden>→</span>
+        {pending ? "Abrindo pagamento…" : "Comprar meus Bilhetes"} <span aria-hidden>→</span>
       </button>
-      <Feedback state={state} />
+      <Feedback state={state} tone={tone} />
     </form>
   );
 }
 
 // Edição esgotada: guarda o contato para avisar quando o próximo lote chegar.
-export function WaitlistForm() {
+export function WaitlistForm({ tone = "light" }: { tone?: Tone }) {
   const [state, action, pending] = useActionState(waitlistAction, null);
+  const t = ui[tone];
   if (state?.ok) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-3 text-center">
-        <p className="font-serif text-3xl text-verdade">Você está na fila.</p>
-        <Feedback state={state} />
+        <p className={`text-3xl ${t.done}`}>Você está na fila.</p>
+        <Feedback state={state} tone={tone} />
       </div>
     );
   }
   return (
     <form action={action} className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-      <ContactFields />
+      <ContactFields tone={tone} />
       <button
         disabled={pending}
-        className="mx-auto flex w-full items-center justify-center gap-2.5 rounded-full bg-verdade px-10 py-5 text-[17px] font-medium text-leveza transition active:scale-[0.98] hover:bg-verdade/90 disabled:opacity-60 sm:w-auto"
+        className={`mx-auto flex w-full items-center justify-center gap-2.5 rounded-full px-10 py-5 text-base font-semibold transition active:scale-[0.98] disabled:opacity-60 sm:w-auto ${t.button}`}
       >
         {pending ? "Entrando…" : "Entrar na fila de espera"}
       </button>
-      <Feedback state={state} />
+      <Feedback state={state} tone={tone} />
     </form>
   );
 }
 
-function ContactFields() {
+function ContactFields({ tone }: { tone: Tone }) {
   const field =
-    "rounded-full border border-verdade/15 bg-white px-6 py-4 text-base outline-none focus:border-verdade/50";
+    tone === "dark"
+      ? "rounded-full border border-leveza/20 bg-leveza/[0.08] px-6 py-4 text-base text-leveza outline-none placeholder:text-leveza/50 focus:border-leveza/50"
+      : "rounded-full border border-verdade/15 bg-white px-6 py-4 text-base outline-none focus:border-verdade/50";
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <input name="name" required autoComplete="name" placeholder="Seu nome" aria-label="Seu nome" className={field} />

@@ -5,7 +5,7 @@ import { Logo } from "./logo";
 
 const links = [
   ["Manifesto", "/manifesto"],
-  ["Oráculo", "/#oraculo"],
+  ["Bilhetes", "/#bilhetes"],
   ["Ritual", "/#ritual"],
   ["Movimento", "/#movimento"],
 ] as const;
@@ -20,7 +20,7 @@ export async function Nav() {
     <header className="sticky top-0 z-30 border-b border-verdade/10 bg-leveza/90 backdrop-blur">
       <nav className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 md:px-16 md:py-5">
         <Link href="/" aria-label="bilhetes, página inicial" className="text-verdade">
-          <Logo className="text-base" />
+          <Logo className="w-[118px] md:w-[150px]" />
         </Link>
         <div className="hidden items-center gap-10 text-sm text-tinta lg:flex">
           {links.map(([label, href]) => (
@@ -67,7 +67,7 @@ function MobileMenu({ soldOut }: { soldOut: boolean }) {
               <li key={href}>
                 <Link
                   href={href}
-                  className="flex items-center justify-between border-b border-verdade/10 py-4 font-serif text-[28px] text-tinta"
+                  className="flex items-center justify-between border-b border-verdade/10 py-4 text-[22px] text-tinta"
                 >
                   {label}
                   <span aria-hidden className="text-base text-verdade">
@@ -95,8 +95,8 @@ export async function MobileBuyBar() {
   return (
     <div className="fixed inset-x-3 bottom-3 z-40 flex items-center justify-between gap-3 rounded-full border border-verdade/10 bg-leveza/85 py-2 pl-5 pr-2 shadow-[0_12px_32px_-8px_rgba(46,36,32,0.35)] backdrop-blur-xl pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden">
       <div className="flex min-w-0 flex-col leading-tight">
-        <span className="font-serif text-lg text-tinta">{produto.nome},</span>
-        <span className="truncate font-serif text-[15px] italic text-verdade">ritual para viver maior.</span>
+        <span className="text-[15px] font-medium text-tinta">{produto.nome},</span>
+        <span className="truncate text-[13px] italic text-verdade">ritual para viver maior.</span>
       </div>
       <Link
         href="/#comprar"
@@ -110,22 +110,22 @@ export async function MobileBuyBar() {
 
 export function Footer() {
   return (
-    <footer className="bg-verdade px-5 pb-28 pt-20 text-leveza md:px-24 md:pt-24 lg:pb-10">
+    <footer className="bg-vinho px-5 pb-28 pt-20 text-leveza md:px-24 md:pt-24 lg:pb-10">
       <div className="mx-auto flex max-w-[1248px] flex-col gap-16">
         <div className="flex flex-col justify-between gap-12 md:flex-row md:items-end">
-          <div className="flex flex-col gap-1">
-            <span className="font-script text-[96px] leading-[0.85] text-luz md:text-[140px]">bilhetes</span>
-            <span className="text-[11px] tracking-[0.3em] text-leveza/70 md:text-[13px] md:tracking-[0.45em]">ORÁCULO · UM RITUAL PARA VIVER MAIOR</span>
+          <div className="flex flex-col gap-4">
+            <Logo className="w-[280px] text-luz md:w-[400px]" />
+            <span className="text-[11px] font-semibold tracking-[0.25em] text-leveza/70 md:text-xs">BILHETES · UM RITUAL PARA VIVER MAIOR</span>
           </div>
           <div className="flex gap-18 text-[15px] text-leveza/85">
             <div className="flex flex-col gap-3.5">
-              <span className="font-mono text-xs tracking-[0.2em] text-luz">EXPLORAR</span>
+              <span className="text-xs font-semibold tracking-[0.2em] text-luz">EXPLORAR</span>
               <Link href="/manifesto">Manifesto</Link>
-              <Link href="/#oraculo">Oráculo</Link>
+              <Link href="/#bilhetes">Bilhetes</Link>
               <Link href="/#ritual">Ritual</Link>
             </div>
             <div className="flex flex-col gap-3.5">
-              <span className="font-mono text-xs tracking-[0.2em] text-luz">CONVERSAR</span>
+              <span className="text-xs font-semibold tracking-[0.2em] text-luz">CONVERSAR</span>
               <a href={instagram} target="_blank" rel="noreferrer">
                 @bilhetes.co
               </a>
@@ -137,7 +137,7 @@ export function Footer() {
           <p className="text-[13px] text-leveza/60">
             © 2026 bilhetes. Feito à mão por Gabriela Lima e Julia Lima Villa.
           </p>
-          <p className="font-hand text-xl text-intuicao">toda grande mudança começa pequena</p>
+          <p className="font-hand text-[17px] text-intuicao">toda grande mudança começa pequena</p>
         </div>
       </div>
     </footer>
@@ -145,5 +145,5 @@ export function Footer() {
 }
 
 export function Eyebrow({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <p className={`font-mono text-[13px] tracking-[0.23em] ${className}`}>{children}</p>;
+  return <p className={`text-xs font-semibold tracking-[0.2em] ${className}`}>{children}</p>;
 }

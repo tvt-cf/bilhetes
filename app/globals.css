@@ -12,12 +12,14 @@
   --color-tinta-suave: #6b6660;
   --color-areia: #eadcd5;
   --color-noite: #2e2420;
+  --color-vinho: #421c28;
 
-  --font-sans: var(--font-instrument-sans);
-  --font-serif: var(--font-instrument-serif);
-  --font-mono: var(--font-courier-prime);
-  --font-hand: var(--font-caveat);
-  --font-script: var(--font-mrs-saint-delafield);
+  --font-sans: var(--font-montserrat);
+  --font-serif: var(--font-montserrat);
+  --font-display: var(--font-instrument-sans);
+  --font-mono: var(--font-cutive-mono);
+  --font-hand: var(--font-cutive-mono);
+  --font-script: var(--font-playwrite);
 }
 
 html {
