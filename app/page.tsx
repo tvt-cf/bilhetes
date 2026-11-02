@@ -80,16 +80,14 @@ function Hero({ soldOut }: { soldOut: boolean }) {
       <Link href="/manifesto" className="mt-7 flex items-center gap-1.5 text-[15px] font-medium text-verdade">
         Ler o manifesto <span aria-hidden>→</span>
       </Link>
-      <div className="relative -mx-5 mt-14 flex h-[480px] w-[calc(100%+2.5rem)] max-w-[1312px] justify-center overflow-hidden rounded-t-[28px] md:mx-0 md:mt-18 md:w-full bg-[radial-gradient(ellipse_at_50%_45%,#E6DFD5_0%,#D3C9BC_100%)] md:h-[760px]">
-        <div className="absolute bottom-[40px] left-1/2 h-[70px] w-[440px] -translate-x-1/2 rounded-full bg-[#5A4A3A]/20 blur-[40px]" />
+      <div className="relative -mx-5 mt-14 h-[480px] w-[calc(100%+2.5rem)] max-w-[1312px] overflow-hidden rounded-t-[28px] md:mx-0 md:mt-18 md:h-[760px] md:w-full">
         <Image
-          src="/images/oraculo-caixa-recorte.png"
-          alt="O Oráculo: a caixa de madeira natural aberta, com o livreto bordô, e a tampa gravada “toda grande mudança começa pequena.”"
-          width={935}
-          height={1100}
+          src="/images/oraculo-228.jpg"
+          alt="Mãos abrindo o Oráculo: a tampa de madeira gravada “toda grande mudança começa pequena.” sobre a caixa com o livreto bordô"
+          fill
           priority
-          sizes="(min-width: 768px) 600px, 380px"
-          className="relative mt-8 h-auto w-[340px] self-start md:mt-9 md:w-[595px]"
+          sizes="(min-width: 1312px) 1312px, 100vw"
+          className="object-cover object-[50%_45%]"
         />
       </div>
     </section>
@@ -133,14 +131,16 @@ function ManifestoSection() {
             ))}
           </div>
           <div className="mt-14 h-px bg-leveza/15" />
-          <div className="mt-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
-            <div className="flex flex-col gap-3">
-              <p className="whitespace-pre-line font-serif text-[32px] leading-tight text-luz">{manifesto.fecho}</p>
+          <div className="mt-10 flex flex-col justify-between gap-8 xl:flex-row xl:items-end">
+            <div className="flex min-w-0 flex-col gap-3">
+              <p className="whitespace-pre-line font-serif text-[28px] leading-tight text-luz xl:whitespace-pre xl:text-[29px]">
+                {manifesto.fecho}
+              </p>
               <p className="font-mono text-[15px] text-leveza/60">{manifesto.assinatura}</p>
             </div>
             <Link
               href="/manifesto"
-              className="flex items-center gap-2 self-start rounded-full border border-leveza/40 px-6 py-3.5 text-[15px] font-medium text-leveza transition hover:bg-leveza/10 sm:self-auto"
+              className="flex shrink-0 items-center gap-2 self-start whitespace-nowrap rounded-full border border-leveza/40 px-6 py-3.5 text-[15px] font-medium text-leveza transition hover:bg-leveza/10 xl:self-auto"
             >
               Manifesto completo <span aria-hidden>↗</span>
             </Link>
