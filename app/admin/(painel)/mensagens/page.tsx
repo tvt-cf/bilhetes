@@ -31,18 +31,18 @@ const fmtDate = new Intl.DateTimeFormat("pt-BR", {
   timeZone: "America/Sao_Paulo",
 });
 
-export default function EnviosPage() {
+export default function MensagensPage() {
   return (
     <div className="flex flex-col gap-7">
-      <PageHeader title="Envios" subtitle="Mensagens de sabedoria, convites e avisos pelo WhatsApp." />
+      <PageHeader title="Mensagens" subtitle="Bilhetes de sabedoria, convites e avisos para a comunidade, pelo WhatsApp." />
       <Suspense fallback={<Card className="h-[720px] animate-pulse" />}>
-        <Envios />
+        <Mensagens />
       </Suspense>
     </div>
   );
 }
 
-async function Envios() {
+async function Mensagens() {
   await requireAdmin();
   const audience = Object.fromEntries(
     await Promise.all(
@@ -59,11 +59,14 @@ async function Envios() {
       <Composer audience={audience} />
       <Card className="overflow-hidden">
         <div className="flex items-center justify-between border-b border-tinta/8 px-5 py-4">
-          <h2 className="text-[15px] font-semibold">Histórico de envios</h2>
+          <h2 className="text-[15px] font-semibold">Histórico de mensagens</h2>
           <span className="text-[13px] text-tinta-suave">Lidas e entregas chegam pelo webhook da Meta</span>
         </div>
         {history.length === 0 ? (
-          <p className="px-5 py-14 text-center text-sm text-tinta-suave">Nenhum envio ainda.</p>
+          <div className="flex flex-col items-center gap-1.5 px-5 py-14 text-center">
+            <p className="font-serif text-2xl">Nenhuma mensagem ainda.</p>
+            <p className="text-sm text-tinta-suave">O primeiro bilhete que você mandar aparece aqui.</p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px]">
@@ -92,7 +95,7 @@ async function Envios() {
                       <td className={td}>
                         <span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${cls}`}>
                           {label}
-                          {c.failed > 0 && c.status !== "falhou" ? ` · ${c.failed} falhas` : ""}
+                          {c.failed > 0 && c.status !== "falhou" ? ` · ${c.failed} ${c.failed === 1 ? "falha" : "falhas"}` : ""}
                           {c.simulated > 0 ? " · simulado" : ""}
                         </span>
                       </td>

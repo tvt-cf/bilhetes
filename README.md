@@ -5,7 +5,8 @@ Site do Oráculo (“um ritual para viver maior”) e painel interno para a comu
 - `/` — home: produto, manifesto, ritual, compra online (“Eu quero”) ou fila de espera quando esgota, e cadastro no movimento
 - `/manifesto` — manifesto completo
 - `/admin` — comunidade: cadastrados, fila de espera, pré-venda, compradores, descadastrados, busca, exportação CSV e o botão de esgotado
-- `/admin/envios` — mensagens pelo WhatsApp (agora ou agendadas) e histórico de entregas, leituras e respostas
+- `/admin/pedidos` — pedidos e pagamentos da InfinitePay
+- `/admin/mensagens` — mensagens pelo WhatsApp (agora ou agendadas) e histórico de entregas, leituras e respostas
 
 ## Rodar localmente
 
@@ -27,12 +28,12 @@ O manifesto fica em `lib/manifesto.ts`.
 2. Crie um Postgres (Neon pelo Marketplace da Vercel, ou Supabase) e coloque a URL em `DATABASE_URL`.
    As tabelas são criadas sozinhas no primeiro acesso.
 3. Configure as variáveis do `.env.example` (no mínimo `ADMIN_PASSWORD`, `SESSION_SECRET`, `CRON_SECRET`).
-4. O `vercel.json` agenda `/api/cron/dispatch` todo dia às 10h UTC (7h de Brasília) para soltar os envios agendados.
+4. O `vercel.json` agenda `/api/cron/dispatch` todo dia às 10h UTC (7h de Brasília) para soltar as mensagens agendadas.
 
 ## WhatsApp (Cloud API da Meta)
 
 Enquanto `WHATSAPP_TOKEN` e `WHATSAPP_PHONE_NUMBER_ID` não estiverem configurados, o painel funciona em
-**modo simulação**: os envios são registrados, mas nada sai.
+**modo simulação**: as mensagens são registradas, mas nada sai.
 
 Para enviar de verdade:
 
@@ -52,7 +53,7 @@ junta as linhas automaticamente.
 
 A edição esgota sozinha quando o número de compras chega à tiragem (`produto.tiragem`), ou na hora em que
 alguém clica em “Marcar como esgotado” em `/admin`. Esgotado, o site troca “Eu quero” por “Entrar na fila de
-espera”. Para avisar o próximo lote, crie um envio do tipo “Aviso de novo lote”: ele já seleciona a fila.
+espera”. Para avisar o próximo lote, crie uma mensagem do tipo “Aviso de novo lote”: ele já seleciona a fila.
 
 ## Pagamento
 

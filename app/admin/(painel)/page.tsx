@@ -1,3 +1,4 @@
+import { Download, Search, Send } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { requireAdmin } from "@/lib/auth";
@@ -5,7 +6,7 @@ import { getSegmentCounts, getStats, listPeople, type SegmentFilter } from "@/li
 import { formatPhone } from "@/lib/phone";
 import { getStockLive } from "@/lib/stock";
 import { markPurchasedAction, setSoldOutAction } from "../actions";
-import { Card, DeliveryText, PageHeader, StatusBadge, td, th } from "./ui";
+import { btnPrimary, btnSecondary, Card, DeliveryText, PageHeader, sourceLabel, StatusBadge, td, th } from "./ui";
 
 const tabs: [SegmentFilter, string][] = [
   ["todos", "Todos"],
@@ -26,17 +27,11 @@ export default function ComunidadePage({ searchParams }: PageProps<"/admin">) {
         title="Comunidade"
         subtitle="Quem deixou o WhatsApp, entrou na pré-venda ou comprou o Oráculo."
       >
-        <a
-          href="/admin/export"
-          className="rounded-lg border border-tinta/15 bg-white px-4 py-2.5 text-sm font-medium transition hover:border-tinta/30"
-        >
-          Exportar CSV
+        <a href="/admin/export" className={btnSecondary}>
+          <Download className="size-4" /> Exportar CSV
         </a>
-        <Link
-          href="/admin/envios"
-          className="rounded-lg bg-verdade px-4 py-2.5 text-sm font-semibold text-leveza transition hover:bg-verdade/90"
-        >
-          Nova mensagem
+        <Link href="/admin/mensagens" className={btnPrimary}>
+          <Send className="size-4" /> Nova mensagem
         </Link>
       </PageHeader>
       <Suspense fallback={<Card className="h-[560px] animate-pulse" />}>
@@ -71,7 +66,7 @@ async function Comunidade({ searchParams }: { searchParams: PageProps<"/admin">[
             <p className="text-xs text-tinta-suave">
               {stock.buyers >= stats.edition
                 ? `As ${stats.edition} caixas foram vendidas.`
-                : `${fmt.format(stats.edition - stock.buyers)} caixas disponíveis · ${fmt.format(stats.waitlist)} pessoas na fila de espera`}
+                : `${fmt.format(stats.edition - stock.buyers)} caixas disponíveis · ${fmt.format(stats.waitlist)} ${stats.waitlist === 1 ? "pessoa" : "pessoas"} na fila de espera`}
             </p>
           </div>
         </div>
@@ -135,27 +130,32 @@ async function Comunidade({ searchParams }: { searchParams: PageProps<"/admin">[
               );
             })}
           </div>
-          <form className="flex items-center gap-2">
+          <form className="flex w-64 items-center gap-2 rounded-lg bg-leveza px-3 py-2 focus-within:ring-1 focus-within:ring-verdade/30">
+            <Search className="size-4 shrink-0 text-[#9a938c]" />
             <input type="hidden" name="segmento" value={segment} />
             <input
               name="q"
               defaultValue={q}
               placeholder="Buscar nome ou telefone"
-              className="w-60 rounded-lg bg-leveza px-3 py-2 text-[13px] outline-none placeholder:text-[#9a938c] focus:ring-1 focus:ring-verdade/30"
+              aria-label="Buscar nome ou telefone"
+              className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-[#9a938c]"
             />
           </form>
         </div>
 
         {rows.length === 0 ? (
-          <p className="px-5 py-16 text-center text-sm text-tinta-suave">
-            {q ? `Ninguém encontrado para “${q}”.` : "Ninguém neste grupo ainda."}
-          </p>
+          <div className="flex flex-col items-center gap-1.5 px-5 py-16 text-center">
+            <p className="font-serif text-2xl">{q ? `Ninguém encontrado para “${q}”.` : "Ninguém neste grupo ainda."}</p>
+            <p className="text-sm text-tinta-suave">
+              {q ? "Confira o nome ou tente só os últimos dígitos do telefone." : "Quem se cadastrar no site aparece aqui."}
+            </p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[960px]">
               <thead className="border-b border-tinta/8 bg-[#FAF8F5]">
                 <tr>
-                  {["PESSOA", "STATUS", "INTERESSES", "ORIGEM", "PEDIDO", "ÚLTIMO ENVIO", "CADASTRO"].map((h) => (
+                  {["PESSOA", "STATUS", "INTERESSES", "ORIGEM", "PEDIDO", "ÚLTIMA MENSAGEM", "CADASTRO"].map((h) => (
                     <th key={h} className={th}>
                       {h}
                     </th>
@@ -190,7 +190,7 @@ async function Comunidade({ searchParams }: { searchParams: PageProps<"/admin">[
                         {p.wantsWisdom && <Chip>Sabedoria</Chip>}
                       </div>
                     </td>
-                    <td className={`${td} capitalize`}>{p.source}</td>
+                    <td className={`${td} whitespace-nowrap`}>{sourceLabel(p.source)}</td>
                     <td className={td}>
                       {p.orderNumber ? (
                         <span className="font-medium">{p.orderNumber}</span>

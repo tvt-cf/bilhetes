@@ -33,7 +33,7 @@ const statusStyle: Record<PersonStatus, [string, string]> = {
 
 export function StatusBadge({ status, optedOut }: { status: PersonStatus; optedOut?: boolean }) {
   const [label, cls] = optedOut ? ["Descadastrou", "bg-coragem/12 text-[#A2402B]"] : statusStyle[status];
-  return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${cls}`}>{label}</span>;
+  return <span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${cls}`}>{label}</span>;
 }
 
 const deliveryLabel: Record<MessageStatus, string> = {
@@ -54,6 +54,25 @@ export function DeliveryText({ title, status }: { title: string | null; status: 
     </span>
   );
 }
+
+const sources: Record<string, string> = {
+  landing: "Site",
+  "pre-venda": "Compra no site",
+  "fila de espera": "Fila de espera",
+  instagram: "Instagram",
+  "indicação": "Indicação",
+};
+
+// Origem do cadastro com nome legível (os valores no banco são chaves curtas).
+export function sourceLabel(source: string) {
+  return sources[source] ?? source.charAt(0).toUpperCase() + source.slice(1);
+}
+
+// Botões do admin: um principal por tela, o resto discreto.
+export const btnPrimary =
+  "inline-flex items-center gap-2 rounded-lg bg-verdade px-4 py-2.5 text-sm font-semibold text-leveza transition hover:bg-verdade/90 disabled:opacity-50";
+export const btnSecondary =
+  "inline-flex items-center gap-2 rounded-lg border border-tinta/15 bg-white px-4 py-2.5 text-sm font-medium transition hover:border-tinta/30 disabled:opacity-60";
 
 export const th = "px-3 py-3 text-left text-[11px] font-semibold tracking-wider text-[#9a938c] first:pl-5 last:pr-5";
 export const td = "px-3 py-3.5 text-[13px] first:pl-5 last:pr-5";

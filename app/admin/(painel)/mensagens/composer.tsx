@@ -84,7 +84,8 @@ export function Composer({ audience }: { audience: Record<CampaignKind, Record<S
           <input
             name="title"
             required
-            placeholder="Nome do envio, ex.: Bilhete #13 · O silêncio também é resposta"
+            placeholder="Nome interno, ex.: Bilhete #13 · O silêncio também é resposta"
+            aria-label="Nome interno da mensagem"
             className="rounded-lg border border-tinta/15 px-3.5 py-2.5 text-sm outline-none focus:border-verdade/50"
           />
           <textarea
@@ -149,7 +150,7 @@ export function Composer({ audience }: { audience: Record<CampaignKind, Record<S
             disabled={pending || total === 0}
             className="rounded-lg bg-verdade px-5 py-2.5 text-sm font-semibold text-leveza transition hover:bg-verdade/90 disabled:opacity-50"
           >
-            {pending ? "Salvando…" : when === "agora" ? `Enviar para ${fmt.format(total)}` : "Agendar envio"}
+            {pending ? "Salvando…" : when === "agora" ? `Enviar para ${fmt.format(total)}` : "Agendar mensagem"}
           </button>
         </div>
       </form>
@@ -175,6 +176,18 @@ export function Composer({ audience }: { audience: Record<CampaignKind, Record<S
               Parar de receber
             </div>
           </div>
+        </div>
+        <div className="flex flex-col gap-2.5 rounded-xl border border-tinta/8 bg-white p-4 text-[13px]">
+          {[
+            ["Destinatários", fmt.format(total)],
+            ["Tipo", kinds.find(([k]) => k === kind)?.[1] ?? ""],
+            ["Quando", when === "agora" ? "Agora" : localDate ? new Date(localDate).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "Escolha data e hora"],
+          ].map(([k, v]) => (
+            <div key={k} className="flex justify-between gap-3">
+              <span className="text-tinta-suave">{k}</span>
+              <span className="text-right font-semibold">{v}</span>
+            </div>
+          ))}
         </div>
         <p className="text-xs leading-normal text-tinta-suave">
           O texto final depende do template aprovado na Meta; a mensagem acima entra no lugar da variável {"{{1}}"}.

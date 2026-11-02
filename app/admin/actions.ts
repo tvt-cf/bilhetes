@@ -63,23 +63,23 @@ export async function createCampaignAction(_: ActionState, form: FormData): Prom
   const when = String(form.get("when"));
   const scheduledIso = String(form.get("scheduledAt") ?? "");
 
-  if (!title) return { ok: false, message: "Dê um nome ao envio (aparece só no histórico)." };
+  if (!title) return { ok: false, message: "Dê um nome à mensagem (aparece só no histórico)." };
   if (!body) return { ok: false, message: "Escreva a mensagem." };
   if (!KINDS.includes(kind)) return { ok: false, message: "Escolha o tipo de mensagem." };
   if (!segments.length) return { ok: false, message: "Escolha pelo menos um público." };
 
   const scheduledAt = when === "agendar" ? new Date(scheduledIso) : new Date();
-  if (Number.isNaN(scheduledAt.getTime())) return { ok: false, message: "Escolha data e hora do envio." };
+  if (Number.isNaN(scheduledAt.getTime())) return { ok: false, message: "Escolha a data e a hora da mensagem." };
   if (when === "agendar" && scheduledAt.getTime() < Date.now()) {
     return { ok: false, message: "O horário agendado já passou." };
   }
 
   const id = await createCampaign({ title, kind, segments, body, scheduledAt });
   if (when !== "agendar") after(() => dispatchCampaign(id));
-  revalidatePath("/admin/envios");
+  revalidatePath("/admin/mensagens");
   return {
     ok: true,
-    message: when === "agendar" ? "Envio agendado." : "Envio iniciado. O histórico atualiza conforme as entregas.",
+    message: when === "agendar" ? "Mensagem agendada." : "Mensagem saindo. O histórico atualiza conforme as entregas.",
   };
 }
 
@@ -96,5 +96,5 @@ export async function sendTestAction(_: ActionState, form: FormData): Promise<Ac
 export async function cancelCampaignAction(form: FormData) {
   await requireAdmin();
   await cancelCampaign(Number(form.get("campaignId")));
-  revalidatePath("/admin/envios");
+  revalidatePath("/admin/mensagens");
 }

@@ -1,3 +1,4 @@
+import { RefreshCw } from "lucide-react";
 import { Suspense } from "react";
 import { requireAdmin } from "@/lib/auth";
 import type { OrderStatus } from "@/lib/db/schema";
@@ -5,7 +6,7 @@ import { infinitepayConfigured } from "@/lib/infinitepay";
 import { getOrderTotals, listOrders } from "@/lib/orders";
 import { formatPhone } from "@/lib/phone";
 import { recheckOrdersAction } from "../../actions";
-import { Card, PageHeader, td, th } from "../ui";
+import { btnSecondary, Card, PageHeader, td, th } from "../ui";
 
 const statusStyle: Record<OrderStatus, [string, string]> = {
   aguardando: ["Aguardando", "bg-luz/20 text-[#7A5A1E]"],
@@ -28,8 +29,8 @@ export default function PedidosPage() {
     <div className="flex flex-col gap-7">
       <PageHeader title="Pedidos" subtitle="Cada checkout aberto na InfinitePay e o que ela confirmou de pagamento.">
         <form action={recheckOrdersAction}>
-          <button className="rounded-lg border border-tinta/15 bg-white px-4 py-2.5 text-sm font-medium transition hover:border-tinta/30">
-            Conferir pagamentos na InfinitePay
+          <button className={btnSecondary}>
+            <RefreshCw className="size-4" /> Conferir pagamentos na InfinitePay
           </button>
         </form>
       </PageHeader>
