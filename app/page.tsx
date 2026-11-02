@@ -72,16 +72,10 @@ function Hero({ soldOut }: { soldOut: boolean }) {
       >
         {soldOut ? "Entrar na fila de espera" : "Eu quero"} <span aria-hidden>→</span>
       </Link>
-      {soldOut ? (
+      {soldOut && (
         <p className="mt-5 text-sm text-tinta-suave">
           Avisamos pelo WhatsApp quando o próximo lote estiver disponível.
         </p>
-      ) : (
-        <div className="mt-5 flex flex-col items-center gap-0.5">
-          <span className="text-[15px] font-semibold text-tinta">{produto.precoAVista}</span>
-          <span className="text-sm text-tinta-suave">ou {produto.parcelas}</span>
-          <span className="mt-1 text-xs text-tinta-suave">{produto.frete}</span>
-        </div>
       )}
       <Link href="/manifesto" className="mt-7 flex items-center gap-1.5 text-[15px] font-medium text-verdade">
         Ler o manifesto <span aria-hidden>→</span>
