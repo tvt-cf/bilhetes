@@ -27,7 +27,7 @@ export async function sendLoginEmail(to: string, code: string, link: string) {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: process.env.AUTH_EMAIL_FROM ?? "bilhetes <acesso@bilhetes.co>",
+      from: process.env.AUTH_EMAIL_FROM ?? "bilhetes <admin@bilhetes.co>",
       to,
       subject: `${code} é seu código de acesso ao admin`,
       html,
