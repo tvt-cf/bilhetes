@@ -33,6 +33,7 @@ export async function createCampaign(input: {
   segments: Segment[];
   body: string;
   scheduledAt: Date;
+  createdBy: string;
 }) {
   const db = await getDb();
   const [row] = await db.insert(campaigns).values({ ...input, status: "agendado" }).returning({ id: campaigns.id });
@@ -120,6 +121,7 @@ export async function listCampaigns(limit = 30) {
       segments: campaigns.segments,
       status: campaigns.status,
       scheduledAt: campaigns.scheduledAt,
+      createdBy: campaigns.createdBy,
       total: stats.total,
       delivered: stats.delivered,
       read: stats.read,

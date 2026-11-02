@@ -34,6 +34,19 @@ export const campaigns = pgTable("campaigns", {
   scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
   startedAt: timestamp("started_at", { withTimezone: true }),
   finishedAt: timestamp("finished_at", { withTimezone: true }),
+  createdBy: text("created_by"), // e-mail de quem criou no /admin
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Códigos de acesso ao /admin (código de 6 dígitos + link mágico), guardados só como hash.
+export const loginCodes = pgTable("login_codes", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull(),
+  codeHash: text("code_hash").notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  attempts: integer("attempts").notNull().default(0),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -120,6 +133,18 @@ create table if not exists messages (
 create index if not exists messages_campaign_idx on messages (campaign_id);
 create index if not exists messages_person_idx on messages (person_id);
 alter table people add column if not exists waitlist_at timestamptz;
+alter table campaigns add column if not exists created_by text;
+create table if not exists login_codes (
+  id serial primary key,
+  email text not null,
+  code_hash text not null,
+  token_hash text not null unique,
+  attempts integer not null default 0,
+  expires_at timestamptz not null,
+  used_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create index if not exists login_codes_email_idx on login_codes (email, created_at);
 create table if not exists settings (
   key text primary key,
   value jsonb not null

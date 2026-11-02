@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { LoginForm } from "./login-form";
+import { LoginShell } from "./login-shell";
 
 export const metadata: Metadata = { title: "Entrar · bilhetes admin", robots: { index: false } };
 
-export default function LoginPage() {
+export default function LoginPage({ searchParams }: PageProps<"/admin/login">) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-verdade px-5">
-      <div className="flex w-full max-w-sm flex-col items-center gap-8 rounded-2xl bg-leveza p-10">
-        <div className="flex flex-col items-center gap-1 text-verdade">
-          <span className="font-script text-5xl leading-none">bilhetes</span>
-          <span className="text-xs font-semibold tracking-[0.2em] text-tinta-suave">ADMIN</span>
-        </div>
-        <LoginForm />
-      </div>
-    </main>
+    <LoginShell>
+      <Suspense fallback={<LoginForm linkInvalid={false} />}>
+        <Form searchParams={searchParams} />
+      </Suspense>
+    </LoginShell>
   );
+}
+
+async function Form({ searchParams }: { searchParams: PageProps<"/admin/login">["searchParams"] }) {
+  const { link } = await searchParams;
+  return <LoginForm linkInvalid={link === "invalido"} />;
 }

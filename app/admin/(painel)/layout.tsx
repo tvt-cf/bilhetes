@@ -1,5 +1,7 @@
 import { ExternalLink, LogOut } from "lucide-react";
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { getAdmin } from "@/lib/auth";
 import { whatsappConfigured } from "@/lib/whatsapp";
 import { logoutAction } from "../actions";
 import { SideNav } from "./side-nav";
@@ -31,6 +33,9 @@ export default function PainelLayout({ children }: LayoutProps<"/admin">) {
               : "As mensagens ficam registradas, mas só saem de verdade depois de conectar a conta da Meta."}
           </p>
         </div>
+        <Suspense>
+          <CurrentAdmin />
+        </Suspense>
         <div className="flex items-center justify-between px-2.5 text-[13px] text-leveza/60">
           <a href="/" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 transition hover:text-leveza">
             <ExternalLink className="size-3.5" /> Ver o site
@@ -45,6 +50,21 @@ export default function PainelLayout({ children }: LayoutProps<"/admin">) {
       <div className="min-w-0 flex-1 px-10 pb-12 pt-9">
         <div className="mx-auto max-w-[1280px]">{children}</div>
       </div>
+    </div>
+  );
+}
+
+async function CurrentAdmin() {
+  const admin = await getAdmin();
+  if (!admin) return null;
+  return (
+    <div className="flex items-center gap-2.5 px-2.5">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-intuicao text-xs font-semibold uppercase text-verdade">
+        {admin.email[0]}
+      </span>
+      <span className="truncate text-[13px] text-leveza/80" title={admin.email}>
+        {admin.email}
+      </span>
     </div>
   );
 }

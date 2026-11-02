@@ -85,7 +85,10 @@ async function Mensagens() {
                   const dash = c.status === "agendado";
                   return (
                     <tr key={c.id}>
-                      <td className={`${td} text-sm font-medium`}>{c.title}</td>
+                      <td className={td}>
+                        <p className="text-sm font-medium">{c.title}</p>
+                        {c.createdBy && <p className="text-xs text-tinta-suave">por {c.createdBy.split("@")[0]}</p>}
+                      </td>
                       <td className={td}>{c.segments.map((s) => segmentLabel[s]).join(" + ")}</td>
                       <td className={td}>{fmtDate.format(c.scheduledAt)}</td>
                       <td className={td}>{dash ? "—" : fmt.format(c.total - c.failed)}</td>

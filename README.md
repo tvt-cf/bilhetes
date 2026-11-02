@@ -12,12 +12,21 @@ Site do Oráculo (“um ritual para viver maior”) e painel interno para a comu
 
 ```bash
 npm install
-cp .env.example .env.local   # preencha ADMIN_PASSWORD e SESSION_SECRET
+cp .env.example .env.local   # preencha SESSION_SECRET
 npm run dev
 ```
 
-Sem `DATABASE_URL`, o projeto sobe um Postgres embutido (PGlite) em `.data/`. Em `npm run dev` a senha
-padrão do admin é `bilhetes`; em produção ela é obrigatória via `ADMIN_PASSWORD`.
+Sem `DATABASE_URL`, o projeto sobe um Postgres embutido (PGlite) em `.data/`.
+
+## Acesso ao admin
+
+Não tem senha. Em `/admin/login` a pessoa digita o e-mail e recebe um código de 6 dígitos e um link de
+entrada, que valem 15 minutos e uma vez só. Só entra quem está em `ADMIN_EMAILS` (separado por vírgula);
+tirar alguém da lista corta o acesso na hora. Os e-mails saem pelo Resend (`RESEND_API_KEY`), com o
+remetente em `AUTH_EMAIL_FROM`, que precisa ser de um domínio verificado no Resend.
+
+Fora da Vercel, sem `RESEND_API_KEY`, o código e o link aparecem no terminal. Em `npm run dev`, sem
+`ADMIN_EMAILS`, qualquer e-mail entra.
 
 Textos que mudam com frequência (preço, tiragem, frete) ficam em `lib/site.ts`.
 O manifesto fica em `lib/manifesto.ts`.
@@ -27,7 +36,7 @@ O manifesto fica em `lib/manifesto.ts`.
 1. Importe o repositório na Vercel.
 2. Crie um Postgres (Neon pelo Marketplace da Vercel, ou Supabase) e coloque a URL em `DATABASE_URL`.
    As tabelas são criadas sozinhas no primeiro acesso.
-3. Configure as variáveis do `.env.example` (no mínimo `ADMIN_PASSWORD`, `SESSION_SECRET`, `CRON_SECRET`).
+3. Configure as variáveis do `.env.example` (no mínimo `ADMIN_EMAILS`, `RESEND_API_KEY`, `SESSION_SECRET`, `CRON_SECRET`).
 4. O `vercel.json` agenda `/api/cron/dispatch` todo dia às 10h UTC (7h de Brasília) para soltar as mensagens agendadas.
 
 ## WhatsApp (Cloud API da Meta)

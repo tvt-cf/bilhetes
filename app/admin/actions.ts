@@ -1,9 +1,10 @@
 "use server";
 
 import { revalidatePath, updateTag } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
-import { checkPassword, endSession, requireAdmin, startSession } from "@/lib/auth";
+import { endSession, normalizeEmail, requestLogin, requireAdmin, verifyCode, verifyToken } from "@/lib/auth";
 import { cancelCampaign, createCampaign, dispatchCampaign, personalize } from "@/lib/campaigns";
 import { markPurchased } from "@/lib/community";
 import type { CampaignKind, Segment } from "@/lib/db/schema";
@@ -14,10 +15,46 @@ import { sendTemplate } from "@/lib/whatsapp";
 
 export type ActionState = { ok: boolean; message: string } | null;
 
-export async function loginAction(_: ActionState, form: FormData): Promise<ActionState> {
-  if (!checkPassword(String(form.get("password") ?? ""))) return { ok: false, message: "Senha incorreta." };
-  await startSession();
-  redirect("/admin");
+export type LoginState =
+  | { step: "email"; error?: string }
+  | { step: "code"; email: string; error?: string }
+  | null;
+
+// Passo 1: e-mail. A resposta é a mesma esteja o e-mail na lista ou não.
+export async function requestCodeAction(_: LoginState, form: FormData): Promise<LoginState> {
+  const email = String(form.get("email") ?? "").trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { step: "email", error: "Confira o e-mail." };
+  const h = await headers();
+  const origin = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("x-forwarded-host") ?? h.get("host")}`;
+  try {
+    await requestLogin(email, origin);
+  } catch (e) {
+    console.error(e);
+    return { step: "email", error: "Não conseguimos mandar o e-mail agora. Tente de novo em instantes." };
+  }
+  return { step: "code", email: normalizeEmail(email) };
+}
+
+// Passo 2: código de 6 dígitos que chegou no e-mail.
+export async function verifyCodeAction(_: LoginState, form: FormData): Promise<LoginState> {
+  const email = String(form.get("email") ?? "");
+  if (await verifyCode(email, String(form.get("code") ?? ""))) redirect("/admin");
+  return { step: "code", email, error: "Código incorreto ou vencido. Confira o e-mail mais recente." };
+}
+
+// Uma ação para os dois passos do login, decidida pelo botão apertado.
+export async function loginStepAction(prev: LoginState, form: FormData): Promise<LoginState> {
+  const intent = form.get("intent");
+  if (intent === "voltar") return { step: "email" };
+  if (intent === "codigo") return verifyCodeAction(prev, form);
+  return requestCodeAction(prev, form);
+}
+
+// Link mágico: a página /admin/entrar pede um clique antes de usar o token, para leitores de link
+// dos provedores de e-mail não gastarem o acesso sozinhos.
+export async function confirmLinkAction(form: FormData) {
+  if (await verifyToken(String(form.get("token") ?? ""))) redirect("/admin");
+  redirect("/admin/login?link=invalido");
 }
 
 export async function logoutAction() {
@@ -55,7 +92,7 @@ const KINDS: CampaignKind[] = ["sabedoria", "evento", "pedido", "lote"];
 const SEGMENTS: Segment[] = ["comunidade", "fila_espera", "pre_venda", "comprou"];
 
 export async function createCampaignAction(_: ActionState, form: FormData): Promise<ActionState> {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const title = String(form.get("title") ?? "").trim();
   const body = String(form.get("body") ?? "").trim();
   const kind = String(form.get("kind")) as CampaignKind;
@@ -74,7 +111,7 @@ export async function createCampaignAction(_: ActionState, form: FormData): Prom
     return { ok: false, message: "O horário agendado já passou." };
   }
 
-  const id = await createCampaign({ title, kind, segments, body, scheduledAt });
+  const id = await createCampaign({ title, kind, segments, body, scheduledAt, createdBy: admin.email });
   if (when !== "agendar") after(() => dispatchCampaign(id));
   revalidatePath("/admin/mensagens");
   return {
