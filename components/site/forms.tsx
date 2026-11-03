@@ -21,7 +21,7 @@ export function SubscribeForm() {
   return (
     <form action={action} className="flex flex-col gap-5">
       <div className="flex w-full max-w-[560px] flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-2 sm:rounded-full sm:border sm:border-verdade/10 sm:bg-white sm:p-2">
-        <div className="flex h-14 items-center gap-2 rounded-full border border-verdade/10 bg-white px-5 sm:h-auto sm:flex-1 sm:border-0 sm:bg-transparent sm:px-0 sm:pl-4">
+        <div className="flex h-14 items-center gap-2 rounded-full border border-verdade/10 bg-white px-5 sm:h-auto sm:min-w-0 sm:flex-1 sm:border-0 sm:bg-transparent sm:px-0 sm:pl-4">
           <span className="flex shrink-0 items-center gap-1.5 text-tinta">
             <span aria-hidden>🇧🇷</span> +55
           </span>

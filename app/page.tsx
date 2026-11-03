@@ -488,7 +488,7 @@ function PagamentoSeguro() {
 function Movimento() {
   return (
     <section id="movimento" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-16 md:py-[clamp(56px,8svh,112px)]">
-      <div className="largura flex flex-col items-center gap-16 lg:flex-row lg:gap-24">
+      <div className="largura flex flex-col items-center gap-16 lg:flex-row lg:gap-16">
         <div className="flex flex-1 flex-col">
           <Eyebrow className="text-verdade">COMUNIDADE</Eyebrow>
           <h2 className="mt-6 text-[40px] leading-[1.05] tracking-[-0.02em] md:text-[clamp(34px,3.1vw,46px)]">
