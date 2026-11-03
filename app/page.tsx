@@ -391,8 +391,8 @@ function JeitoCerto({ soldOut }: { soldOut: boolean }) {
               <figure className="flex flex-1 flex-col gap-3">
                 <div className="relative aspect-[248/300] overflow-hidden rounded-[4px]">
                   <Image
-                    src="/images/casa-escritorio.jpg"
-                    alt="Três caixas de madeira empilhadas sobre a mesa"
+                    src="/images/casa-tapete.jpg"
+                    alt="Caixas de madeira gravadas com “toda grande mudança começa pequena.” sobre um tapete colorido"
                     fill
                     sizes="(min-width: 1024px) 215px, 50vw"
                     className="object-cover"
