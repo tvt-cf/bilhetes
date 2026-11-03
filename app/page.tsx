@@ -79,14 +79,14 @@ function Hero({ soldOut }: { soldOut: boolean }) {
           Avisamos pelo WhatsApp quando o próximo lote estiver disponível.
         </p>
       )}
-      <div className="relative -mx-5 mt-14 h-[480px] w-[calc(100%+2.5rem)] max-w-[1312px] overflow-hidden rounded-t-[28px] md:mx-0 md:mt-12 md:h-[clamp(420px,64svh,720px)] md:w-full">
+      <div className="relative -mx-5 mt-14 h-[480px] w-[calc(100%+2.5rem)] overflow-hidden rounded-t-[28px] md:mx-auto md:mt-12 md:aspect-[4/3] md:h-auto md:w-full md:max-w-[var(--largura)]">
         <Image
           src="/images/oraculo-228.jpg"
           alt="Mãos abrindo a caixa: a tampa de madeira gravada “toda grande mudança começa pequena.” sobre a caixa com o livreto bordô"
           fill
           priority
-          sizes="(min-width: 1312px) 1312px, 100vw"
-          className="object-cover object-[50%_45%]"
+          sizes="(min-width: 1200px) 1200px, 100vw"
+          className="object-cover object-[50%_40%]"
         />
       </div>
     </section>
@@ -96,7 +96,7 @@ function Hero({ soldOut }: { soldOut: boolean }) {
 // Faixa curta entre o hero e o ritual, alinhada às bordas da foto.
 function Assinatura() {
   return (
-    <div className="mx-auto flex max-w-[1440px] flex-wrap justify-center gap-x-6 gap-y-1.5 px-5 py-7 text-xs text-tinta-suave md:justify-between md:px-16 md:text-[13px]">
+    <div className="mx-auto flex flex-wrap justify-center md:max-w-[calc(var(--largura)+8rem)] gap-x-6 gap-y-1.5 px-5 py-7 text-xs text-tinta-suave md:justify-between md:px-16 md:text-[13px]">
       {["Feito à mão, com intenção", "Produção em pequenos lotes", "Criado para atravessar o tempo"].map((t) => (
         <span key={t}>{t}</span>
       ))}
@@ -106,29 +106,29 @@ function Assinatura() {
 
 function Ritual() {
   return (
-    <section id="ritual" className="scroll-mt-20 bg-vinho pb-2 pt-24 md:pt-[clamp(56px,8svh,112px)]">
-      {/* fotos verticais como no canvas; a largura (até 1440px) encolhe em telas baixas para a seção caber na dobra */}
-      <div className="mx-auto md:max-w-[clamp(1000px,calc((100svh-445px)*3),1440px)]">
-      <div className="flex flex-col justify-between gap-14 px-5 md:px-16 lg:flex-row lg:items-end xl:px-24">
+    <section id="ritual" className="scroll-mt-20 bg-vinho pb-2 pt-24 md:px-16 md:pb-[clamp(48px,6svh,96px)] md:pt-[clamp(56px,8svh,112px)]">
+      {/* fotos verticais como no canvas, na largura comum das seções */}
+      <div className="largura">
+      <div className="flex flex-col justify-between gap-14 px-5 md:px-0 lg:flex-row lg:items-end">
         <div className="flex flex-col gap-6">
           <Eyebrow className="text-luz">O RITUAL</Eyebrow>
-          <h2 className="max-w-[680px] text-[40px] leading-[1.08] tracking-[-0.02em] text-leveza md:text-[clamp(36px,3.6vw,52px)]">
+          <h2 className="max-w-[560px] text-[40px] leading-[1.08] tracking-[-0.02em] text-leveza md:text-[clamp(34px,3.1vw,46px)]">
             Uma pausa para o que realmente importa.
           </h2>
         </div>
-        <div className="w-full lg:w-[520px]">
+        <div className="w-full lg:w-[420px] lg:shrink-0">
           <ol>
             {ritual.map((passo, i) => (
               <li key={passo} className="flex items-center gap-6 border-t border-leveza/20 py-4.5">
                 <span className="w-9 font-hand text-[22px] text-intuicao">{i + 1}.</span>
-                <span className="font-mono text-[19px] text-leveza">{passo}</span>
+                <span className="font-mono text-[17px] text-leveza">{passo}</span>
               </li>
             ))}
           </ol>
           <p className="mt-2 font-hand text-[17px] text-luz">Volte sempre que precisar.</p>
         </div>
       </div>
-      <div className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:mt-[clamp(40px,6svh,80px)] md:grid md:grid-cols-4 md:overflow-visible">
+      <div className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:px-0 md:mt-[clamp(40px,6svh,80px)] md:grid md:grid-cols-4 md:overflow-visible">
         {faixa.map(([src, alt]) => (
           <div key={src} className="relative h-[440px] w-[78vw] shrink-0 snap-start overflow-hidden rounded-md md:aspect-[346/460] md:h-auto md:w-auto">
             <Image src={src} alt={alt} fill sizes="(min-width: 768px) 360px, 78vw" className="object-cover" />
@@ -142,8 +142,8 @@ function Ritual() {
 
 function ManifestoSection() {
   return (
-    <section className="bg-[#F6F4EF] px-5 py-24 md:px-24 md:py-[clamp(56px,8svh,112px)]">
-      <div className="mx-auto flex max-w-[1248px] flex-col gap-10">
+    <section className="bg-[#F6F4EF] px-5 py-24 md:px-16 md:py-[clamp(56px,8svh,112px)]">
+      <div className="largura flex flex-col gap-10">
         <div className="flex flex-col gap-2.5">
           <Eyebrow className="text-recomeco">MANIFESTO</Eyebrow>
           <span className="h-px w-14 bg-recomeco" />
@@ -155,7 +155,7 @@ function ManifestoSection() {
             Muitas vezes as respostas já estão com a gente, mas precisamos silenciar os ruídos para conseguir ouvir.
           </p>
         </div>
-        <div className="relative h-[200px] overflow-hidden rounded-[20px] md:h-[clamp(180px,26svh,300px)]">
+        <div className="relative h-[200px] overflow-hidden rounded-[20px] md:aspect-[4/1] md:h-auto">
           <Image
             src="/images/manifesto-tecido.jpg"
             alt="Tecido terracota translúcido voando contra o céu nublado"
@@ -171,11 +171,11 @@ function ManifestoSection() {
 
 function Bilhetes() {
   return (
-    <section id="bilhetes" className="scroll-mt-20 bg-[#EBE7DF] px-5 py-24 md:px-[100px] md:py-[clamp(56px,8svh,112px)]">
-      <div className="mx-auto flex max-w-[1120px] flex-col items-center gap-12">
+    <section id="bilhetes" className="scroll-mt-20 bg-[#EBE7DF] px-5 py-24 md:px-16 md:py-[clamp(56px,8svh,112px)]">
+      <div className="largura flex flex-col items-center gap-12">
         <div className="flex max-w-[720px] flex-col items-center gap-4 text-center">
           <Eyebrow className="text-verdade">O ORÁCULO</Eyebrow>
-          <h2 className="text-[40px] font-medium leading-[1.04] tracking-[-0.025em] text-[#1F1517] md:text-[clamp(36px,3.6vw,52px)]">
+          <h2 className="text-[40px] font-medium leading-[1.04] tracking-[-0.025em] text-[#1F1517] md:text-[clamp(34px,3.1vw,46px)]">
             Sua caixa mágica
             <br />
             de Bilhetes.
@@ -187,7 +187,7 @@ function Bilhetes() {
         </div>
 
         <div className="flex w-full flex-col gap-5">
-          <div className="flex flex-col gap-4 md:h-[clamp(360px,calc(100svh-340px),480px)] md:flex-row">
+          <div className="flex flex-col gap-4 md:aspect-[1225/640] md:flex-row">
             <div className="relative h-[460px] overflow-hidden rounded-[28px] md:h-auto md:flex-1">
               <Image
                 src="/images/oraculo-154.jpg"
@@ -200,7 +200,7 @@ function Bilhetes() {
                 <h3 className="text-xl font-medium tracking-[-0.03em] text-white">Bilhetes para lembrar.</h3>
               </div>
             </div>
-            <div className="flex flex-col gap-3 rounded-[24px] bg-verdade p-7 md:w-[380px] md:p-8">
+            <div className="flex flex-col gap-3 rounded-[24px] bg-verdade p-7 md:w-[36%] md:p-8">
               <p className="text-sm font-medium text-luz">Caixa viva</p>
               <h3 className="text-[21px] font-medium leading-[1.15] tracking-[-0.02em] text-leveza md:text-[22px]">
                 Feita à mão, em madeira natural. Nenhuma caixa é igual à outra.
@@ -217,7 +217,7 @@ function Bilhetes() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 md:h-[250px] md:flex-row">
+          <div className="flex flex-col gap-4 md:aspect-[1225/333] md:flex-row">
             <div className="flex flex-col gap-6 rounded-[24px] bg-[#F6F4EF] p-7 md:flex-1 md:p-8">
               <h3 className="text-[21px] font-medium tracking-[-0.02em] text-[#1F1517] md:text-[22px]">
                 Cada cor, uma intenção.
@@ -234,7 +234,7 @@ function Bilhetes() {
                 ))}
               </ul>
             </div>
-            <div className="flex flex-col justify-between gap-8 rounded-[24px] bg-recomeco p-7 md:w-[380px] md:p-8">
+            <div className="flex flex-col justify-between gap-8 rounded-[24px] bg-recomeco p-7 md:w-[36%] md:p-8">
               <div className="flex flex-col gap-3">
                 <p className="text-sm font-medium text-luz">Produção limitada</p>
                 <p className="font-mono text-5xl leading-none text-leveza md:text-[52px]">Nº 001</p>
@@ -253,18 +253,18 @@ function Bilhetes() {
 function Criadoras() {
   return (
     <section id="criadoras" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-16 md:py-[clamp(48px,6svh,104px)]">
-      {/* colagem com as proporções do canvas; a largura (até 1248px) encolhe em telas baixas para a seção caber na dobra */}
-      <div className="mx-auto flex max-w-[clamp(960px,calc((100svh-292px)*1.72),1248px)] flex-col gap-14 md:gap-[clamp(32px,6svh,72px)]">
+      {/* colagem com as proporções do canvas */}
+      <div className="largura flex flex-col gap-14 md:gap-[clamp(32px,6svh,72px)]">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="flex flex-col gap-5">
             <Eyebrow className="text-tinta">CRIADORAS</Eyebrow>
-            <h2 className="text-[40px] leading-none tracking-[-0.02em] text-verdade md:text-[clamp(36px,3.6vw,52px)]">
+            <h2 className="text-[40px] leading-none tracking-[-0.02em] text-verdade md:text-[clamp(34px,3.1vw,46px)]">
               A vida é a arte
               <br />
               do encontro.
             </h2>
           </div>
-          <p className="font-hand text-[22px] text-verdade md:text-[clamp(20px,2vw,28px)]">por Gabriela Lima &amp; Julia Lima Villa</p>
+          <p className="font-hand text-[20px] text-verdade md:whitespace-nowrap md:text-[clamp(18px,1.6vw,24px)]">por Gabriela Lima &amp; Julia Lima Villa</p>
         </div>
         <div className="flex flex-col gap-14 lg:flex-row lg:items-center lg:gap-[7%]">
           <div className="relative aspect-[640/700] w-full max-w-[640px] shrink-0 lg:w-[46%]">
@@ -318,12 +318,12 @@ function Legenda({ children }: { children: React.ReactNode }) {
 function JeitoCerto({ soldOut }: { soldOut: boolean }) {
   return (
     <section className="bg-[#F6F4EF] px-5 py-24 md:px-16 md:py-[clamp(40px,6svh,96px)]">
-      {/* as fotos mantêm a proporção do canvas; a largura (até 1040px) encolhe em telas baixas para a seção caber na dobra */}
-      <div className="mx-auto flex max-w-[clamp(880px,calc((100svh-470px)*1.5),1040px)] flex-col gap-14 md:gap-[clamp(32px,5svh,72px)]">
+      {/* as fotos mantêm a proporção do canvas */}
+      <div className="largura flex flex-col gap-14 md:gap-[clamp(32px,5svh,72px)]">
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end lg:gap-14">
           <div className="flex shrink-0 flex-col gap-5">
             <Eyebrow className="text-tinta-suave">NA SUA CASA</Eyebrow>
-            <h2 className="text-[40px] leading-[1.08] tracking-[-0.025em] text-tinta md:text-[clamp(40px,calc(4.4svh+4px),52px)]">
+            <h2 className="text-[40px] leading-[1.08] tracking-[-0.025em] text-tinta md:text-[clamp(34px,3.1vw,46px)]">
               Não existe jeito certo,
               <br />
               existe o seu.
@@ -406,12 +406,12 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
     ["Livreto do ritual", "Para começar sem pressa"],
   ];
   return (
-    <section id="comprar" className="scroll-mt-20 bg-vinho px-5 py-24 text-center text-leveza md:px-24 md:py-[clamp(56px,8svh,112px)]">
-      <div className="mx-auto flex max-w-[1248px] flex-col items-center">
+    <section id="comprar" className="scroll-mt-20 bg-vinho px-5 py-24 text-center text-leveza md:px-16 md:py-[clamp(56px,8svh,112px)]">
+      <div className="largura flex flex-col items-center">
         <Eyebrow className="text-luz">
           {produto.edicao.toUpperCase()} · {soldOut ? "ESGOTADA" : "COMPRA ONLINE"}
         </Eyebrow>
-        <h2 className="mt-6 text-[34px] leading-[1.1] tracking-[-0.02em] md:text-[clamp(36px,3.6vw,52px)]">
+        <h2 className="mt-6 text-[34px] leading-[1.1] tracking-[-0.02em] md:text-[clamp(34px,3.1vw,46px)]">
           {soldOut ? "Esgotou. O próximo lote já está a caminho." : `Apenas ${produto.tiragem} caixas de Bilhetes. Uma delas é sua.`}
         </h2>
         <ul className="mt-14 grid w-full grid-cols-2 gap-y-8 border-y border-leveza/20 py-8 md:grid-cols-4">
@@ -462,11 +462,11 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
 
 function Movimento() {
   return (
-    <section id="movimento" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-24 md:py-[clamp(56px,8svh,112px)]">
-      <div className="mx-auto flex max-w-[1248px] flex-col items-center gap-16 lg:flex-row lg:gap-24">
+    <section id="movimento" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-16 md:py-[clamp(56px,8svh,112px)]">
+      <div className="largura flex flex-col items-center gap-16 lg:flex-row lg:gap-24">
         <div className="flex flex-1 flex-col">
           <Eyebrow className="text-verdade">COMUNIDADE</Eyebrow>
-          <h2 className="mt-6 text-[40px] leading-[1.05] tracking-[-0.02em] md:text-[clamp(36px,3.6vw,52px)]">
+          <h2 className="mt-6 text-[40px] leading-[1.05] tracking-[-0.02em] md:text-[clamp(34px,3.1vw,46px)]">
             Faça parte
             <br />
             do movimento.

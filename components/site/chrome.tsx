@@ -19,7 +19,7 @@ export async function Nav() {
   const { soldOut } = await getStock();
   return (
     <StickyHeader>
-      <nav className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-3 transition-[padding] duration-300 group-data-[compact=true]:py-2 md:px-16 md:py-4 md:group-data-[compact=true]:py-2.5">
+      <nav className="mx-auto flex items-center md:max-w-[calc(var(--largura)+8rem)] justify-between px-5 py-3 transition-[padding] duration-300 group-data-[compact=true]:py-2 md:px-16 md:py-4 md:group-data-[compact=true]:py-2.5">
         <Link href="/" aria-label="bilhetes, página inicial" className="text-verdade">
           <Logo className="w-[108px] transition-[width] duration-300 group-data-[compact=true]:w-[92px] md:w-[132px] md:group-data-[compact=true]:w-[104px]" />
         </Link>
@@ -111,8 +111,8 @@ export async function MobileBuyBar() {
 
 export function Footer() {
   return (
-    <footer className="bg-vinho px-5 pb-28 pt-20 text-leveza md:px-24 md:pt-24 lg:pb-10">
-      <div className="mx-auto flex max-w-[1248px] flex-col gap-16">
+    <footer className="bg-vinho px-5 pb-28 pt-20 text-leveza md:px-16 md:pt-24 lg:pb-10">
+      <div className="largura flex flex-col gap-16">
         <div className="flex flex-col justify-between gap-12 md:flex-row md:items-end">
           <div className="flex flex-col gap-4">
             <Logo className="w-[280px] text-luz md:w-[400px]" />

@@ -21,6 +21,18 @@
   --font-hand: var(--font-cutive-mono);
 }
 
+/* largura única do conteúdo em todas as seções: cresce até 1200px e encolhe em telas baixas,
+   para o máximo possível de cada seção caber na mesma dobra */
+:root {
+  --largura: clamp(960px, calc((100svh - 290px) * 1.6), 1200px);
+}
+
+@utility largura {
+  width: 100%;
+  margin-inline: auto;
+  max-width: var(--largura);
+}
+
 html {
   scroll-behavior: smooth;
 }
