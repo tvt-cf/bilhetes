@@ -97,7 +97,7 @@ export async function MobileBuyBar() {
     <div className="fixed inset-x-3 bottom-3 z-40 flex items-center justify-between gap-3 rounded-full border border-verdade/10 bg-leveza/85 py-2 pl-5 pr-2 shadow-[0_12px_32px_-8px_rgba(46,36,32,0.35)] backdrop-blur-xl pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden">
       <div className="flex min-w-0 flex-col leading-tight">
         <span className="text-[15px] font-medium text-tinta">{produto.nome},</span>
-        <span className="truncate text-[13px] italic text-verdade">ritual para viver maior.</span>
+        <span className="truncate text-[13px] italic text-verdade">seu ritual para viver maior.</span>
       </div>
       <Link
         href="/#comprar"
@@ -116,7 +116,7 @@ export function Footer() {
         <div className="flex flex-col justify-between gap-12 md:flex-row md:items-end">
           <div className="flex flex-col gap-4">
             <Logo className="w-[280px] text-luz md:w-[400px]" />
-            <span className="text-[11px] font-semibold tracking-[0.25em] text-leveza/70 md:text-xs">BILHETES · UM RITUAL PARA VIVER MAIOR</span>
+            <span className="text-[11px] font-semibold tracking-[0.25em] text-leveza/70 md:text-xs">BILHETES · SEU RITUAL PARA VIVER MAIOR</span>
           </div>
           <div className="flex gap-18 text-[15px] text-leveza/85">
             <div className="flex flex-col gap-3.5">
@@ -146,5 +146,5 @@ export function Footer() {
 }
 
 export function Eyebrow({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <p className={`text-xs font-semibold tracking-[0.2em] ${className}`}>{children}</p>;
+  return <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${className}`}>{children}</p>;
 }

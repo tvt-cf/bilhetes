@@ -64,7 +64,7 @@ function Hero({ soldOut }: { soldOut: boolean }) {
       <h1 className="mt-8 font-display text-[72px] font-semibold leading-none tracking-[-0.04em] text-tinta md:mt-9 md:text-[clamp(88px,8.6vw,128px)]">
         {produto.nome}.
       </h1>
-      <p className="mt-3 text-[22px] italic leading-tight text-verdade md:text-[clamp(24px,2.1vw,31px)]">{produto.slogan}</p>
+      <p className="mt-3 font-mono text-[20px] leading-tight text-verdade md:text-[clamp(22px,1.9vw,28px)]">{produto.slogan}</p>
       <p className="mt-5 max-w-[620px] text-base leading-relaxed text-tinta-suave md:max-w-none md:whitespace-nowrap md:text-[17px]">
         Uma caixa viva com {produto.bilhetes} bilhetes que encontram você na hora exata.
       </p>
@@ -110,14 +110,9 @@ function Ritual() {
       <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-14 px-5 md:px-24 lg:flex-row lg:items-end">
         <div className="flex flex-col gap-6">
           <Eyebrow className="text-luz">O RITUAL</Eyebrow>
-          <h2 className="text-[44px] leading-[1.05] tracking-[-0.02em] text-leveza md:text-[clamp(36px,3.6vw,52px)]">
-            Três gestos.
-            <br />
-            Toda manhã.
+          <h2 className="max-w-[560px] text-[40px] leading-[1.08] tracking-[-0.02em] text-leveza md:text-[clamp(36px,3.6vw,52px)]">
+            Uma pausa para o que realmente importa.
           </h2>
-          <p className="max-w-[420px] text-[17px] leading-relaxed text-leveza/80">
-            Quando faltarem palavras, ou apenas coragem para escutá-las.
-          </p>
         </div>
         <div className="w-full lg:w-[520px]">
           <ol>
@@ -176,11 +171,11 @@ function Bilhetes() {
     <section id="bilhetes" className="scroll-mt-20 bg-[#EBE7DF] px-5 py-24 md:px-[100px] md:py-[clamp(56px,8svh,112px)]">
       <div className="mx-auto flex max-w-[1120px] flex-col items-center gap-12">
         <div className="flex max-w-[720px] flex-col items-center gap-4 text-center">
-          <p className="font-hand text-lg text-verdade">Os Bilhetes</p>
+          <Eyebrow className="text-verdade">O ORÁCULO</Eyebrow>
           <h2 className="text-[40px] font-medium leading-[1.04] tracking-[-0.025em] text-[#1F1517] md:text-[clamp(36px,3.6vw,52px)]">
-            {produto.bilhetes} bilhetes.
+            Sua caixa mágica
             <br />
-            Uma caixa viva.
+            de Bilhetes.
           </h2>
           <p className="text-base leading-[1.65] text-[#6E645D]">
             Os Bilhetes nasceram das nossas descobertas e da vontade de que outras pessoas também reconheçam seus
@@ -231,7 +226,7 @@ function Bilhetes() {
                     className={`flex h-[110px] items-end rounded-xl p-2.5 md:h-auto md:min-h-0 md:p-3 ${texto} ${nome === "leveza" ? "border border-verdade/12" : ""}`}
                     style={{ background: cor }}
                   >
-                    <span className="font-script text-[11px] font-light md:text-[13px]">{nome}</span>
+                    <span className="font-mono text-[11px] md:text-[13px]">{nome}</span>
                   </li>
                 ))}
               </ul>
