@@ -1,3 +1,4 @@
+import { CreditCard, Lock, QrCode } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Eyebrow, Footer, MobileBuyBar, Nav } from "@/components/site/chrome";
@@ -435,13 +436,13 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
         ) : (
           <>
             <div className="mt-14 flex items-center justify-center gap-7">
-              <div className="relative h-[150px] w-[132px] shrink-0 overflow-hidden rounded-2xl bg-[radial-gradient(ellipse_at_45%_35%,#6A2A3A,#2A1017)] p-3.5">
+              <div className="relative aspect-[4/3] w-[176px] shrink-0 overflow-hidden rounded-2xl ring-1 ring-leveza/15">
                 <Image
-                  src="/images/oraculo-caixa-recorte.png"
-                  alt="A caixa de madeira aberta, com o livreto bordô dentro"
+                  src="/images/caixa-cartas-thumb.jpg"
+                  alt="A caixa de madeira fechada ao lado de um leque de bilhetes coloridos"
                   fill
-                  sizes="132px"
-                  className="object-contain p-3.5"
+                  sizes="176px"
+                  className="object-cover"
                 />
               </div>
               <div className="flex flex-col items-start gap-1 text-left">
@@ -453,10 +454,33 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
             <div className="mt-10 w-full">
               <PresaleForm tone="dark" />
             </div>
+            <PagamentoSeguro />
           </>
         )}
       </div>
     </section>
+  );
+}
+
+// Selo discreto sob o botão de compra: forma de pagamento e quem processa.
+function PagamentoSeguro() {
+  return (
+    <div className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs text-leveza/55">
+      <span className="flex items-center gap-1.5">
+        <Lock className="size-3.5" strokeWidth={1.75} aria-hidden /> Pagamento seguro
+      </span>
+      <span aria-hidden>·</span>
+      <span className="flex items-center gap-1.5">
+        <QrCode className="size-3.5" strokeWidth={1.75} aria-hidden /> Pix
+      </span>
+      <span className="flex items-center gap-1.5">
+        <CreditCard className="size-3.5" strokeWidth={1.75} aria-hidden /> Cartão em até 10x
+      </span>
+      <span aria-hidden>·</span>
+      <span>
+        via <span className="font-semibold text-leveza/75">InfinitePay</span>
+      </span>
+    </div>
   );
 }
 
