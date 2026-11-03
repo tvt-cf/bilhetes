@@ -1,24 +1,14 @@
 import { CreditCard, Lock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { Eyebrow, Footer, MobileBuyBar, Nav } from "@/components/site/chrome";
 import { PresaleForm, SubscribeForm, WaitlistForm } from "@/components/site/forms";
 import { PixIcon } from "@/components/site/pix-icon";
-import { manifesto } from "@/lib/manifesto";
 import { produto } from "@/lib/site";
 import { getStock } from "@/lib/stock";
 
-const cores = [
-  ["verdade", "#5B1F2E", "text-leveza"],
-  ["presença", "#7A8154", "text-leveza"],
-  ["intuição", "#D6ABAA", "text-[#3A111B]"],
-  ["coragem", "#C4533A", "text-leveza"],
-  ["recomeço", "#39515A", "text-leveza"],
-  ["leveza", "#FFFFFF", "text-[#3A111B]"],
-  ["luz", "#CBA86A", "text-[#3A111B]"],
-] as const;
-
-const ritual = ["Faça uma pausa", "Escolha um bilhete com intenção", "Viva o que ele desperta em você"];
+const ritual = ["Pause e peça uma direção","Escolha um bilhete com intenção", "Viva o que ele desperta em você"];
 
 const faixa = [
   ["/images/oraculo-186.jpg", "Mulher meditando sentada no chão, perto das samambaias"],
@@ -26,6 +16,34 @@ const faixa = [
   ["/images/oraculo-144.jpg", "Pessoa lendo um bilhete"],
   ["/images/ritual-poltrona.jpg", "Mulher numa poltrona verde segura um bilhete junto ao peito"],
 ] as const;
+
+// cartas em destaque: foto segurando o bilhete + o texto do verso
+const cartas = [
+  {
+    foto: "/images/bilhete-se-faz-sentir.jpg",
+    alt: "Mulher sorrindo segura diante do rosto um bilhete verde com a frase “se faz sentir, faz sentido.”",
+    cor: "#2C4A44",
+    titulo: ["se faz sentir,", "faz sentido"],
+    texto: [
+      "Quem nunca se flagrou dizendo que não sabe, apenas sente? Se você sente, você sabe.",
+      "A inteligência do coração é tão poderosa quanto qualquer raciocínio sofisticado.",
+      "Quando faltarem palavras, não tenha medo de sentir por inteiro. Sem pressa para dissecar essa vivência e desvendar cada nuance.",
+      "Nem tudo o que compreendemos cabe na lógica. E nem por isso sabemos menos.",
+    ],
+  },
+  {
+    foto: "/images/bilhete-toda-grande-mudanca.jpg",
+    alt: "Mulher segura diante do rosto um bilhete verde-oliva com a frase “toda grande mudança começa pequena.”",
+    cor: "#59612F",
+    titulo: ["toda grande mudança", "começa pequena"],
+    texto: [
+      "Como uma pluma atravessando o ar. Delicada, mas impossível de ignorar.",
+      "Ela chega falando baixinho, como um arrepio. Uma conversa intrigante. Um frio curioso na barriga. Uma vontade de fazer diferente.",
+      "Perceba. Celebre. Mas não se apresse pela moral da história.",
+      "Antes que a história saiba para onde vai, alguma coisa dentro de nós já começou a se mover.",
+    ],
+  },
+];
 
 export default async function Home() {
   const { soldOut } = await getStock();
@@ -38,6 +56,7 @@ export default async function Home() {
         <Ritual />
         <ManifestoSection />
         <Bilhetes />
+        <Cartas />
         <Criadoras />
         <JeitoCerto soldOut={soldOut} />
         <Comprar soldOut={soldOut} />
@@ -68,7 +87,7 @@ function Hero({ soldOut }: { soldOut: boolean }) {
       </h1>
       <p className="mt-3 font-mono text-[20px] leading-tight text-verdade md:text-[clamp(22px,1.9vw,28px)]">{produto.slogan}</p>
       <p className="mt-5 max-w-[620px] text-base leading-relaxed text-tinta-suave md:max-w-none md:whitespace-nowrap md:text-[17px]">
-        Uma caixa viva com {produto.bilhetes} bilhetes que encontram você na hora exata.
+        Uma caixa viva com bilhetes que encontram você na hora exata.
       </p>
       <Link
         href="#comprar"
@@ -112,12 +131,10 @@ function Ritual() {
       {/* fotos verticais como no canvas, na largura comum das seções */}
       <div className="largura">
       <div className="flex flex-col justify-between gap-14 px-5 md:px-0 lg:flex-row lg:items-end">
-        <div className="flex flex-col gap-6">
-          <Eyebrow className="text-luz">O RITUAL</Eyebrow>
-          <h2 className="max-w-[560px] text-[40px] leading-[1.08] tracking-[-0.02em] text-leveza md:text-[clamp(34px,3.1vw,46px)]">
-            Uma pausa para o que realmente importa.
-          </h2>
-        </div>
+        <h2 className="max-w-[560px] text-[40px] leading-[1.08] tracking-[-0.02em] text-leveza md:text-[clamp(34px,3.1vw,46px)]">
+          A pausa que faltava <br className="hidden md:block" />
+          no seu dia.
+        </h2>
         <div className="w-full lg:w-[420px] lg:shrink-0">
           <ol>
             {ritual.map((passo, i) => (
@@ -150,11 +167,21 @@ function ManifestoSection() {
           <Eyebrow className="text-recomeco">MANIFESTO</Eyebrow>
           <span className="h-px w-14 bg-recomeco" />
         </div>
-        <div className="flex flex-col gap-1 text-[30px] font-medium leading-[1.08] tracking-[-0.025em] md:text-[clamp(30px,3.2vw,46px)]">
-          <p className="text-[#2A1A1D]">{manifesto.abertura}</p>
-          <p className="whitespace-pre-line text-[#A79C93]">{manifesto.estrofes[0]}</p>
+        {/* negrito = font-medium; linhas de apoio em font-light */}
+        <div className="flex flex-col gap-7 text-[30px] font-medium leading-[1.08] tracking-[-0.025em] md:gap-9 md:text-[clamp(30px,3.2vw,46px)]">
+          <p className="text-[#2A1A1D]">
+            Sabe quando existe algo dentro da gente pedindo mais?
+            <span className="block font-light">Uma ideia. Uma coragem.</span>
+            <span className="block font-light">Uma verdade que ainda não encontrou palavras.</span>
+          </p>
+          <p className="text-[#A79C93]">
+            Chega como uma pluma atravessando o ar.
+            <br />
+            Delicada, mas impossível de ignorar.
+          </p>
           <p className="text-verdade">
-            Muitas vezes as respostas já estão com a gente, mas precisamos silenciar os ruídos para conseguir ouvir.
+            Muitas vezes as respostas já estão com a gente,
+            <br className="hidden md:block" /> mas precisamos silenciar os ruídos para conseguir ouvir.
           </p>
         </div>
         <div className="relative h-[200px] overflow-hidden rounded-[20px] md:aspect-[4/1] md:h-auto">
@@ -202,12 +229,11 @@ function Bilhetes() {
                 <h3 className="text-xl font-medium tracking-[-0.03em] text-white">Bilhetes para lembrar.</h3>
               </div>
             </div>
-            <div className="flex flex-col gap-3 rounded-[24px] bg-verdade p-7 md:w-[36%] md:p-8">
-              <p className="text-sm font-medium text-luz">Caixa viva</p>
+            <div className="flex flex-col gap-3 rounded-[24px] bg-[#3B2418] p-7 md:w-[36%] md:p-8">
               <h3 className="text-[21px] font-medium leading-[1.15] tracking-[-0.02em] text-leveza md:text-[22px]">
                 Feita à mão, em madeira natural. Nenhuma caixa é igual à outra.
               </h3>
-              <div className="relative mt-2 min-h-[240px] flex-1 overflow-hidden rounded-2xl md:min-h-0">
+              <div className="relative mt-2 min-h-[280px] flex-1 overflow-hidden rounded-2xl md:min-h-0">
                 <Image
                   src="/images/caixas-empilhadas.jpg"
                   alt="Caixas de madeira em tons diferentes, empilhadas"
@@ -218,35 +244,39 @@ function Bilhetes() {
               </div>
             </div>
           </div>
-
-          <div className="flex flex-col gap-4 md:aspect-[1225/333] md:flex-row">
-            <div className="flex flex-col gap-6 rounded-[24px] bg-[#F6F4EF] p-7 md:flex-1 md:p-8">
-              <h3 className="text-[21px] font-medium tracking-[-0.02em] text-[#1F1517] md:text-[22px]">
-                Cada cor, uma intenção.
-              </h3>
-              <ul className="grid grid-cols-4 gap-2 md:flex-1 md:grid-cols-7 md:gap-2.5">
-                {cores.map(([nome, cor, texto]) => (
-                  <li
-                    key={nome}
-                    className={`flex h-[110px] items-end rounded-xl p-2.5 md:h-auto md:min-h-0 md:p-3 ${texto} ${nome === "leveza" ? "border border-verdade/12" : ""}`}
-                    style={{ background: cor }}
-                  >
-                    <span className="font-mono text-[11px] md:text-[13px]">{nome}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="flex flex-col justify-between gap-8 rounded-[24px] bg-recomeco p-7 md:w-[36%] md:p-8">
-              <div className="flex flex-col gap-3">
-                <p className="text-sm font-medium text-luz">Produção limitada</p>
-                <p className="font-mono text-5xl leading-none text-leveza md:text-[52px]">Nº 001</p>
-              </div>
-              <p className="text-[15px] leading-[1.6] text-leveza/80">
-                Cada caixa da primeira edição é numerada e assinada à mão pelas criadoras. Quando acabar, acabou.
-              </p>
-            </div>
-          </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function Cartas() {
+  return (
+    <section className="bg-white px-5 py-24 md:px-16 md:py-[clamp(56px,8svh,112px)]">
+      {/* no desktop a altura vem do texto do verso e a foto acompanha */}
+      <div className="largura grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+        {cartas.map((c) => (
+          <Fragment key={c.foto}>
+            <div className="relative aspect-[4/5] overflow-hidden rounded-md md:aspect-auto md:min-h-[440px]">
+              <Image src={c.foto} alt={c.alt} fill sizes="(min-width: 1024px) 300px, (min-width: 768px) 50vw, 100vw" className="object-cover object-[50%_35%]" />
+            </div>
+            <div className="relative flex flex-col items-center justify-center gap-6 rounded-md bg-leveza px-8 py-14 text-center lg:px-7">
+              {/* cantos curvos como no bilhete impresso */}
+              <span aria-hidden className="absolute left-5 top-5 size-4 rounded-tl-full border-l-[1.5px] border-t-[1.5px]" style={{ borderColor: c.cor }} />
+              <span aria-hidden className="absolute bottom-5 right-5 size-4 rounded-br-full border-b-[1.5px] border-r-[1.5px]" style={{ borderColor: c.cor }} />
+              <h3 className="font-mono text-[21px] leading-[1.15] tracking-[0.02em]" style={{ color: c.cor }}>
+                {c.titulo[0]}
+                <br />
+                {c.titulo[1]}
+              </h3>
+              <div className="flex max-w-[300px] flex-col gap-3.5 text-[14px] leading-[1.55] text-tinta-suave">
+                {c.texto.map((t) => (
+                  <p key={t}>{t}</p>
+                ))}
+              </div>
+            </div>
+          </Fragment>
+        ))}
       </div>
     </section>
   );
@@ -295,16 +325,16 @@ function Criadoras() {
             </p>
             <span className="h-px w-10 bg-luz" />
             <p className="text-[17px] leading-[1.65] text-[#4F4944]">
-              Sempre trocamos bilhetes, dividimos a vida e coincidências raras. O sobrenome em comum, por exemplo, foi
-              um desses presentes que a vida nos deu muito lá atrás. Nos tornamos irmãs por escolha e, agora, sócias.
+              Sempre trocamos bilhetes, dividimos a vida e coincidências raras. O sobrenome em comum foi um desses
+              presentes que a vida nos deu. Nos tornamos irmãs por escolha e, agora, sócias.
             </p>
             <p className="text-[17px] leading-[1.65] text-[#4F4944]">
-              Entre uma mensagem e outra, livros compartilhados e conexões improváveis, nasceram os bilhetes. Com eles,
-              nasceu a vontade de abrir a roda. Começar pequeno, buscar junto.
+              Entre uma mensagem e outra, livros compartilhados e conexões improváveis, nasceram os bilhetes. Com eles, a
+              vontade de abrir a roda. Começar pequeno, buscar junto.
             </p>
             <p className="font-hand text-lg leading-[1.5] text-verdade">
-              Se estas cartas chegaram até você, talvez nossos caminhos tenham se encontrado exatamente quando
-              precisavam &lt;3
+              Se essa carta chegou até você, talvez nossos caminhos tenham se encontrado exatamente quando
+              precisavam ♡
             </p>
           </div>
         </div>
@@ -331,13 +361,13 @@ function JeitoCerto({ soldOut }: { soldOut: boolean }) {
               existe o seu.
             </h2>
           </div>
-          <div className="flex max-w-[360px] flex-col gap-4 text-[15px] leading-[1.65] text-[#4F4944] xl:text-base">
+          {/* mesma largura da coluna de fotos da direita (lg:w-[42%]) */}
+          <div className="flex flex-col gap-4 text-[15px] leading-[1.65] text-[#4F4944] lg:w-[42%] lg:shrink-0 xl:text-base">
             <p>
-              Nossas caixas são numeradas à mão, uma diferente da outra, para que cada um crie o seu próprio jeito de se
-              escutar.
+              Nossas caixas são numeradas à mão, uma diferente da outra, para que cada um crie o seu próprio ritual.
             </p>
             <p>
-              Elas são lindas por si só e a gente adora ter elas na sala, no escritório, na penteadeira… Um pouco de
+              Elas são lindas por si só e a gente adora tê-las na sala, no escritório, na penteadeira. Um pouco de
               intenção, um pouco de intuição.
             </p>
           </div>
@@ -402,19 +432,27 @@ function JeitoCerto({ soldOut }: { soldOut: boolean }) {
 
 function Comprar({ soldOut }: { soldOut: boolean }) {
   const itens = [
-    ["Madeira natural", "Feita à mão, peça a peça"],
-    [`${produto.bilhetes} bilhetes`, "Sete cores, frases gravadas"],
-    ["Numerada", "Assinada pelas autoras"],
-    ["Livreto do ritual", "Para começar sem pressa"],
+    ["1 caixa decorativa", "Madeira natural, feita à mão"],
+    [`${produto.bilhetes} bilhetes`, "Mensagens para viver maior"],
+    ["Kit numerado", "Cada caixinha é única"],
+    ["Instruções pro Ritual", "Para começar sem pressa"],
   ];
   return (
     <section id="comprar" className="scroll-mt-20 bg-vinho px-5 py-24 text-center text-leveza md:px-16 md:py-[clamp(56px,8svh,112px)]">
       <div className="largura flex flex-col items-center">
         <Eyebrow className="text-luz">
-          {produto.edicao.toUpperCase()} · {soldOut ? "ESGOTADA" : "COMPRA ONLINE"}
+          {produto.edicao.toUpperCase()} · {soldOut ? "ESGOTADA" : "COMPRE ONLINE"}
         </Eyebrow>
         <h2 className="mt-6 text-[34px] leading-[1.1] tracking-[-0.02em] md:text-[clamp(34px,3.1vw,46px)]">
-          {soldOut ? "Esgotou. O próximo lote já está a caminho." : `Apenas ${produto.tiragem} caixas de Bilhetes. Uma delas é sua.`}
+          {/* a segunda frase sempre começa numa linha nova */}
+          {soldOut ? (
+            "Esgotou. O próximo lote já está a caminho."
+          ) : (
+            <>
+              <span className="block">Apenas {produto.tiragem} caixas de Bilhetes.</span>
+              <span className="block">Uma delas pode ser sua.</span>
+            </>
+          )}
         </h2>
         <ul className="mt-14 grid w-full grid-cols-2 gap-y-8 border-y border-leveza/20 py-8 md:grid-cols-4">
           {itens.map(([titulo, desc]) => (
@@ -497,7 +535,7 @@ function Movimento() {
             do movimento.
           </h2>
           <p className="mt-6 max-w-[520px] text-[17px] leading-relaxed text-tinta-suave">
-            Deixe seu WhatsApp para ser convidado para o próximo evento e, de vez em quando, uma mensagem de sabedoria.
+            Deixe seu WhatsApp para ser convidado para o próximo evento e, de vez em quando, receber uma mensagem de sabedoria.
           </p>
           <div className="mt-11">
             <SubscribeForm />

@@ -5,11 +5,13 @@ import { Logo } from "./logo";
 import { StickyHeader } from "./sticky-header";
 
 const links = [
-  ["Manifesto", "/manifesto"],
   ["Bilhetes", "/#bilhetes"],
-  ["Ritual", "/#ritual"],
-  ["Movimento", "/#movimento"],
+  ["Criadoras", "/#criadoras"],
+  ["Instagram", instagram],
 ] as const;
+
+// links externos (Instagram) abrem em outra aba
+const externo = (href: string) => (href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {});
 
 function ctaLabel(soldOut: boolean) {
   return soldOut ? "Fila de espera" : "Eu quero";
@@ -25,7 +27,7 @@ export async function Nav() {
         </Link>
         <div className="hidden items-center gap-10 text-sm text-tinta lg:flex">
           {links.map(([label, href]) => (
-            <Link key={href} href={href} className="transition hover:text-verdade">
+            <Link key={href} href={href} {...externo(href)} className="transition hover:text-verdade">
               {label}
             </Link>
           ))}
@@ -68,6 +70,7 @@ function MobileMenu({ soldOut }: { soldOut: boolean }) {
               <li key={href}>
                 <Link
                   href={href}
+                  {...externo(href)}
                   className="flex items-center justify-between border-b border-verdade/10 py-4 text-[22px] text-tinta"
                 >
                   {label}
@@ -116,12 +119,10 @@ export function Footer() {
         <div className="flex flex-col justify-between gap-12 md:flex-row md:items-end">
           <div className="flex flex-col gap-4">
             <Logo className="w-[280px] text-luz md:w-[400px]" />
-            <span className="text-[11px] font-semibold tracking-[0.25em] text-leveza/70 md:text-xs">BILHETES · SEU RITUAL PARA VIVER MAIOR</span>
           </div>
           <div className="flex gap-18 text-[15px] text-leveza/85">
             <div className="flex flex-col gap-3.5">
               <span className="text-xs font-semibold tracking-[0.2em] text-luz">EXPLORAR</span>
-              <Link href="/manifesto">Manifesto</Link>
               <Link href="/#bilhetes">Bilhetes</Link>
               <Link href="/#ritual">Ritual</Link>
             </div>

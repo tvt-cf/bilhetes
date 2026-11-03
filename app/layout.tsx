@@ -12,7 +12,7 @@ const display = Instrument_Sans({ variable: "--font-instrument-sans", subsets: [
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Bilhetes — Seu ritual para viver maior",
-  description: "Uma caixa viva com 22 bilhetes que encontram você na hora exata. Feita à mão, em tiragem limitada.",
+  description: "Uma caixa viva com bilhetes que encontram você na hora exata. Feita à mão, em tiragem limitada.",
   openGraph: {
     title: "Bilhetes",
     description: "Seu ritual para viver maior.",

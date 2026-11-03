@@ -2,9 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
-  // a tela "Envios" virou "Mensagens"
+  // a tela "Envios" virou "Mensagens"; a página /manifesto saiu do site
   async redirects() {
-    return [{ source: "/admin/envios", destination: "/admin/mensagens", permanent: true }];
+    return [
+      { source: "/admin/envios", destination: "/admin/mensagens", permanent: true },
+      { source: "/manifesto", destination: "/", permanent: false },
+    ];
   },
   // PGlite carrega o próprio WASM do node_modules; não pode ser empacotado
   serverExternalPackages: ["@electric-sql/pglite"],
