@@ -54,7 +54,7 @@ export default async function Home() {
 
 function Hero({ soldOut }: { soldOut: boolean }) {
   return (
-    <section className="flex flex-col items-center px-5 pt-16 text-center md:px-16 md:pt-24">
+    <section className="flex flex-col items-center px-5 pt-11 text-center md:px-16 md:pt-[67px]">
       {soldOut ? (
         <span className="flex items-center gap-2.5 rounded-full bg-coragem px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.18em] text-white">
           ESGOTADO · {produto.edicao.toUpperCase()}
@@ -116,19 +116,22 @@ function Ritual() {
       <div className="largura">
       <div className="flex flex-col justify-between gap-14 px-5 md:px-0 lg:flex-row lg:items-start">
         <h2 className="max-w-[560px] text-[40px] leading-[1.08] tracking-[-0.02em] text-leveza md:text-[clamp(34px,3.1vw,46px)]">
-          A pausa que faltava <br className="hidden md:block" />
+          A pausa
+          <br />
+          que faltava
+          <br />
           no seu dia.
         </h2>
         <div className="w-full lg:w-[420px] lg:shrink-0">
           <ol>
             {ritual.map((passo, i) => (
-              <li key={passo} className="flex items-center gap-6 border-t border-leveza/20 py-4.5">
+              <li key={passo} className="flex items-center gap-6 border-b border-leveza/20 py-4.5">
                 <span className="w-9 font-hand text-[22px] text-intuicao">{i + 1}.</span>
                 <span className="font-mono text-[17px] text-leveza">{passo}</span>
               </li>
             ))}
           </ol>
-          <p className="mt-2 font-hand text-[17px] text-luz">Volte sempre que precisar.</p>
+          <p className="mt-4.5 font-hand text-[17px] text-luz">Volte sempre que precisar.</p>
         </div>
       </div>
       <div className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:px-0 md:mt-[clamp(40px,6svh,80px)] md:grid md:grid-cols-4 md:overflow-visible">
