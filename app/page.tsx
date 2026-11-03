@@ -1,8 +1,9 @@
-import { CreditCard, Lock, QrCode } from "lucide-react";
+import { CreditCard, Lock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Eyebrow, Footer, MobileBuyBar, Nav } from "@/components/site/chrome";
 import { PresaleForm, SubscribeForm, WaitlistForm } from "@/components/site/forms";
+import { PixIcon } from "@/components/site/pix-icon";
 import { manifesto } from "@/lib/manifesto";
 import { produto } from "@/lib/site";
 import { getStock } from "@/lib/stock";
@@ -471,7 +472,7 @@ function PagamentoSeguro() {
       </span>
       <span aria-hidden>·</span>
       <span className="flex items-center gap-1.5">
-        <QrCode className="size-3.5" strokeWidth={1.75} aria-hidden /> Pix
+        <PixIcon className="size-3" /> Pix
       </span>
       <span className="flex items-center gap-1.5">
         <CreditCard className="size-3.5" strokeWidth={1.75} aria-hidden /> Cartão em até 10x
