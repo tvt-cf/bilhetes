@@ -106,11 +106,13 @@ function Assinatura() {
 
 function Ritual() {
   return (
-    <section id="ritual" className="scroll-mt-20 bg-vinho pb-2 pt-24 md:pt-[clamp(72px,10svh,128px)]">
-      <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-14 px-5 md:px-24 lg:flex-row lg:items-end">
+    <section id="ritual" className="scroll-mt-20 bg-vinho pb-2 pt-24 md:pt-[clamp(56px,8svh,112px)]">
+      {/* fotos verticais como no canvas; a largura (até 1440px) encolhe em telas baixas para a seção caber na dobra */}
+      <div className="mx-auto md:max-w-[clamp(1000px,calc((100svh-445px)*3),1440px)]">
+      <div className="flex flex-col justify-between gap-14 px-5 md:px-16 lg:flex-row lg:items-end xl:px-24">
         <div className="flex flex-col gap-6">
           <Eyebrow className="text-luz">O RITUAL</Eyebrow>
-          <h2 className="max-w-[560px] text-[40px] leading-[1.08] tracking-[-0.02em] text-leveza md:text-[clamp(36px,3.6vw,52px)]">
+          <h2 className="max-w-[680px] text-[40px] leading-[1.08] tracking-[-0.02em] text-leveza md:text-[clamp(36px,3.6vw,52px)]">
             Uma pausa para o que realmente importa.
           </h2>
         </div>
@@ -126,12 +128,13 @@ function Ritual() {
           <p className="mt-2 font-hand text-[17px] text-luz">Volte sempre que precisar.</p>
         </div>
       </div>
-      <div className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:mt-[clamp(48px,7svh,88px)] md:grid md:grid-cols-4 md:overflow-visible">
+      <div className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:mt-[clamp(40px,6svh,80px)] md:grid md:grid-cols-4 md:overflow-visible">
         {faixa.map(([src, alt]) => (
-          <div key={src} className="relative h-[440px] w-[78vw] shrink-0 snap-start overflow-hidden rounded-md md:h-[clamp(300px,44svh,460px)] md:w-auto">
-            <Image src={src} alt={alt} fill sizes="(min-width: 768px) 25vw, 78vw" className="object-cover" />
+          <div key={src} className="relative h-[440px] w-[78vw] shrink-0 snap-start overflow-hidden rounded-md md:aspect-[346/460] md:h-auto md:w-auto">
+            <Image src={src} alt={alt} fill sizes="(min-width: 768px) 360px, 78vw" className="object-cover" />
           </div>
         ))}
+      </div>
       </div>
     </section>
   );
@@ -249,8 +252,9 @@ function Bilhetes() {
 
 function Criadoras() {
   return (
-    <section id="criadoras" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-24 md:py-[clamp(56px,8svh,112px)]">
-      <div className="mx-auto flex max-w-[1248px] flex-col gap-14 md:gap-[clamp(40px,6svh,72px)]">
+    <section id="criadoras" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-16 md:py-[clamp(48px,6svh,104px)]">
+      {/* colagem com as proporções do canvas; a largura (até 1248px) encolhe em telas baixas para a seção caber na dobra */}
+      <div className="mx-auto flex max-w-[clamp(960px,calc((100svh-292px)*1.72),1248px)] flex-col gap-14 md:gap-[clamp(32px,6svh,72px)]">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="flex flex-col gap-5">
             <Eyebrow className="text-tinta">CRIADORAS</Eyebrow>
@@ -262,9 +266,9 @@ function Criadoras() {
           </div>
           <p className="font-hand text-[22px] text-verdade md:text-[clamp(20px,2vw,28px)]">por Gabriela Lima &amp; Julia Lima Villa</p>
         </div>
-        <div className="flex flex-col gap-14 lg:flex-row lg:gap-24">
-          <div className="relative h-[520px] w-full shrink-0 md:h-[clamp(380px,calc(100svh-440px),600px)] lg:w-[46%]">
-            <div className="absolute left-0 top-0 h-[80%] w-[60%] overflow-hidden rounded-3xl">
+        <div className="flex flex-col gap-14 lg:flex-row lg:items-center lg:gap-[7%]">
+          <div className="relative aspect-[640/700] w-full max-w-[640px] shrink-0 lg:w-[46%]">
+            <div className="absolute left-0 top-0 h-[80%] w-[59.4%] overflow-hidden rounded-3xl">
               <Image
                 src="/images/criadoras-jardim-pb.jpg"
                 alt="Gabriela e Julia sentadas num pufe no jardim, em preto e branco"
@@ -273,7 +277,7 @@ function Criadoras() {
                 className="object-cover"
               />
             </div>
-            <div className="absolute bottom-0 right-0 h-[74%] w-[53%] overflow-hidden rounded-3xl ring-[10px] ring-leveza">
+            <div className="absolute bottom-0 right-0 h-[74.3%] w-[53.1%] overflow-hidden rounded-3xl ring-[10px] ring-leveza">
               <Image
                 src="/images/criadoras-cadeiras.jpg"
                 alt="Gabriela e Julia sentadas em cadeiras de vime entre as plantas"
@@ -283,7 +287,7 @@ function Criadoras() {
               />
             </div>
           </div>
-          <div className="flex flex-col gap-6 lg:pt-6">
+          <div className="flex flex-col gap-6">
             <p className="text-2xl leading-[1.2] text-tinta md:text-[clamp(20px,1.7vw,24px)]">
               Somos amigas de longa data, mas foi buscando por algo novo que nossa história (re)começa.
             </p>
@@ -313,18 +317,19 @@ function Legenda({ children }: { children: React.ReactNode }) {
 
 function JeitoCerto({ soldOut }: { soldOut: boolean }) {
   return (
-    <section className="bg-[#F6F4EF] px-5 py-24 md:px-24 md:py-[clamp(56px,8svh,112px)]">
-      <div className="mx-auto flex max-w-[1248px] flex-col gap-14 md:gap-[clamp(32px,5svh,56px)]">
-        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-          <div className="flex flex-col gap-5">
+    <section className="bg-[#F6F4EF] px-5 py-24 md:px-16 md:py-[clamp(40px,6svh,96px)]">
+      {/* as fotos mantêm a proporção do canvas; a largura (até 1040px) encolhe em telas baixas para a seção caber na dobra */}
+      <div className="mx-auto flex max-w-[clamp(880px,calc((100svh-470px)*1.5),1040px)] flex-col gap-14 md:gap-[clamp(32px,5svh,72px)]">
+        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end lg:gap-14">
+          <div className="flex shrink-0 flex-col gap-5">
             <Eyebrow className="text-tinta-suave">NA SUA CASA</Eyebrow>
-            <h2 className="text-[40px] leading-[1.08] tracking-[-0.025em] text-tinta md:text-[clamp(36px,3.6vw,52px)]">
+            <h2 className="text-[40px] leading-[1.08] tracking-[-0.025em] text-tinta md:text-[clamp(40px,calc(4.4svh+4px),52px)]">
               Não existe jeito certo,
               <br />
               existe o seu.
             </h2>
           </div>
-          <div className="flex max-w-[440px] flex-col gap-4 text-base leading-[1.65] text-[#4F4944]">
+          <div className="flex max-w-[360px] flex-col gap-4 text-[15px] leading-[1.65] text-[#4F4944] xl:text-base">
             <p>
               Nossas caixas são numeradas à mão, uma diferente da outra, para que cada um crie o seu próprio jeito de se
               escutar.
@@ -336,50 +341,51 @@ function JeitoCerto({ soldOut }: { soldOut: boolean }) {
           </div>
         </div>
 
-        {/* no desktop a galeria acompanha a altura da janela, para a seção caber numa tela só */}
-        <div className="flex flex-col gap-6 lg:h-[clamp(300px,calc(100svh-460px),560px)] lg:flex-row lg:gap-5">
-          <figure className="flex flex-1 flex-col gap-3 lg:min-h-0">
-            <div className="relative h-[460px] overflow-hidden rounded-[4px] lg:h-auto lg:flex-1">
+        <div className="flex flex-col gap-6 lg:flex-row lg:gap-5">
+          {/* no desktop a foto da sala acompanha a altura da coluna da direita */}
+          <figure className="flex flex-col gap-3 lg:flex-1">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[4px] lg:aspect-auto lg:flex-1">
               <Image
                 src="/images/casa-sala.jpg"
                 alt="Caixa sobre o aparador da sala, ao lado de um vaso de madeira e da vitrola"
                 fill
-                sizes="(min-width: 1024px) 704px, 100vw"
+                sizes="(min-width: 1024px) 570px, 100vw"
                 className="object-cover"
               />
             </div>
             <Legenda>01 — NA SALA</Legenda>
           </figure>
-          <div className="flex flex-col gap-6 lg:w-[42%] lg:gap-5">
-            <figure className="flex flex-col gap-3 lg:min-h-0 lg:flex-[3]">
-              <div className="relative h-[340px] overflow-hidden rounded-[4px] md:h-[420px] lg:h-auto lg:flex-1">
+          <div className="flex flex-col gap-6 lg:w-[42%] lg:shrink-0 lg:gap-5">
+            <figure className="flex flex-col gap-3">
+              <div className="relative aspect-[520/420] overflow-hidden rounded-[4px]">
                 <Image
                   src="/images/casa-aparador.jpg"
                   alt="Caixa de madeira clara sobre o aparador, perto da vitrola"
                   fill
-                  sizes="(min-width: 1024px) 520px, 100vw"
+                  sizes="(min-width: 1024px) 450px, 100vw"
                   className="object-cover"
                 />
               </div>
               <Legenda>02 — NO APARADOR</Legenda>
             </figure>
-            <div className="flex items-start gap-6 lg:min-h-0 lg:flex-[2] lg:items-stretch lg:gap-5">
-              <figure className="flex flex-1 flex-col gap-3 lg:min-h-0">
-                <div className="relative h-[220px] overflow-hidden rounded-[4px] md:h-[300px] lg:h-auto lg:flex-1">
+            <div className="flex gap-5">
+              <figure className="flex flex-1 flex-col gap-3">
+                <div className="relative aspect-[248/300] overflow-hidden rounded-[4px]">
                   <Image
                     src="/images/casa-escritorio.jpg"
                     alt="Três caixas de madeira empilhadas sobre a mesa"
                     fill
-                    sizes="(min-width: 1024px) 248px, 50vw"
+                    sizes="(min-width: 1024px) 215px, 50vw"
                     className="object-cover"
                   />
                 </div>
                 <Legenda>03 — NO ESCRITÓRIO</Legenda>
               </figure>
-              <div className="flex h-[220px] flex-1 items-center justify-center md:h-[300px] lg:h-auto">
+              {/* botão centralizado em relação à foto (desconta a altura da legenda) */}
+              <div className="flex flex-1 items-center justify-center pb-7">
                 <Link
                   href="#comprar"
-                  className="flex items-center gap-2.5 rounded-full bg-verdade px-7 py-4 text-[15px] font-semibold text-leveza transition active:scale-[0.98] hover:bg-verdade/90 md:px-9 md:py-4.5"
+                  className="flex items-center gap-2.5 whitespace-nowrap rounded-full bg-verdade px-6 py-3.5 text-[15px] font-semibold text-leveza transition active:scale-[0.98] hover:bg-verdade/90 md:px-8 md:py-4"
                 >
                   {soldOut ? "Fila de espera" : "Eu quero!"} <span aria-hidden>→</span>
                 </Link>
