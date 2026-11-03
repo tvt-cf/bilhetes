@@ -100,7 +100,7 @@ export async function MobileBuyBar() {
     <div className="fixed inset-x-3 bottom-3 z-40 flex items-center justify-between gap-3 rounded-full border border-verdade/10 bg-leveza/85 py-2 pl-5 pr-2 shadow-[0_12px_32px_-8px_rgba(46,36,32,0.35)] backdrop-blur-xl pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden">
       <div className="flex min-w-0 flex-col leading-tight">
         <span className="text-[15px] font-medium text-tinta">{produto.nome},</span>
-        <span className="truncate text-[13px] italic text-verdade">seu ritual para viver maior.</span>
+        <span className="truncate text-[13px] italic text-verdade">Seu Ritual para Viver Maior.</span>
       </div>
       <Link
         href="/#comprar"

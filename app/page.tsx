@@ -1,7 +1,6 @@
 import { CreditCard, Lock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Fragment } from "react";
 import { Eyebrow, Footer, MobileBuyBar, Nav } from "@/components/site/chrome";
 import { PresaleForm, SubscribeForm, WaitlistForm } from "@/components/site/forms";
 import { PixIcon } from "@/components/site/pix-icon";
@@ -17,32 +16,17 @@ const faixa = [
   ["/images/ritual-poltrona.jpg", "Mulher numa poltrona verde segura um bilhete junto ao peito"],
 ] as const;
 
-// cartas em destaque: foto segurando o bilhete + o texto do verso
-const cartas = [
-  {
-    foto: "/images/bilhete-se-faz-sentir.jpg",
-    alt: "Mulher sorrindo segura diante do rosto um bilhete verde com a frase “se faz sentir, faz sentido.”",
-    cor: "#2C4A44",
-    titulo: ["se faz sentir,", "faz sentido"],
-    texto: [
-      "Quem nunca se flagrou dizendo que não sabe, apenas sente? Se você sente, você sabe.",
-      "A inteligência do coração é tão poderosa quanto qualquer raciocínio sofisticado.",
-      "Quando faltarem palavras, não tenha medo de sentir por inteiro. Sem pressa para dissecar essa vivência e desvendar cada nuance.",
-      "Nem tudo o que compreendemos cabe na lógica. E nem por isso sabemos menos.",
-    ],
-  },
-  {
-    foto: "/images/bilhete-toda-grande-mudanca.jpg",
-    alt: "Mulher segura diante do rosto um bilhete verde-oliva com a frase “toda grande mudança começa pequena.”",
-    cor: "#59612F",
-    titulo: ["toda grande mudança", "começa pequena"],
-    texto: [
-      "Como uma pluma atravessando o ar. Delicada, mas impossível de ignorar.",
-      "Ela chega falando baixinho, como um arrepio. Uma conversa intrigante. Um frio curioso na barriga. Uma vontade de fazer diferente.",
-      "Perceba. Celebre. Mas não se apresse pela moral da história.",
-      "Antes que a história saiba para onde vai, alguma coisa dentro de nós já começou a se mover.",
-    ],
-  },
+// bilhete em destaque: as duas fotos segurando os bilhetes e, no meio, o verso de "se faz sentir"
+const fotosBilhete = [
+  ["/images/bilhete-se-faz-sentir.jpg", "Mulher sorrindo segura diante do rosto um bilhete verde com a frase “se faz sentir, faz sentido.”"],
+  ["/images/bilhete-toda-grande-mudanca.jpg", "Mulher segura diante do rosto um bilhete verde-oliva com a frase “toda grande mudança começa pequena.”"],
+] as const;
+
+const verso = [
+  "Quem nunca se flagrou dizendo que não sabe, apenas sente? Se você sente, você sabe.",
+  "A inteligência do coração é tão poderosa quanto qualquer raciocínio sofisticado.",
+  "Quando faltarem palavras, não tenha medo de sentir por inteiro. Sem pressa para dissecar essa vivência e desvendar cada nuance.",
+  "Nem tudo o que compreendemos cabe na lógica. E nem por isso sabemos menos.",
 ];
 
 export default async function Home() {
@@ -130,7 +114,7 @@ function Ritual() {
     <section id="ritual" className="scroll-mt-20 bg-vinho pb-2 pt-24 md:px-16 md:pb-[clamp(48px,6svh,96px)] md:pt-[clamp(56px,8svh,112px)]">
       {/* fotos verticais como no canvas, na largura comum das seções */}
       <div className="largura">
-      <div className="flex flex-col justify-between gap-14 px-5 md:px-0 lg:flex-row lg:items-end">
+      <div className="flex flex-col justify-between gap-14 px-5 md:px-0 lg:flex-row lg:items-start">
         <h2 className="max-w-[560px] text-[40px] leading-[1.08] tracking-[-0.02em] text-leveza md:text-[clamp(34px,3.1vw,46px)]">
           A pausa que faltava <br className="hidden md:block" />
           no seu dia.
@@ -162,26 +146,26 @@ function Ritual() {
 function ManifestoSection() {
   return (
     <section className="bg-[#F6F4EF] px-5 py-24 md:px-16 md:py-[clamp(56px,8svh,112px)]">
-      <div className="largura flex flex-col gap-10">
+      <div className="largura @container flex flex-col gap-10">
         <div className="flex flex-col gap-2.5">
           <Eyebrow className="text-recomeco">MANIFESTO</Eyebrow>
           <span className="h-px w-14 bg-recomeco" />
         </div>
-        {/* negrito = font-medium; linhas de apoio em font-light */}
-        <div className="flex flex-col gap-7 text-[30px] font-medium leading-[1.08] tracking-[-0.025em] md:gap-9 md:text-[clamp(30px,3.2vw,46px)]">
+        {/* negrito = font-medium; linhas de apoio em font-light.
+            A partir do tablet cada bloco fica em 2 linhas: a fonte acompanha a largura da seção (cqw)
+            para a linha mais longa ("Uma ideia… palavras.") sempre caber. */}
+        <div className="flex flex-col gap-7 text-[30px] font-medium leading-[1.12] tracking-[-0.025em] md:gap-8 md:text-[clamp(16px,2.75cqw,46px)] [&_span]:block md:[&_span]:whitespace-nowrap">
           <p className="text-[#2A1A1D]">
-            Sabe quando existe algo dentro da gente pedindo mais?
-            <span className="block font-light">Uma ideia. Uma coragem.</span>
-            <span className="block font-light">Uma verdade que ainda não encontrou palavras.</span>
+            <span>Sabe quando existe algo dentro da gente pedindo mais?</span>
+            <span className="font-light">Uma ideia. Uma coragem. Uma verdade que ainda não encontrou palavras.</span>
           </p>
           <p className="text-[#A79C93]">
-            Chega como uma pluma atravessando o ar.
-            <br />
-            Delicada, mas impossível de ignorar.
+            <span>Chega como uma pluma atravessando o ar.</span>
+            <span>Delicada, mas impossível de ignorar.</span>
           </p>
           <p className="text-verdade">
-            Muitas vezes as respostas já estão com a gente,
-            <br className="hidden md:block" /> mas precisamos silenciar os ruídos para conseguir ouvir.
+            <span>Muitas vezes as respostas já estão com a gente,</span>
+            <span>mas precisamos silenciar os ruídos para conseguir ouvir.</span>
           </p>
         </div>
         <div className="relative h-[200px] overflow-hidden rounded-[20px] md:aspect-[4/1] md:h-auto">
@@ -251,32 +235,32 @@ function Bilhetes() {
 }
 
 function Cartas() {
+  const foto = ([src, alt]: (typeof fotosBilhete)[number]) => (
+    <div className="relative aspect-[697/1080] overflow-hidden rounded-md">
+      <Image src={src} alt={alt} fill sizes="(min-width: 1024px) 400px, 50vw" className="object-cover" />
+    </div>
+  );
   return (
     <section className="bg-white px-5 py-24 md:px-16 md:py-[clamp(56px,8svh,112px)]">
-      {/* no desktop a altura vem do texto do verso e a foto acompanha */}
-      <div className="largura grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-        {cartas.map((c) => (
-          <Fragment key={c.foto}>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-md md:aspect-auto md:min-h-[440px]">
-              <Image src={c.foto} alt={c.alt} fill sizes="(min-width: 1024px) 300px, (min-width: 768px) 50vw, 100vw" className="object-cover object-[50%_35%]" />
-            </div>
-            <div className="relative flex flex-col items-center justify-center gap-6 rounded-md bg-leveza px-8 py-14 text-center lg:px-7">
-              {/* cantos curvos como no bilhete impresso */}
-              <span aria-hidden className="absolute left-5 top-5 size-4 rounded-tl-full border-l-[1.5px] border-t-[1.5px]" style={{ borderColor: c.cor }} />
-              <span aria-hidden className="absolute bottom-5 right-5 size-4 rounded-br-full border-b-[1.5px] border-r-[1.5px]" style={{ borderColor: c.cor }} />
-              <h3 className="font-mono text-[21px] leading-[1.15] tracking-[0.02em]" style={{ color: c.cor }}>
-                {c.titulo[0]}
-                <br />
-                {c.titulo[1]}
-              </h3>
-              <div className="flex max-w-[300px] flex-col gap-3.5 text-[14px] leading-[1.55] text-tinta-suave">
-                {c.texto.map((t) => (
-                  <p key={t}>{t}</p>
-                ))}
-              </div>
-            </div>
-          </Fragment>
-        ))}
+      {/* três colunas iguais na proporção das fotos; no celular as fotos ficam lado a lado e o verso vem abaixo */}
+      <div className="largura grid grid-cols-2 gap-3 lg:grid-cols-3">
+        {foto(fotosBilhete[0])}
+        <div className="relative order-last col-span-2 flex flex-col items-center justify-center gap-7 rounded-xl bg-[#F2EEE7] px-8 py-16 text-center lg:order-none lg:col-span-1 lg:py-10">
+          {/* cantos curvos como no bilhete impresso */}
+          <span aria-hidden className="absolute left-7 top-7 size-5 rounded-tl-full border-l-[1.5px] border-t-[1.5px] border-[#2C4A44]" />
+          <span aria-hidden className="absolute bottom-7 right-7 size-5 rounded-br-full border-b-[1.5px] border-r-[1.5px] border-[#2C4A44]" />
+          <h3 className="font-mono text-[22px] font-bold leading-[1.15] text-[#2C4A44] md:text-[24px]">
+            se faz sentir,
+            <br />
+            faz sentido
+          </h3>
+          <div className="flex max-w-[260px] flex-col gap-5 text-[14px] leading-[1.45] text-[#3D3936]">
+            {verso.map((t) => (
+              <p key={t}>{t}</p>
+            ))}
+          </div>
+        </div>
+        {foto(fotosBilhete[1])}
       </div>
     </section>
   );

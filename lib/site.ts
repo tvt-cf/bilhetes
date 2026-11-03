@@ -2,7 +2,7 @@
 
 export const produto = {
   nome: "Bilhetes",
-  slogan: "Seu ritual para viver maior.",
+  slogan: "Seu Ritual para Viver Maior.",
   edicao: "Edição Nº 01",
   tiragem: 100,
   bilhetes: 22,
