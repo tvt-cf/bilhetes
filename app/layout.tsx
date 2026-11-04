@@ -16,9 +16,19 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Bilhetes",
     description: "Seu Ritual para Viver Maior.",
-    images: ["/images/oraculo-6.jpg"],
+    // miniatura ao compartilhar o link: mãos abrindo a caixa (recorte 1200x630 da foto do hero)
+    images: [
+      {
+        url: "/images/og-bilhetes.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Mãos abrindo a caixa de madeira com a tampa gravada “toda grande mudança começa pequena.”",
+      },
+    ],
     locale: "pt_BR",
+    type: "website",
   },
+  twitter: { card: "summary_large_image", images: ["/images/og-bilhetes.jpg"] },
 };
 
 export const viewport: Viewport = {
