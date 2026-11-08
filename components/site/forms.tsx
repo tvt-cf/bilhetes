@@ -57,7 +57,7 @@ export function SubscribeForm() {
         ))}
       </fieldset>
       <Feedback state={state} />
-      <p className="text-[13px] text-tinta-suave">Sem spam, prometemos! Para sair, é só responder “sair”.</p>
+      <p className="text-[13px] text-tinta-suave">Enviamos poucas mensagens! Para sair do grupo, é só responder “sair”.</p>
     </form>
   );
 }
