@@ -90,7 +90,7 @@ function Hero({ soldOut }: { soldOut: boolean }) {
           fill
           priority
           sizes="(min-width: 1200px) 1200px, 100vw"
-          className="object-cover object-[50%_40%]"
+          className="object-cover object-[50%_48%]"
         />
       </div>
     </section>
