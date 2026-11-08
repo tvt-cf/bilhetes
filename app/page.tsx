@@ -175,7 +175,10 @@ function Bilhetes() {
                 className="object-cover"
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 to-transparent p-7 pt-28 md:p-8 md:pt-32">
-                <h3 className="text-[21px] font-medium leading-[1.25] tracking-[-0.02em] md:text-[22px] text-white">Mensagens que abrem caminhos</h3>
+                <h3 className="text-[21px] font-medium leading-[1.25] tracking-[-0.02em] md:text-[22px] text-white">
+                  Mensagens que <br className="md:hidden" />
+                  abrem caminhos
+                </h3>
               </div>
             </div>
             <div className="flex flex-col gap-8 rounded-md bg-[#8A5A3A] p-7 md:w-[36%] md:gap-10 md:p-9">
@@ -227,9 +230,9 @@ function Criadoras() {
             </h2>
           </div>
           {/* no desktop a assinatura ocupa a mesma largura da coluna de texto abaixo (52% = 100% − fotos 39% − espaço 9%) */}
-          <p className="font-hand text-[20px] text-verdade md:whitespace-nowrap md:text-[clamp(18px,1.6vw,24px)] lg:w-[52%] lg:text-[2.2cqw]">
-            por Gabriela Lima <br className="md:hidden" />
-            &amp; Julia Lima Villa
+          {/* sempre numa linha: no celular a fonte encolhe com a tela para caber */}
+          <p className="whitespace-nowrap font-hand text-[min(20px,4vw)] text-verdade md:text-[clamp(18px,1.6vw,24px)] lg:w-[52%] lg:text-[2.2cqw]">
+            por Gabriela Lima &amp; Julia Lima Villa
           </p>
         </div>
         <div className="flex flex-col gap-14 lg:flex-row lg:items-start lg:gap-[9%]">
