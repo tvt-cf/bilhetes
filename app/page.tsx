@@ -219,7 +219,7 @@ function Criadoras() {
             </h2>
           </div>
           {/* no desktop a assinatura ocupa a mesma largura da coluna de texto abaixo (52% = 100% − fotos 39% − espaço 9%) */}
-          <p className="font-hand text-[20px] text-verdade md:whitespace-nowrap md:text-[clamp(18px,1.6vw,24px)] lg:w-[52%] lg:text-[2.37cqw]">por Gabriela Lima &amp; Julia Lima Villa</p>
+          <p className="whitespace-nowrap font-hand text-[min(20px,4vw)] text-verdade md:text-[clamp(18px,1.6vw,24px)] lg:w-[52%] lg:text-[2.2cqw]">por Gabriela Lima &amp; Julia Lima Villa</p>
         </div>
         <div className="flex flex-col gap-14 lg:flex-row lg:items-start lg:gap-[9%]">
           <div className="flex w-full max-w-[640px] shrink-0 gap-2.5 lg:w-[39%]">
