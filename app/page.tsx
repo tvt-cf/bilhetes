@@ -354,13 +354,26 @@ function PagamentoSeguro() {
   );
 }
 
+// mosaico P&B da comunidade: duas colunas desencontradas (foto baixa + alta, alta + baixa) e o foco do recorte
+const mosaico = [
+  [
+    ["/images/comunidade-maos.jpg", "Uma das criadoras sorri com as mãos juntas no peito", "flex-[147_1_0%]", "object-[50%_12%]"],
+    ["/images/comunidade-abraco.jpg", "As duas criadoras abraçadas, sorrindo, entre as plantas", "flex-[186_1_0%]", ""],
+  ],
+  [
+    ["/images/comunidade-deck.jpg", "As duas criadoras sentadas no deck, cada uma segurando a caixa de bilhetes", "flex-[186_1_0%]", ""],
+    ["/images/comunidade-rosto.jpg", "A outra criadora de olhos fechados, sorrindo, com o cabelo ao vento", "flex-[147_1_0%]", ""],
+  ],
+] as const;
+
 function Movimento() {
   return (
     <section id="movimento" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-16 md:py-[clamp(56px,8svh,112px)]">
-      <div className="largura flex flex-col items-center gap-16 lg:flex-row lg:items-stretch lg:gap-16">
-        <div className="flex flex-1 flex-col">
-          <Eyebrow className="text-verdade">COMUNIDADE</Eyebrow>
-          <h2 className="mt-6 text-[40px] leading-[1.05] tracking-[-0.02em] md:text-[clamp(34px,3.1vw,46px)]">
+      {/* no desktop o mosaico ocupa a linha do meio da grade: do topo de "Faça parte" até os checkboxes */}
+      <div className="largura grid lg:grid-cols-[1fr_auto] lg:gap-x-16">
+        <Eyebrow className="mb-6 text-verdade">COMUNIDADE</Eyebrow>
+        <div className="lg:col-start-1 lg:row-start-2">
+          <h2 className="text-[40px] leading-[1.05] tracking-[-0.02em] md:text-[clamp(34px,3.1vw,46px)]">
             Faça parte
             <br />
             do movimento.
@@ -372,18 +385,21 @@ function Movimento() {
             <SubscribeForm />
           </div>
         </div>
-        {/* no desktop a foto acompanha a altura do texto: topo no "COMUNIDADE", base no aviso do formulário */}
-        <div className="relative aspect-[440/497] w-full max-w-[440px] shrink-0 overflow-hidden lg:aspect-auto rounded-[4px] shadow-[0_30px_60px_rgba(91,31,46,0.12)]">
-          <Image
-            src="/images/criadoras-deck.jpg"
-            alt="As criadoras do bilhetes sentadas no deck de madeira, cada uma segurando um bilhete"
-            fill
-            sizes="(min-width: 1024px) 440px, 100vw"
-            className="object-cover"
-          />
+        <p className="mt-5 text-[13px] text-tinta-suave lg:col-start-1 lg:row-start-3">
+          Enviamos poucas mensagens! Para sair do grupo, é só responder “sair”.
+        </p>
+        <div className="mt-14 flex h-[460px] w-full max-w-[440px] gap-2 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:h-auto lg:w-[300px]">
+          {mosaico.map((coluna, i) => (
+            <div key={i} className="flex flex-1 flex-col gap-2">
+              {coluna.map(([src, alt, altura, foco]) => (
+                <div key={src} className={`relative overflow-hidden rounded-[4px] ${altura}`}>
+                  <Image src={src} alt={alt} fill sizes="(min-width: 1024px) 150px, 50vw" className={`object-cover ${foco}`} />
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
-
