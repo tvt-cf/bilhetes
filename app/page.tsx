@@ -370,7 +370,7 @@ const mosaico = [
 function Movimento() {
   return (
     <section id="movimento" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-16 md:py-[clamp(56px,8svh,112px)]">
-      {/* no desktop o mosaico ocupa a linha do meio da grade: do topo de "Faça parte" até os checkboxes */}
+      {/* no desktop o mosaico fica discreto: 60% da altura entre "Faça parte" e os checkboxes, centralizado nela */}
       <div className="largura grid lg:grid-cols-[1fr_auto] lg:gap-x-16">
         <Eyebrow className="mb-6 text-verdade">COMUNIDADE</Eyebrow>
         <div className="lg:col-start-1 lg:row-start-2">
@@ -389,9 +389,9 @@ function Movimento() {
         <p className="mt-5 text-[13px] text-tinta-suave lg:col-start-1 lg:row-start-3">
           Enviamos poucas mensagens! Para sair do grupo, é só responder “sair”.
         </p>
-        <div className="mt-14 flex h-[460px] w-full max-w-[440px] gap-2 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:h-auto lg:w-[300px]">
+        <div className="mt-14 flex h-[460px] w-full max-w-[440px] gap-2 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:h-[60%] lg:w-[180px] lg:gap-[5px] lg:self-center">
           {mosaico.map((coluna, i) => (
-            <div key={i} className="flex flex-1 flex-col gap-2">
+            <div key={i} className="flex flex-1 flex-col gap-2 lg:gap-[5px]">
               {coluna.map(([src, alt, altura, foco]) => (
                 <div key={src} className={`relative overflow-hidden rounded-[4px] ${altura}`}>
                   <Image src={src} alt={alt} fill sizes="(min-width: 1024px) 150px, 50vw" className={`object-cover ${foco}`} />
