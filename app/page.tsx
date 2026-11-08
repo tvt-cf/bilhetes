@@ -52,10 +52,10 @@ function Hero({ soldOut }: { soldOut: boolean }) {
           ESGOTADO · {produto.edicao.toUpperCase()}
         </span>
       ) : (
-        <span className="flex items-center gap-2.5 rounded-full border border-verdade/25 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.18em] text-verdade">
-          <span className="size-1.5 rounded-full bg-coragem" />
-          {produto.edicao.toUpperCase()} · {produto.tiragem} CAIXAS
-          <span className="hidden sm:inline"> NUMERADAS À MÃO</span>
+        <span className="flex items-center gap-2 whitespace-nowrap rounded-full border border-verdade/25 px-3 py-1.5 text-[min(10px,2.9vw)] font-semibold tracking-[0.1em] text-verdade sm:gap-2.5 sm:px-3.5 sm:text-[11px] sm:tracking-[0.18em]">
+          EDIÇÃO LIMITADA
+          <span className="size-1.5 rounded-full bg-coragem" aria-hidden />
+          CAIXAS NUMERADAS À MÃO
         </span>
       )}
       <h1 className="mt-8 font-display text-[72px] font-semibold leading-none tracking-[-0.04em] text-tinta md:mt-9 md:text-[clamp(88px,8.6vw,128px)]">
