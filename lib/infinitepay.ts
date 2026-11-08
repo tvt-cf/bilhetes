@@ -8,11 +8,11 @@ import { produto } from "./site";
 const API = "https://api.checkout.infinitepay.io";
 
 // A InfinitePay não deixa desligar o cartão (payment_methods_enabled: ["pix"] é ignorado). Então todo link
-// cobra o preço do cartão, em até 10x com as taxas por nossa conta, e dá no Pix o desconto que leva ao
+// cobra o preço do cartão, em até 3x com as taxas por nossa conta, e dá no Pix o desconto que leva ao
 // preço à vista.
 const { a_vista: pix, parcelado: card } = produto.precoCentavos;
 const options = {
-  assured_installments: 10,
+  assured_installments: 3,
   single_payment: true,
   discounts: { pix: Number(((1 - pix / card) * 100).toFixed(6)) },
 };

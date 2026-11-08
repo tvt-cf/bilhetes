@@ -506,7 +506,7 @@ function PagamentoSeguro() {
         <PixIcon className="size-3" /> Pix
       </span>
       <span className="flex items-center gap-1.5">
-        <CreditCard className="size-3.5" strokeWidth={1.75} aria-hidden /> Cartão em até 10x
+        <CreditCard className="size-3.5" strokeWidth={1.75} aria-hidden /> Cartão em até 3x
       </span>
       <span aria-hidden>·</span>
       <span>
