@@ -10,6 +10,14 @@ import { getStock } from "@/lib/stock";
 
 const ritual = ["Respire e mentalize sem pressa", "Escolha um bilhete com intenção", "Viva o que ele desperta em você"];
 
+// "na sua casa": a caixa nos cantos da casa, na ordem do rascunho
+const casa = [
+  ["/images/casa-mesa-vidro.jpg", "Caixa de madeira sobre uma mesa de vidro, ao lado de um vaso de planta e de uma vela"],
+  ["/images/casa-livro-dado.jpg", "Caixa de madeira sobre um livro de capa rosa, ao lado de um dado"],
+  ["/images/casa-aparador.jpg", "Caixa de madeira no aparador, ao lado de um vaso de madeira e da vitrola"],
+  ["/images/casa-tapete.jpg", "Duas caixas de madeira gravadas sobre um tapete colorido"],
+] as const;
+
 const faixa = [
   ["/images/oraculo-186.jpg", "Mulher meditando sentada no chão, perto das samambaias"],
   ["/images/ritual-caixa-listrado.jpg", "Caixa de madeira gravada sobre um tecido listrado, ao lado de uma vela"],
@@ -199,7 +207,7 @@ function Bilhetes() {
                 className="object-cover"
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/45 to-transparent p-7 pt-28 md:p-8 md:pt-32">
-                <h3 className="text-xl font-medium tracking-[-0.03em] text-white">Bilhetes para lembrar.</h3>
+                <h3 className="text-xl font-medium tracking-[-0.03em] text-white">Mensagens que abrem caminhos</h3>
               </div>
             </div>
             <div className="flex flex-col gap-3 rounded-[24px] bg-[#3B2418] p-7 md:w-[36%] md:p-8">
@@ -215,6 +223,19 @@ function Bilhetes() {
                   className="object-cover"
                 />
               </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-6 rounded-[24px] bg-leveza p-7 md:p-8">
+            <h3 className="text-[21px] font-medium leading-[1.25] tracking-[-0.02em] text-[#1F1517] md:text-[22px]">
+              <span className="md:block">Para ter na sala, no escritório, na penteadeira.</span>{" "}
+              <span className="md:block">Um pouco de intenção, um pouco de intuição.</span>
+            </h3>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+              {casa.map(([src, alt]) => (
+                <div key={src} className="relative aspect-[3/4] overflow-hidden rounded-2xl">
+                  <Image src={src} alt={alt} fill sizes="(min-width: 768px) 300px, 50vw" className="object-cover" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -239,26 +260,16 @@ function Criadoras() {
           </div>
           <p className="font-hand text-[20px] text-verdade md:whitespace-nowrap md:text-[clamp(18px,1.6vw,24px)]">por Gabriela Lima &amp; Julia Lima Villa</p>
         </div>
-        <div className="flex flex-col gap-14 lg:flex-row lg:items-center lg:gap-[7%]">
-          <div className="relative aspect-[640/700] w-full max-w-[640px] shrink-0 lg:w-[46%]">
-            <div className="absolute left-0 top-0 h-[80%] w-[59.4%] overflow-hidden rounded-3xl">
-              <Image
-                src="/images/criadoras-jardim-pb.jpg"
-                alt="Gabriela e Julia sentadas num pufe no jardim, em preto e branco"
-                fill
-                sizes="(min-width: 1024px) 384px, 60vw"
-                className="object-cover"
-              />
-            </div>
-            <div className="absolute bottom-0 right-0 h-[74.3%] w-[53.1%] overflow-hidden rounded-3xl ring-[10px] ring-leveza">
-              <Image
-                src="/images/criadoras-cadeiras.jpg"
-                alt="Gabriela e Julia sentadas em cadeiras de vime entre as plantas"
-                fill
-                sizes="(min-width: 1024px) 340px, 53vw"
-                className="object-cover"
-              />
-            </div>
+        <div className="flex flex-col gap-14 lg:flex-row lg:items-start lg:gap-[9%]">
+          <div className="flex w-full max-w-[640px] shrink-0 gap-2.5 lg:w-[39%]">
+            {[
+              ["/images/criadoras-retrato-1.jpg", "Uma das criadoras sorri segurando diante do rosto o bilhete “se faz sentir, faz sentido.”"],
+              ["/images/criadoras-retrato-2.jpg", "A outra criadora segura diante do rosto o bilhete “toda grande mudança começa pequena.”"],
+            ].map(([src, alt]) => (
+              <div key={src} className="relative aspect-[140/217] flex-1 overflow-hidden rounded-[4px]">
+                <Image src={src} alt={alt} fill sizes="(min-width: 1024px) 240px, 50vw" className="object-cover" />
+              </div>
+            ))}
           </div>
           <div className="flex flex-col gap-6">
             <p className="text-2xl leading-[1.2] text-tinta md:text-[clamp(20px,1.7vw,24px)]">
