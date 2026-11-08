@@ -372,15 +372,15 @@ function PagamentoSeguro() {
   );
 }
 
-// mosaico P&B da comunidade: duas colunas desencontradas (foto baixa + alta, alta + baixa) e o foco do recorte
+// mosaico colorido da comunidade: duas colunas desencontradas (foto baixa + alta, alta + baixa) e o foco do recorte
 const mosaico = [
   [
-    ["/images/comunidade-maos.jpg", "Uma das criadoras sorri com as mãos juntas no peito", "flex-[147_1_0%]", "object-[50%_12%]"],
-    ["/images/comunidade-abraco.jpg", "As duas criadoras abraçadas, sorrindo, entre as plantas", "flex-[186_1_0%]", ""],
+    ["/images/comunidade-cor-maos.jpg", "Uma das criadoras sorri com as mãos juntas no peito", "flex-[147_1_0%]", "object-[50%_5%]"],
+    ["/images/comunidade-cor-abraco.jpg", "As duas criadoras abraçadas, sorrindo, entre as plantas", "flex-[186_1_0%]", ""],
   ],
   [
-    ["/images/comunidade-deck.jpg", "As duas criadoras sentadas no deck, cada uma segurando a caixa de bilhetes", "flex-[186_1_0%]", ""],
-    ["/images/comunidade-rosto.jpg", "A outra criadora de olhos fechados, sorrindo, com o cabelo ao vento", "flex-[147_1_0%]", ""],
+    ["/images/comunidade-cor-deck.jpg", "As duas criadoras sentadas no deck, cada uma segurando a caixa de bilhetes", "flex-[186_1_0%]", ""],
+    ["/images/comunidade-cor-tecido.jpg", "A outra criadora sorri de olhos fechados, com um tecido vinho voando à sua frente", "flex-[147_1_0%]", ""],
   ],
 ] as const;
 
