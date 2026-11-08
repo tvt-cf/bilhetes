@@ -401,7 +401,7 @@ function Movimento() {
           </div>
         </div>
         <p className="mt-5 text-[13px] text-tinta-suave lg:col-start-1 lg:row-start-3">
-          Enviamos poucas mensagens! Para sair do grupo, é só responder “sair”.
+          Para sair do grupo, é só digitar “sair”
         </p>
         <div className="mt-14 flex h-[460px] w-full max-w-[440px] gap-2 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:h-[60%] lg:w-[180px] lg:gap-[5px] lg:self-center">
           {mosaico.map((coluna, i) => (
