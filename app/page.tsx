@@ -274,7 +274,7 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
           ) : (
             <>
               <span className="block md:whitespace-nowrap">Poucas unidades, muito carinho.</span>
-              <span className="block md:whitespace-nowrap">Garanta a sua.</span>
+              <span className="block md:whitespace-nowrap">Garanta sua Caixa de Bilhetes.</span>
             </>
           )}
         </h2>
