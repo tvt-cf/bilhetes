@@ -18,11 +18,12 @@ const casa = [
   ["/images/casa-tapete.jpg", "Duas caixas de madeira gravadas sobre um tapete colorido"],
 ] as const;
 
+// fotos quadradas; o 3º item é o recorte vertical de cada cena (mãos e caixa, pulseiras inteiras, sem a saia, sem o gramado de cima)
 const faixa = [
-  ["/images/ritual-mesa.jpg", "As duas criadoras à mesa no jardim, uma delas lendo um bilhete tirado da caixa"],
-  ["/images/oraculo-144.jpg", "Pessoa lendo um bilhete"],
-  ["/images/ritual-poltrona.jpg", "Mulher numa poltrona verde segura um bilhete junto ao peito"],
-  ["/images/ritual-grama.jpg", "Leque de bilhetes coloridos e o livreto do ritual aberto sobre a grama, ao lado da tampa da caixa"],
+  ["/images/ritual-mesa.jpg", "As duas criadoras à mesa no jardim, uma delas lendo um bilhete tirado da caixa", "object-[50%_100%]"],
+  ["/images/oraculo-144.jpg", "Pessoa lendo um bilhete", "object-[50%_90%]"],
+  ["/images/ritual-poltrona.jpg", "Mulher numa poltrona verde segura um bilhete junto ao peito", "object-[50%_0%]"],
+  ["/images/ritual-grama.jpg", "Leque de bilhetes coloridos e o livreto do ritual aberto sobre a grama, ao lado da tampa da caixa", "object-[50%_100%]"],
 ] as const;
 
 export default async function Home() {
@@ -128,9 +129,9 @@ function Ritual() {
         </div>
       </div>
       <div className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:px-0 md:mt-[clamp(40px,6svh,80px)] md:grid md:grid-cols-4 md:overflow-visible">
-        {faixa.map(([src, alt]) => (
-          <div key={src} className="relative h-[440px] w-[78vw] shrink-0 snap-start overflow-hidden rounded-md md:aspect-[346/460] md:h-auto md:w-auto">
-            <Image src={src} alt={alt} fill sizes="(min-width: 768px) 300px, 78vw" className="object-cover" />
+        {faixa.map(([src, alt, foco]) => (
+          <div key={src} className="relative aspect-square w-[78vw] shrink-0 snap-start overflow-hidden rounded-md md:w-auto">
+            <Image src={src} alt={alt} fill sizes="(min-width: 768px) 300px, 78vw" className={`object-cover ${foco}`} />
           </div>
         ))}
       </div>
