@@ -23,7 +23,7 @@ export async function Nav() {
     <StickyHeader>
       <nav className="mx-auto flex items-center md:max-w-[calc(var(--largura)+8rem)] justify-between px-5 py-3 transition-[padding] duration-300 group-data-[compact=true]:py-2 md:px-16 md:py-4 md:group-data-[compact=true]:py-2.5">
         <Link href="/" aria-label="bilhetes, página inicial" className="text-verdade">
-          <Logo className="w-[108px] transition-[width] duration-300 group-data-[compact=true]:w-[92px] md:w-[132px] md:group-data-[compact=true]:w-[104px]" />
+          <Logo tagline={false} className="w-[108px] transition-[width] duration-300 group-data-[compact=true]:w-[92px] md:w-[132px] md:group-data-[compact=true]:w-[104px]" />
         </Link>
         <div className="hidden items-center gap-10 text-sm text-tinta lg:flex">
           {links.map(([label, href]) => (
