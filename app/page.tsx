@@ -158,7 +158,7 @@ function Bilhetes() {
 
         <div className="flex w-full flex-col gap-5">
           <div className="flex flex-col gap-4 md:aspect-[1225/640] md:flex-row">
-            <div className="relative h-[460px] overflow-hidden rounded-[28px] md:h-auto md:flex-1">
+            <div className="relative h-[460px] overflow-hidden rounded-md md:h-auto md:flex-1">
               <Image
                 src="/images/oraculo-154.jpg"
                 alt="Mãos espalhando bilhetes coloridos sobre uma mesa de madeira"
@@ -170,11 +170,11 @@ function Bilhetes() {
                 <h3 className="text-xl font-medium tracking-[-0.03em] text-white">Mensagens que abrem caminhos</h3>
               </div>
             </div>
-            <div className="flex flex-col gap-3 rounded-[24px] bg-[#3B2418] p-7 md:w-[36%] md:p-8">
+            <div className="flex flex-col gap-8 rounded-md bg-[#3B2418] p-7 md:w-[36%] md:gap-10 md:p-9">
               <h3 className="text-[21px] font-medium leading-[1.15] tracking-[-0.02em] text-leveza md:text-[22px]">
                 Feita à mão, em madeira natural. Nenhuma caixa é igual à outra.
               </h3>
-              <div className="relative mt-2 min-h-[280px] flex-1 overflow-hidden rounded-2xl md:min-h-0">
+              <div className="relative min-h-[260px] flex-1 overflow-hidden rounded-md md:min-h-0">
                 <Image
                   src="/images/caixas-empilhadas.jpg"
                   alt="Caixas de madeira em tons diferentes, empilhadas"
@@ -192,7 +192,7 @@ function Bilhetes() {
             </h3>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
               {casa.map(([src, alt]) => (
-                <div key={src} className="relative aspect-[3/4] overflow-hidden rounded-2xl">
+                <div key={src} className="relative aspect-[3/4] overflow-hidden rounded-md">
                   <Image src={src} alt={alt} fill sizes="(min-width: 768px) 300px, 50vw" className="object-cover" />
                 </div>
               ))}
