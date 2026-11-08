@@ -425,18 +425,18 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
   ];
   return (
     <section id="comprar" className="scroll-mt-20 bg-vinho px-5 py-24 text-center text-leveza md:px-16 md:py-[clamp(56px,8svh,112px)]">
-      <div className="largura flex flex-col items-center">
+      <div className="largura @container flex flex-col items-center">
         <Eyebrow className="text-luz">
           EDIÇÃO LIMITADA · {soldOut ? "ESGOTADA" : "COMPRE ONLINE"}
         </Eyebrow>
-        <h2 className="mt-6 text-[34px] leading-[1.1] tracking-[-0.02em] md:text-[clamp(34px,3.1vw,46px)]">
-          {/* a segunda frase sempre começa numa linha nova */}
+        {/* a partir do tablet o título fica sempre em 2 linhas: a fonte acompanha a largura do conteúdo para a linha mais longa caber */}
+        <h2 className="mt-6 text-[34px] leading-[1.1] tracking-[-0.02em] md:text-[min(46px,calc(100cqw/22.5))]">
           {soldOut ? (
             "Esgotou. O próximo lote já está a caminho."
           ) : (
             <>
-              <span className="block">Essa edição é limitada e</span>
-              <span className="block">produzida com muito carinho do início ao fim.</span>
+              <span className="block md:whitespace-nowrap">Essa edição é limitada e</span>
+              <span className="block md:whitespace-nowrap">produzida com muito carinho do início ao fim.</span>
             </>
           )}
         </h2>
