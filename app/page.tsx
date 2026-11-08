@@ -32,8 +32,8 @@ export default async function Home() {
       <main>
         <Hero soldOut={soldOut} />
         <Assinatura />
-        <Ritual />
         <Bilhetes />
+        <Ritual />
         <Criadoras />
         <Comprar soldOut={soldOut} />
         <Movimento />
