@@ -170,7 +170,7 @@ function Bilhetes() {
                 <h3 className="text-xl font-medium tracking-[-0.03em] text-white">Mensagens que abrem caminhos</h3>
               </div>
             </div>
-            <div className="flex flex-col gap-8 rounded-md bg-[#3B2418] p-7 md:w-[36%] md:gap-10 md:p-9">
+            <div className="flex flex-col gap-8 rounded-md bg-[#8A5A3A] p-7 md:w-[36%] md:gap-10 md:p-9">
               <h3 className="text-[21px] font-medium leading-[1.15] tracking-[-0.02em] text-leveza md:text-[22px]">
                 Feita à mão, em madeira natural. Nenhuma caixa é igual à outra.
               </h3>
