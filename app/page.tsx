@@ -1,6 +1,7 @@
 import { CreditCard, Lock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { Eyebrow, Footer, MobileBuyBar, Nav } from "@/components/site/chrome";
 import { PresaleForm, SubscribeForm, WaitlistForm } from "@/components/site/forms";
 import { PixIcon } from "@/components/site/pix-icon";
@@ -419,16 +420,14 @@ function JeitoCerto({ soldOut }: { soldOut: boolean }) {
 
 function Comprar({ soldOut }: { soldOut: boolean }) {
   const itens = [
-    ["1 caixa decorativa", "Madeira natural, feita à mão"],
-    [`${produto.bilhetes} bilhetes`, "Mensagens para viver maior"],
-    ["Kit numerado", "Cada caixinha é única"],
-    ["Instruções pro Ritual", "Para começar sem pressa"],
+    ["1 caixa de madeira natural", "Feita à mão e numerada"],
+    [`${produto.bilhetes} bilhetes frente e verso`, "Mensagens para viver maior"],
   ];
   return (
     <section id="comprar" className="scroll-mt-20 bg-vinho px-5 py-24 text-center text-leveza md:px-16 md:py-[clamp(56px,8svh,112px)]">
       <div className="largura flex flex-col items-center">
         <Eyebrow className="text-luz">
-          {produto.edicao.toUpperCase()} · {soldOut ? "ESGOTADA" : "COMPRE ONLINE"}
+          EDIÇÃO LIMITADA · {soldOut ? "ESGOTADA" : "COMPRE ONLINE"}
         </Eyebrow>
         <h2 className="mt-6 text-[34px] leading-[1.1] tracking-[-0.02em] md:text-[clamp(34px,3.1vw,46px)]">
           {/* a segunda frase sempre começa numa linha nova */}
@@ -436,17 +435,24 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
             "Esgotou. O próximo lote já está a caminho."
           ) : (
             <>
-              <span className="block">Apenas {produto.tiragem} caixas de Bilhetes.</span>
-              <span className="block">Uma delas pode ser sua.</span>
+              <span className="block">Essa edição é limitada e</span>
+              <span className="block">produzida com muito carinho do início ao fim.</span>
             </>
           )}
         </h2>
-        <ul className="mt-14 grid w-full grid-cols-2 gap-y-8 border-y border-leveza/20 py-8 md:grid-cols-4">
-          {itens.map(([titulo, desc]) => (
-            <li key={titulo} className="flex flex-col items-center gap-1.5">
-              <span className="text-base font-medium">{titulo}</span>
-              <span className="text-[13px] text-leveza/70">{desc}</span>
-            </li>
+        <ul className="mt-14 flex w-full flex-col items-center gap-5 border-y border-leveza/20 py-8 md:flex-row md:justify-center md:gap-16">
+          {itens.map(([titulo, desc], i) => (
+            <Fragment key={titulo}>
+              {i > 0 && (
+                <li aria-hidden className="text-3xl font-light leading-none text-luz">
+                  +
+                </li>
+              )}
+              <li className="flex flex-col items-center gap-1.5">
+                <span className="text-base font-medium">{titulo}</span>
+                <span className="text-[13px] text-leveza/70">{desc}</span>
+              </li>
+            </Fragment>
           ))}
         </ul>
         {soldOut ? (
@@ -528,46 +534,21 @@ function Movimento() {
             <SubscribeForm />
           </div>
         </div>
-        <ChatPreview />
+        <div className="flex w-full max-w-[440px] gap-2.5">
+          {[1, 2].map((n) => (
+            <div key={n} className="relative aspect-[215/331] flex-1 overflow-hidden rounded-[4px]">
+              <Image
+                src={`/images/criadoras-retrato-${n}.jpg`}
+                alt="Uma das criadoras segurando um bilhete na frente do rosto"
+                fill
+                sizes="(min-width: 1024px) 215px, 50vw"
+                className="object-cover"
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
-function ChatPreview() {
-  return (
-    <div
-      aria-hidden
-      className="flex w-full max-w-[440px] flex-col gap-3.5 rounded-[32px] border border-verdade/5 bg-leveza p-7 shadow-[0_30px_60px_rgba(91,31,46,0.12)]"
-    >
-      <div className="flex items-center gap-3 border-b border-verdade/10 pb-3.5">
-        <span className="flex size-11 items-center justify-center rounded-full bg-verdade font-hand text-xl text-luz">
-          b
-        </span>
-        <div>
-          <p className="text-[15px] font-semibold">bilhetes.co</p>
-          <p className="text-xs text-tinta-suave">comunidade</p>
-        </div>
-      </div>
-      <Bubble>
-        <span className="text-[15px] leading-snug">Bom dia. Seu bilhete de hoje:</span>
-      </Bubble>
-      <Bubble time="segunda · 07:02">
-        <span className="text-[17px] leading-snug text-verdade">O silêncio também é resposta.</span>
-      </Bubble>
-      <div className="flex w-[340px] max-w-full items-center gap-3 rounded-[4px_18px_18px_18px] bg-recomeco px-4 py-3.5 text-sm text-leveza">
-        <span className="text-luz">✦</span>
-        Convite: Yoga Meditativa, esse sábado às 9h10 em São Paulo.
-      </div>
-    </div>
-  );
-}
-
-function Bubble({ children, time }: { children: React.ReactNode; time?: string }) {
-  return (
-    <div className="flex w-[340px] max-w-full flex-col gap-2 rounded-[4px_18px_18px_18px] bg-white px-4.5 py-4">
-      {children}
-      {time && <span className="text-[11px] text-[#9a938c]">{time}</span>}
-    </div>
-  );
-}
