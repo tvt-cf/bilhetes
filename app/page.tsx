@@ -8,7 +8,7 @@ import { PixIcon } from "@/components/site/pix-icon";
 import { produto } from "@/lib/site";
 import { getStock } from "@/lib/stock";
 
-const ritual = ["Pause e peça uma direção","Escolha um bilhete com intenção", "Viva o que ele desperta em você"];
+const ritual = ["Respire e mentalize sem pressa", "Escolha um bilhete com intenção", "Viva o que ele desperta em você"];
 
 const faixa = [
   ["/images/oraculo-186.jpg", "Mulher meditando sentada no chão, perto das samambaias"],
@@ -16,19 +16,6 @@ const faixa = [
   ["/images/oraculo-144.jpg", "Pessoa lendo um bilhete"],
   ["/images/ritual-poltrona.jpg", "Mulher numa poltrona verde segura um bilhete junto ao peito"],
 ] as const;
-
-// bilhete em destaque: as duas fotos segurando os bilhetes e, no meio, o verso de "se faz sentir"
-const fotosBilhete = [
-  ["/images/bilhete-se-faz-sentir.jpg", "Mulher sorrindo segura diante do rosto um bilhete verde com a frase “se faz sentir, faz sentido.”"],
-  ["/images/bilhete-toda-grande-mudanca.jpg", "Mulher segura diante do rosto um bilhete verde-oliva com a frase “toda grande mudança começa pequena.”"],
-] as const;
-
-const verso = [
-  "Quem nunca se flagrou dizendo que não sabe, apenas sente? Se você sente, você sabe.",
-  "A inteligência do coração é tão poderosa quanto qualquer raciocínio sofisticado.",
-  "Quando faltarem palavras, não tenha medo de sentir por inteiro. Sem pressa para dissecar essa vivência e desvendar cada nuance.",
-  "Nem tudo o que compreendemos cabe na lógica. E nem por isso sabemos menos.",
-];
 
 export default async function Home() {
   const { soldOut } = await getStock();
@@ -41,9 +28,7 @@ export default async function Home() {
         <Ritual />
         <ManifestoSection />
         <Bilhetes />
-        <Cartas />
         <Criadoras />
-        <JeitoCerto soldOut={soldOut} />
         <Comprar soldOut={soldOut} />
         <Movimento />
       </main>
@@ -238,38 +223,6 @@ function Bilhetes() {
   );
 }
 
-function Cartas() {
-  const foto = ([src, alt]: (typeof fotosBilhete)[number]) => (
-    <div className="relative aspect-[697/1080] overflow-hidden rounded-md">
-      <Image src={src} alt={alt} fill sizes="(min-width: 1024px) 400px, 50vw" className="object-cover" />
-    </div>
-  );
-  return (
-    <section className="bg-white px-5 py-24 md:px-16 md:py-[clamp(56px,8svh,112px)]">
-      {/* três colunas iguais na proporção das fotos; no celular as fotos ficam lado a lado e o verso vem abaixo */}
-      <div className="largura grid grid-cols-2 gap-3 lg:grid-cols-3">
-        {foto(fotosBilhete[0])}
-        <div className="relative order-last col-span-2 flex flex-col items-center justify-center gap-7 rounded-xl bg-[#F2EEE7] px-8 py-16 text-center lg:order-none lg:col-span-1 lg:py-10">
-          {/* cantos curvos como no bilhete impresso */}
-          <span aria-hidden className="absolute left-7 top-7 size-5 rounded-tl-full border-l-[1.5px] border-t-[1.5px] border-[#2C4A44]" />
-          <span aria-hidden className="absolute bottom-7 right-7 size-5 rounded-br-full border-b-[1.5px] border-r-[1.5px] border-[#2C4A44]" />
-          <h3 className="font-mono text-[22px] font-bold leading-[1.15] text-[#2C4A44] md:text-[24px]">
-            se faz sentir,
-            <br />
-            faz sentido
-          </h3>
-          <div className="flex max-w-[260px] flex-col gap-5 text-[14px] leading-[1.45] text-[#3D3936]">
-            {verso.map((t) => (
-              <p key={t}>{t}</p>
-            ))}
-          </div>
-        </div>
-        {foto(fotosBilhete[1])}
-      </div>
-    </section>
-  );
-}
-
 function Criadoras() {
   return (
     <section id="criadoras" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-16 md:py-[clamp(48px,6svh,104px)]">
@@ -324,93 +277,6 @@ function Criadoras() {
               Se essa carta chegou até você, talvez nossos caminhos tenham se encontrado exatamente quando
               precisavam ♡
             </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Legenda({ children }: { children: React.ReactNode }) {
-  return <figcaption className="text-[11px] font-semibold tracking-[0.22em] text-tinta-suave">{children}</figcaption>;
-}
-
-function JeitoCerto({ soldOut }: { soldOut: boolean }) {
-  return (
-    <section className="bg-[#F6F4EF] px-5 py-24 md:px-16 md:py-[clamp(40px,6svh,96px)]">
-      {/* as fotos mantêm a proporção do canvas */}
-      <div className="largura flex flex-col gap-14 md:gap-[clamp(32px,5svh,72px)]">
-        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end lg:gap-14">
-          <div className="flex shrink-0 flex-col gap-5">
-            <Eyebrow className="text-tinta-suave">NA SUA CASA</Eyebrow>
-            <h2 className="text-[40px] leading-[1.08] tracking-[-0.025em] text-tinta md:text-[clamp(34px,3.1vw,46px)]">
-              Não existe jeito certo,
-              <br />
-              existe o seu.
-            </h2>
-          </div>
-          {/* mesma largura da coluna de fotos da direita (lg:w-[42%]) */}
-          <div className="flex flex-col gap-4 text-[15px] leading-[1.65] text-[#4F4944] lg:w-[42%] lg:shrink-0 xl:text-base">
-            <p>
-              Nossas caixas são numeradas à mão, uma diferente da outra, para que cada um crie o seu próprio ritual.
-            </p>
-            <p>
-              Elas são lindas por si só e a gente adora tê-las na sala, no escritório, na penteadeira. Um pouco de
-              intenção, um pouco de intuição.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-6 lg:flex-row lg:gap-5">
-          {/* no desktop a foto da sala acompanha a altura da coluna da direita */}
-          <figure className="flex flex-col gap-3 lg:flex-1">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[4px] lg:aspect-auto lg:flex-1">
-              <Image
-                src="/images/casa-sala.jpg"
-                alt="Caixa sobre o aparador da sala, ao lado de um vaso de madeira e da vitrola"
-                fill
-                sizes="(min-width: 1024px) 570px, 100vw"
-                className="object-cover"
-              />
-            </div>
-            <Legenda>01 — NA SALA</Legenda>
-          </figure>
-          <div className="flex flex-col gap-6 lg:w-[42%] lg:shrink-0 lg:gap-5">
-            <figure className="flex flex-col gap-3">
-              <div className="relative aspect-[520/420] overflow-hidden rounded-[4px]">
-                <Image
-                  src="/images/casa-aparador.jpg"
-                  alt="Caixa de madeira clara sobre o aparador, perto da vitrola"
-                  fill
-                  sizes="(min-width: 1024px) 450px, 100vw"
-                  className="object-cover"
-                />
-              </div>
-              <Legenda>02 — NO APARADOR</Legenda>
-            </figure>
-            <div className="flex gap-5">
-              <figure className="flex flex-1 flex-col gap-3">
-                <div className="relative aspect-[248/300] overflow-hidden rounded-[4px]">
-                  <Image
-                    src="/images/casa-tapete.jpg"
-                    alt="Caixas de madeira gravadas com “toda grande mudança começa pequena.” sobre um tapete colorido"
-                    fill
-                    sizes="(min-width: 1024px) 215px, 50vw"
-                    className="object-cover"
-                  />
-                </div>
-                <Legenda>03 — NO ESCRITÓRIO</Legenda>
-              </figure>
-              {/* botão centralizado em relação à foto (desconta a altura da legenda) */}
-              <div className="flex flex-1 items-center justify-center pb-7">
-                <Link
-                  href="#comprar"
-                  className="flex items-center gap-2.5 whitespace-nowrap rounded-full bg-verdade px-6 py-3.5 text-[15px] font-semibold text-leveza transition active:scale-[0.98] hover:bg-verdade/90 md:px-8 md:py-4"
-                >
-                  {soldOut ? "Fila de espera" : "Eu quero!"} <span aria-hidden>→</span>
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
       </div>
