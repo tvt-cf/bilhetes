@@ -46,7 +46,7 @@ export default async function Home() {
 
 function Hero({ soldOut }: { soldOut: boolean }) {
   return (
-    <section className="flex flex-col items-center px-5 pt-11 text-center md:px-16 md:pt-[67px]">
+    <section className="flex flex-col items-center px-5 pt-11 text-center md:px-16 md:pt-9">
       {soldOut ? (
         <span className="flex items-center gap-2.5 rounded-full bg-coragem px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.18em] text-white">
           ESGOTADO · {produto.edicao.toUpperCase()}
@@ -58,16 +58,16 @@ function Hero({ soldOut }: { soldOut: boolean }) {
           CAIXAS NUMERADAS À MÃO
         </span>
       )}
-      <h1 className="mt-8 font-display text-[72px] font-semibold leading-none tracking-[-0.04em] text-tinta md:mt-9 md:text-[clamp(88px,8.6vw,128px)]">
+      <h1 className="mt-8 font-display text-[72px] font-semibold leading-none tracking-[-0.04em] text-tinta md:mt-6 md:text-[clamp(88px,8.6vw,120px)]">
         {produto.nome}.
       </h1>
-      <p className="mt-3 font-mono text-[20px] leading-tight text-verdade md:text-[clamp(22px,1.9vw,28px)]">{produto.slogan}</p>
+      <p className="mt-3 font-mono md:mt-3.5 text-[20px] leading-tight text-verdade md:text-[clamp(22px,1.9vw,28px)]">{produto.slogan}</p>
       <p className="mt-5 max-w-[620px] text-base leading-relaxed text-tinta-suave md:max-w-none md:whitespace-nowrap md:text-[17px]">
         Uma caixa viva com bilhetes que encontram você na hora exata.
       </p>
       <Link
         href="#comprar"
-        className="mt-9 flex h-15 w-full items-center justify-center gap-2.5 rounded-full bg-verdade px-12 text-base font-semibold text-leveza transition active:scale-[0.98] hover:bg-verdade/90 sm:mt-10 sm:w-auto"
+        className="mt-9 flex h-15 w-full items-center justify-center gap-2.5 rounded-full bg-verdade px-12 text-base font-semibold text-leveza transition active:scale-[0.98] hover:bg-verdade/90 sm:mt-10 sm:w-auto md:mt-[34px]"
       >
         {soldOut ? "Entrar na fila de espera" : "Eu quero"} <span aria-hidden>→</span>
       </Link>
@@ -76,7 +76,7 @@ function Hero({ soldOut }: { soldOut: boolean }) {
           Avisamos pelo WhatsApp quando o próximo lote estiver disponível.
         </p>
       )}
-      <div className="relative -mx-5 mt-14 h-[480px] w-[calc(100%+2.5rem)] overflow-hidden rounded-t-[28px] md:mx-auto md:mt-12 md:aspect-[4/3] md:h-auto md:w-full md:max-w-[var(--largura)]">
+      <div className="relative -mx-5 mt-14 h-[480px] w-[calc(100%+2.5rem)] overflow-hidden rounded-t-[28px] md:mx-auto md:mt-10 md:aspect-[4/3] md:h-auto md:w-full md:max-w-[var(--largura)]">
         <Image
           src="/images/oraculo-228.jpg"
           alt="Mãos abrindo a caixa: a tampa de madeira gravada “toda grande mudança começa pequena.” sobre a caixa com o livreto bordô"
