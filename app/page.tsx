@@ -400,18 +400,14 @@ function Movimento() {
             <SubscribeForm />
           </div>
         </div>
-        <div className="flex w-full max-w-[440px] gap-2.5">
-          {[1, 2].map((n) => (
-            <div key={n} className="relative aspect-[215/331] flex-1 overflow-hidden rounded-[4px]">
-              <Image
-                src={`/images/criadoras-retrato-${n}.jpg`}
-                alt="Uma das criadoras segurando um bilhete na frente do rosto"
-                fill
-                sizes="(min-width: 1024px) 215px, 50vw"
-                className="object-cover"
-              />
-            </div>
-          ))}
+        <div className="relative aspect-[440/497] w-full max-w-[440px] overflow-hidden rounded-[4px] shadow-[0_30px_60px_rgba(91,31,46,0.12)]">
+          <Image
+            src="/images/criadoras-deck.jpg"
+            alt="As criadoras do bilhetes sentadas no deck de madeira, cada uma segurando um bilhete"
+            fill
+            sizes="(min-width: 1024px) 440px, 100vw"
+            className="object-cover"
+          />
         </div>
       </div>
     </section>
