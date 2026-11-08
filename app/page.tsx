@@ -20,7 +20,7 @@ const casa = [
 
 // fotos quadradas; o 3º item é o recorte vertical de cada cena (mãos e caixa, pulseiras inteiras, sem a saia, sem o gramado de cima)
 const faixa = [
-  ["/images/ritual-mesa.jpg", "As duas criadoras à mesa no jardim, uma delas lendo um bilhete tirado da caixa", "object-[50%_85%]"],
+  ["/images/ritual-mesa.jpg", "As duas criadoras à mesa no jardim, uma delas lendo um bilhete tirado da caixa", "object-[50%_81%]"],
   ["/images/oraculo-144.jpg", "Pessoa lendo um bilhete", "object-[50%_90%]"],
   ["/images/ritual-poltrona.jpg", "Mulher numa poltrona verde segura um bilhete junto ao peito", "object-[50%_0%]"],
   ["/images/ritual-grama.jpg", "Leque de bilhetes coloridos e o livreto do ritual aberto sobre a grama, ao lado da tampa da caixa", "object-[50%_100%]"],
