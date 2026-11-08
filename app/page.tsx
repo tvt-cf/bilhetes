@@ -355,7 +355,7 @@ function PagamentoSeguro() {
 function Movimento() {
   return (
     <section id="movimento" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-16 md:py-[clamp(56px,8svh,112px)]">
-      <div className="largura flex flex-col items-center gap-16 lg:flex-row lg:gap-16">
+      <div className="largura flex flex-col items-center gap-16 lg:flex-row lg:items-stretch lg:gap-16">
         <div className="flex flex-1 flex-col">
           <Eyebrow className="text-verdade">COMUNIDADE</Eyebrow>
           <h2 className="mt-6 text-[40px] leading-[1.05] tracking-[-0.02em] md:text-[clamp(34px,3.1vw,46px)]">
@@ -370,7 +370,8 @@ function Movimento() {
             <SubscribeForm />
           </div>
         </div>
-        <div className="relative aspect-[440/497] w-full max-w-[440px] overflow-hidden rounded-[4px] shadow-[0_30px_60px_rgba(91,31,46,0.12)]">
+        {/* no desktop a foto acompanha a altura do texto: topo no "COMUNIDADE", base no aviso do formulário */}
+        <div className="relative aspect-[440/497] w-full max-w-[440px] shrink-0 overflow-hidden lg:aspect-auto rounded-[4px] shadow-[0_30px_60px_rgba(91,31,46,0.12)]">
           <Image
             src="/images/criadoras-deck.jpg"
             alt="As criadoras do bilhetes sentadas no deck de madeira, cada uma segurando um bilhete"
