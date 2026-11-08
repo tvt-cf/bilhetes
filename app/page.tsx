@@ -184,7 +184,7 @@ function Bilhetes() {
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-6 rounded-[24px] bg-leveza p-7 md:p-8">
+          <div className="flex flex-col gap-6 pt-4 md:pt-7">
             <h3 className="text-[21px] font-medium leading-[1.25] tracking-[-0.02em] text-[#1F1517] md:text-[22px]">
               <span className="md:block">Para ter na sala, no escritório, na penteadeira.</span>{" "}
               <span className="md:block">Um pouco de intenção, um pouco de intuição.</span>
