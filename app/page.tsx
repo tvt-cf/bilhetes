@@ -273,8 +273,8 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
             "Esgotou. O próximo lote já está a caminho."
           ) : (
             <>
-              <span className="block md:whitespace-nowrap">poucas unidades, muito carinho.</span>
-              <span className="block md:whitespace-nowrap">garanta sua caixa de bilhetes.</span>
+              <span className="block md:whitespace-nowrap">Poucas unidades, muito carinho.</span>
+              <span className="block md:whitespace-nowrap">Garanta a sua.</span>
             </>
           )}
         </h2>
