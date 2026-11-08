@@ -46,14 +46,9 @@ export async function Nav() {
 
 // Menu do celular sem JavaScript: <details> abre e fecha um painel sob a barra.
 function MobileMenu({ soldOut }: { soldOut: boolean }) {
+  // no celular o "Eu quero" fica só na barra fixa de baixo (MobileBuyBar), não no topo
   return (
-    <div className="flex items-center gap-1.5 lg:hidden">
-      <Link
-        href="/#comprar"
-        className="flex h-9 items-center rounded-full bg-verdade px-4 text-[13px] font-semibold text-leveza active:scale-[0.97]"
-      >
-        {ctaLabel(soldOut)}
-      </Link>
+    <div className="flex items-center lg:hidden">
       <details className="group">
         <summary
           aria-label="Abrir menu"
