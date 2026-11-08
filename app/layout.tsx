@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Cutive_Mono, Instrument_Sans, Montserrat } from "next/font/google";
 import { HashScroll } from "@/components/site/hash-scroll";
+import { ValidacaoPt } from "@/components/site/validacao-pt";
 import "./globals.css";
 
 // fontes da marca: Montserrat nos títulos e no texto corrido, Cutive Mono nos detalhes datilografados
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full font-sans">
         {children}
         <HashScroll />
+        <ValidacaoPt />
       </body>
     </html>
   );
