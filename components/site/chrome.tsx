@@ -113,7 +113,7 @@ export function Footer() {
       <div className="largura flex flex-col gap-16">
         <div className="flex flex-col justify-between gap-12 md:flex-row md:items-end">
           <div className="flex flex-col gap-4">
-            <Logo className="w-[280px] text-leveza md:w-[400px]" />
+            <Logo className="w-[280px] text-luz md:w-[400px]" />
           </div>
           <div className="flex gap-18 text-[15px] text-leveza/85">
             <div className="flex flex-col gap-3.5">
