@@ -22,6 +22,7 @@ const faixa = [
   ["/images/ritual-mesa.jpg", "As duas criadoras à mesa no jardim, uma delas lendo um bilhete tirado da caixa"],
   ["/images/oraculo-144.jpg", "Pessoa lendo um bilhete"],
   ["/images/ritual-poltrona.jpg", "Mulher numa poltrona verde segura um bilhete junto ao peito"],
+  ["/images/ritual-grama.jpg", "Leque de bilhetes coloridos e o livreto do ritual aberto sobre a grama, ao lado da tampa da caixa"],
 ] as const;
 
 export default async function Home() {
@@ -126,10 +127,10 @@ function Ritual() {
           <p className="mt-4.5 font-hand text-[17px] text-luz">Volte sempre que precisar.</p>
         </div>
       </div>
-      <div className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:px-0 md:mt-[clamp(40px,6svh,80px)] md:grid md:grid-cols-3 md:overflow-visible">
+      <div className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:px-0 md:mt-[clamp(40px,6svh,80px)] md:grid md:grid-cols-4 md:overflow-visible">
         {faixa.map(([src, alt]) => (
-          <div key={src} className="relative h-[440px] w-[78vw] shrink-0 snap-start overflow-hidden rounded-md md:aspect-[2/3] md:h-auto md:w-auto">
-            <Image src={src} alt={alt} fill sizes="(min-width: 768px) 400px, 78vw" className="object-cover" />
+          <div key={src} className="relative h-[440px] w-[78vw] shrink-0 snap-start overflow-hidden rounded-md md:aspect-[346/460] md:h-auto md:w-auto">
+            <Image src={src} alt={alt} fill sizes="(min-width: 768px) 300px, 78vw" className="object-cover" />
           </div>
         ))}
       </div>
