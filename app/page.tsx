@@ -8,7 +8,12 @@ import { PixIcon } from "@/components/site/pix-icon";
 import { produto } from "@/lib/site";
 import { getStock } from "@/lib/stock";
 
-const ritual = ["Respire e mentalize sem pressa", "Escolha um bilhete com intenção", "Viva o que ele desperta em você"];
+// cada passo em duas partes: no celular quebra entre elas, no desktop fica numa linha
+const ritual = [
+  ["Respire e mentalize", "sem pressa"],
+  ["Escolha um bilhete", "com intenção"],
+  ["Viva o que ele", "desperta em você"],
+] as const;
 
 // "na sua casa": a caixa nos cantos da casa, na ordem do rascunho
 const casa = [
@@ -118,10 +123,12 @@ function Ritual() {
         </h2>
         <div className="w-full lg:w-[420px] lg:shrink-0">
           <ol>
-            {ritual.map((passo, i) => (
-              <li key={passo} className="flex items-center gap-6 border-b border-leveza/20 py-4.5">
+            {ritual.map(([inicio, fim], i) => (
+              <li key={inicio} className="flex items-center gap-6 border-b border-leveza/20 py-4.5">
                 <span className="w-9 font-hand text-[22px] text-intuicao">{i + 1}.</span>
-                <span className="font-mono text-[17px] text-leveza">{passo}</span>
+                <span className="font-mono text-[17px] text-leveza">
+                  <span className="block md:inline">{inicio}</span> <span className="block md:inline">{fim}</span>
+                </span>
               </li>
             ))}
           </ol>
@@ -130,8 +137,8 @@ function Ritual() {
       </div>
       <div className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:px-0 md:mt-[clamp(40px,6svh,80px)] md:grid md:grid-cols-4 md:overflow-visible">
         {faixa.map(([src, alt, foco]) => (
-          <div key={src} className="relative aspect-square w-[78vw] shrink-0 snap-start overflow-hidden rounded-md md:w-auto">
-            <Image src={src} alt={alt} fill sizes="(min-width: 768px) 300px, 78vw" className={`object-cover ${foco}`} />
+          <div key={src} className="relative aspect-square w-[66vw] shrink-0 snap-start overflow-hidden rounded-md md:w-auto">
+            <Image src={src} alt={alt} fill sizes="(min-width: 768px) 300px, 66vw" className={`object-cover ${foco}`} />
           </div>
         ))}
       </div>
@@ -220,7 +227,10 @@ function Criadoras() {
             </h2>
           </div>
           {/* no desktop a assinatura ocupa a mesma largura da coluna de texto abaixo (52% = 100% − fotos 39% − espaço 9%) */}
-          <p className="whitespace-nowrap font-hand text-[min(20px,4vw)] text-verdade md:text-[clamp(18px,1.6vw,24px)] lg:w-[52%] lg:text-[2.2cqw]">por Gabriela Lima &amp; Julia Lima Villa</p>
+          <p className="font-hand text-[20px] text-verdade md:whitespace-nowrap md:text-[clamp(18px,1.6vw,24px)] lg:w-[52%] lg:text-[2.2cqw]">
+            por Gabriela Lima <br className="md:hidden" />
+            &amp; Julia Lima Villa
+          </p>
         </div>
         <div className="flex flex-col gap-14 lg:flex-row lg:items-start lg:gap-[9%]">
           <div className="flex w-full max-w-[640px] shrink-0 gap-2.5 lg:w-[39%]">
@@ -317,7 +327,11 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
                 />
               </div>
               <div className="flex flex-col items-start gap-1 text-left">
-                <span className="text-[28px] leading-none md:text-[31px]">{produto.precoAVista}</span>
+                {/* no celular o valor fica numa linha e "à vista" na de baixo */}
+                <span className="text-[28px] leading-none md:text-[31px]">
+                  {produto.precoAVista.replace(/ à vista$/, "")}
+                  <br className="md:hidden" /> à vista
+                </span>
                 <span className="text-sm text-leveza/70">ou {produto.parcelas}</span>
                 <span className="mt-1.5 text-xs text-leveza/70">{produto.frete}</span>
               </div>
