@@ -267,13 +267,13 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
           EDIÇÃO LIMITADA · {soldOut ? "ESGOTADA" : "COMPRE ONLINE"}
         </Eyebrow>
         {/* a partir do tablet o título fica sempre em 2 linhas: a fonte acompanha a largura do conteúdo para a linha mais longa caber */}
-        <h2 className="mt-6 text-[34px] leading-[1.1] tracking-[-0.02em] md:text-[min(46px,calc(100cqw/24))]">
+        <h2 className="mt-6 text-[34px] leading-[1.1] tracking-[-0.02em] md:text-[min(46px,calc(100cqw/20))]">
           {soldOut ? (
             "Esgotou. O próximo lote já está a caminho."
           ) : (
             <>
-              <span className="block md:whitespace-nowrap">Poucas unidades produzidas com muito carinho.</span>
-              <span className="block md:whitespace-nowrap">Uma delas pode ser sua.</span>
+              <span className="block md:whitespace-nowrap">poucas unidades, muito carinho.</span>
+              <span className="block md:whitespace-nowrap">garanta sua caixa de bilhetes.</span>
             </>
           )}
         </h2>
