@@ -34,7 +34,6 @@ export default async function Home() {
         <Hero soldOut={soldOut} />
         <Assinatura />
         <Ritual />
-        <ManifestoSection />
         <Bilhetes />
         <Criadoras />
         <Comprar soldOut={soldOut} />
@@ -135,45 +134,6 @@ function Ritual() {
           </div>
         ))}
       </div>
-      </div>
-    </section>
-  );
-}
-
-function ManifestoSection() {
-  return (
-    <section className="bg-[#F6F4EF] px-5 py-24 md:px-16 md:py-[clamp(56px,8svh,112px)]">
-      <div className="largura @container flex flex-col gap-10">
-        <div className="flex flex-col gap-2.5">
-          <Eyebrow className="text-recomeco">MANIFESTO</Eyebrow>
-          <span className="h-px w-14 bg-recomeco" />
-        </div>
-        {/* negrito = font-medium; linhas de apoio em font-light.
-            A partir do tablet cada bloco fica em 2 linhas: a fonte acompanha a largura da seção (cqw)
-            para a linha mais longa ("Uma ideia… palavras.") sempre caber. */}
-        <div className="flex flex-col gap-7 text-[30px] font-medium leading-[1.12] tracking-[-0.025em] md:gap-8 md:text-[clamp(16px,2.75cqw,46px)] [&_span]:block md:[&_span]:whitespace-nowrap">
-          <p className="text-[#2A1A1D]">
-            <span>Sabe quando existe algo dentro da gente pedindo mais?</span>
-            <span className="font-light">Uma ideia. Uma coragem. Uma verdade que ainda não encontrou palavras.</span>
-          </p>
-          <p className="text-[#A79C93]">
-            <span>Chega como uma pluma atravessando o ar.</span>
-            <span>Delicada, mas impossível de ignorar.</span>
-          </p>
-          <p className="text-verdade">
-            <span>Muitas vezes as respostas já estão com a gente,</span>
-            <span>mas precisamos silenciar os ruídos para conseguir ouvir.</span>
-          </p>
-        </div>
-        <div className="relative h-[200px] overflow-hidden rounded-[20px] md:aspect-[4/1] md:h-auto">
-          <Image
-            src="/images/manifesto-tecido.jpg"
-            alt="Tecido terracota translúcido voando contra o céu nublado"
-            fill
-            sizes="(min-width: 1248px) 1248px, 100vw"
-            className="object-cover"
-          />
-        </div>
       </div>
     </section>
   );
