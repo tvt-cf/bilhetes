@@ -208,7 +208,7 @@ function Criadoras() {
   return (
     <section id="criadoras" className="scroll-mt-20 bg-leveza px-5 py-24 md:px-16 md:py-[clamp(48px,6svh,104px)]">
       {/* colagem com as proporções do canvas */}
-      <div className="largura flex flex-col gap-14 md:gap-[clamp(32px,6svh,72px)]">
+      <div className="largura @container flex flex-col gap-14 md:gap-[clamp(32px,6svh,72px)]">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="flex flex-col gap-5">
             <Eyebrow className="text-tinta">CRIADORAS</Eyebrow>
@@ -218,7 +218,8 @@ function Criadoras() {
               do encontro.
             </h2>
           </div>
-          <p className="font-hand text-[20px] text-verdade md:whitespace-nowrap md:text-[clamp(18px,1.6vw,24px)]">por Gabriela Lima &amp; Julia Lima Villa</p>
+          {/* no desktop a assinatura ocupa a mesma largura da coluna de texto abaixo (52% = 100% − fotos 39% − espaço 9%) */}
+          <p className="font-hand text-[20px] text-verdade md:whitespace-nowrap md:text-[clamp(18px,1.6vw,24px)] lg:w-[52%] lg:text-[2.37cqw]">por Gabriela Lima &amp; Julia Lima Villa</p>
         </div>
         <div className="flex flex-col gap-14 lg:flex-row lg:items-start lg:gap-[9%]">
           <div className="flex w-full max-w-[640px] shrink-0 gap-2.5 lg:w-[39%]">
