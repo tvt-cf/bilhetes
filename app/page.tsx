@@ -343,7 +343,11 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
                   <br className="md:hidden" /> à vista
                 </span>
                 <span className="text-sm text-leveza/70">ou {produto.parcelas}</span>
-                <span className="mt-1.5 text-xs text-leveza/70">{produto.frete}</span>
+                <span className="mt-1.5 text-xs text-leveza/70">
+                  {/* no celular quebra depois de "incluso" */}
+                  {produto.frete.replace(/ para .*/, "")}
+                  <br className="md:hidden" /> {produto.frete.replace(/^.*? (para .*)$/, "$1")}
+                </span>
               </div>
             </div>
             <div className="mt-10 w-full">
