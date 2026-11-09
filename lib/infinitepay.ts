@@ -33,8 +33,12 @@ export async function createCheckoutLink(input: {
   paymentPreference: "a_vista" | "parcelado";
 }): Promise<string> {
   // o resumo do checkout mostra o preço do cartão; a descrição avisa já na primeira tela o preço escolhido
-  // e, no Pix, que o valor já é com desconto. A InfinitePay mostra só ~2 linhas (~55 caracteres) e corta o resto.
-  const price = input.paymentPreference === "a_vista" ? `Pix com desconto: ${produto.precoAVista.replace(/ à vista$/, "")}` : `${produto.parcelas} sem juros`;
+  // e, no Pix, que o desconto aparece na tela seguinte. A InfinitePay mostra só 2 linhas (~28 caracteres cada) e corta o resto.
+  const pix = produto.precoAVista.replace(/ à vista$/, "");
+  const description =
+    input.paymentPreference === "a_vista"
+      ? `Caixa ${produto.nome} · desconto Pix na próxima tela: ${pix}`
+      : `Caixa de ${produto.nome} ${produto.edicao.replace(/^Edição /, "")} · ${produto.parcelas} sem juros`;
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const res = await fetch(`${API}/links`, {
     method: "POST",
@@ -45,7 +49,7 @@ export async function createCheckoutLink(input: {
         {
           quantity: 1,
           price: input.amount,
-          description: `Caixa de ${produto.nome} ${produto.edicao.replace(/^Edição /, "")} · ${price}`,
+          description,
         },
       ],
       order_nsu: `pedido-${input.orderId}`,
