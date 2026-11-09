@@ -54,6 +54,7 @@ export async function createCheckoutLink(input: {
       ],
       order_nsu: `pedido-${input.orderId}`,
       webhook_url: `${site}/api/infinitepay/webhook`,
+      redirect_url: `${site}/obrigada`, // depois de pagar e tocar em "Continuar", volta para a página de obrigada
       customer: { name: input.name, phone_number: `+${input.phone}` },
       options,
     }),

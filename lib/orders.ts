@@ -134,3 +134,36 @@ export async function getOrderTotals() {
     card: n(row?.card),
   };
 }
+
+// Página de obrigada: a InfinitePay manda a pessoa de volta com os dados da transação. A página é pública,
+// então só confere pedidos que ainda estão aguardando (um link forjado não mexe em pedido já pago ou divergente).
+export async function confirmOrderOnReturn(input: {
+  orderNsu: string;
+  transactionNsu?: string;
+  slug?: string;
+  receiptUrl?: string;
+}) {
+  const id = /^pedido-(\d+)$/.exec(input.orderNsu)?.[1];
+  if (!id) return null;
+  const db = await getDb();
+  const load = async () => (await db.select().from(orders).where(eq(orders.id, Number(id))))[0];
+  let order = await load();
+  if (!order) return null;
+  if (order.status === "aguardando" && input.transactionNsu && input.slug) {
+    const status = await reconcileOrder({ ...input, transactionNsu: input.transactionNsu, slug: input.slug }).catch((e) => {
+      console.error(e);
+      return null;
+    });
+    if (status === "pago") order = (await load()) ?? order;
+  }
+  return {
+    id: order.id,
+    status: order.status,
+    paymentPreference: order.paymentPreference,
+    amount: order.amount,
+    paidAmount: order.paidAmount,
+    installments: order.installments,
+    captureMethod: order.captureMethod,
+    receiptUrl: order.receiptUrl,
+  };
+}
