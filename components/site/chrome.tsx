@@ -132,7 +132,7 @@ export function Footer() {
         </div>
         <div className="flex flex-col justify-between gap-3 border-t border-leveza/15 pt-6 sm:flex-row">
           <p className="text-[13px] text-leveza/60">
-            © 2026 bilhetes, por Gabriela Lima e Julia Lima Villa.
+            © 2026 bilhetes. Feito por Gabriela Lima e Julia Lima Villa.
           </p>
           <p className="font-hand text-[17px] text-intuicao">toda grande mudança começa pequena</p>
         </div>
