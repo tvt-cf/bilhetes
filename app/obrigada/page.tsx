@@ -99,8 +99,12 @@ async function Conteudo({
 
   const pago = pedido.status === "pago";
   const pix = (pedido.captureMethod ?? get("capture_method")) === "pix";
+  // valor pago: o que a InfinitePay confirmou; senão o cobrado no pedido (no Pix, o preço cheio vira o preço à vista)
   const valor =
-    pedido.paidAmount ?? (pix ? produto.precoCentavos.a_vista : pedido.amount);
+    pedido.paidAmount ??
+    (pix && pedido.amount === produto.precoCentavos.parcelado
+      ? produto.precoCentavos.a_vista
+      : pedido.amount);
   const forma = pix
     ? "Pago no Pix"
     : `Pago no cartão${pedido.installments && pedido.installments > 1 ? ` em ${pedido.installments}x` : ""}`;
