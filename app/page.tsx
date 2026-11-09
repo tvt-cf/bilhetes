@@ -114,13 +114,16 @@ function Ritual() {
       {/* fotos verticais como no canvas, na largura comum das seções */}
       <div className="largura">
       <div className="flex flex-col justify-between gap-14 px-5 md:px-0 lg:flex-row lg:items-start">
-        <h2 className="max-w-[560px] text-[40px] leading-[1.08] tracking-[-0.02em] text-leveza md:text-[clamp(34px,3.1vw,46px)]">
-          A pausa
-          <br />
-          que faltava
-          <br />
-          no seu dia.
-        </h2>
+        <div className="flex flex-col gap-5">
+          <Eyebrow className="text-luz">COMO USAR</Eyebrow>
+          <h2 className="max-w-[560px] text-[40px] leading-[1.08] tracking-[-0.02em] text-leveza md:text-[clamp(34px,3.1vw,46px)]">
+            A pausa
+            <br />
+            que faltava
+            <br />
+            no seu dia.
+          </h2>
+        </div>
         <div className="w-full lg:w-[420px] lg:shrink-0">
           <ol>
             {ritual.map(([inicio, fim], i) => (
