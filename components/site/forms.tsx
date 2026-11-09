@@ -89,6 +89,7 @@ export function PresaleForm({ tone = "light" }: { tone?: Tone }) {
   }
   return (
     <form action={action} className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+      <TesteInput />
       <ContactFields tone={tone} />
       <fieldset className="flex flex-wrap justify-center gap-3">
         <legend className="sr-only">Forma de pagamento</legend>
@@ -139,6 +140,19 @@ export function WaitlistForm({ tone = "light" }: { tone?: Tone }) {
       </button>
       <Feedback state={state} tone={tone} />
     </form>
+  );
+}
+
+// TEMPORÁRIO: repassa o ?teste=<token> da URL para a compra de teste a R$ 1
+function TesteInput() {
+  return (
+    <input
+      type="hidden"
+      name="teste"
+      ref={(el) => {
+        if (el) el.value = new URLSearchParams(window.location.search).get("teste") ?? "";
+      }}
+    />
   );
 }
 

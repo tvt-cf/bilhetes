@@ -37,13 +37,17 @@ export async function presaleAction(_: FormState, form: FormData): Promise<FormS
     return { ok: false, message: "Esgotou agora há pouco. Você entrou na fila de espera e avisamos no WhatsApp quando o próximo lote chegar." };
   }
   const personId = await joinPresale({ name, phone, paymentPreference });
+  // TEMPORÁRIO (teste do checkout): quem abre o site com ?teste=<TESTE_CHECKOUT_TOKEN> paga R$ 1.
+  // O token fica só na Vercel (o repositório é público). Sem a variável, o teste fica desligado.
+  const token = process.env.TESTE_CHECKOUT_TOKEN;
+  const ehTeste = Boolean(token) && form.get("teste") === token;
 
   // com a InfinitePay configurada, vai direto para o checkout; sem ela, segue a reserva pelo WhatsApp
   if (infinitepayConfigured()) {
     let url: string;
     try {
-      const order = await createOrder({ personId, paymentPreference });
-      url = await createCheckoutLink({ orderId: order.id, amount: order.amount, name, phone, paymentPreference });
+      const order = await createOrder({ personId, paymentPreference, amount: ehTeste ? 100 : undefined });
+      url = await createCheckoutLink({ orderId: order.id, amount: order.amount, name, phone, paymentPreference, teste: ehTeste });
       await setCheckoutUrl(order.id, url);
     } catch (e) {
       console.error(e);

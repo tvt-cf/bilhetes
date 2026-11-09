@@ -31,12 +31,14 @@ export async function createCheckoutLink(input: {
   name: string;
   phone: string;
   paymentPreference: "a_vista" | "parcelado";
+  teste?: boolean;
 }): Promise<string> {
   // o resumo do checkout mostra o preço do cartão; a descrição avisa já na primeira tela o preço escolhido
   // e, no Pix, que o desconto aparece na tela seguinte. A InfinitePay mostra só 2 linhas (~28 caracteres cada) e corta o resto.
   const pix = produto.precoAVista.replace(/ à vista$/, "");
-  const description =
-    input.paymentPreference === "a_vista"
+  const description = input.teste
+    ? `TESTE · Caixa de ${produto.nome} Nº 01 · R$ 1`
+    : input.paymentPreference === "a_vista"
       ? `Caixa ${produto.nome} · desconto Pix na próxima tela: ${pix}`
       : `Caixa de ${produto.nome} ${produto.edicao.replace(/^Edição /, "")} · ${produto.parcelas} sem juros`;
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -56,7 +58,7 @@ export async function createCheckoutLink(input: {
       webhook_url: `${site}/api/infinitepay/webhook`,
       redirect_url: `${site}/obrigada`, // depois de pagar e tocar em "Continuar", volta para a página de obrigada
       customer: { name: input.name, phone_number: `+${input.phone}` },
-      options,
+      options: input.teste ? { single_payment: true } : options,
     }),
   });
   const data = (await res.json().catch(() => ({}))) as { url?: string; message?: string };

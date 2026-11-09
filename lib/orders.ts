@@ -8,11 +8,11 @@ import { produto } from "./site";
 
 const { orders, people } = schema;
 
-export async function createOrder(input: { personId: number; paymentPreference: "a_vista" | "parcelado" }) {
+export async function createOrder(input: { personId: number; paymentPreference: "a_vista" | "parcelado"; amount?: number }) {
   const db = await getDb();
   const [row] = await db
     .insert(orders)
-    .values({ ...input, amount: produto.precoCentavos.parcelado }) // o link cobra o preço do cartão; Pix tem desconto
+    .values({ ...input, amount: input.amount ?? produto.precoCentavos.parcelado }) // o link cobra o preço do cartão; Pix tem desconto
     .returning({ id: orders.id, amount: orders.amount });
   return row;
 }
