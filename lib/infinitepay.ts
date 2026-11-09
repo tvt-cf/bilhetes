@@ -44,7 +44,7 @@ export async function createCheckoutLink(input: {
         {
           quantity: 1,
           price: input.amount,
-          description: `${produto.nome} · ${produto.edicao} · ${price}`,
+          description: `Caixa de ${produto.nome} ${produto.edicao.replace(/^Edição /, "")} · ${price}`,
         },
       ],
       order_nsu: `pedido-${input.orderId}`,
