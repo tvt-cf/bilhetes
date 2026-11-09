@@ -33,7 +33,8 @@ export async function createCheckoutLink(input: {
   paymentPreference: "a_vista" | "parcelado";
 }): Promise<string> {
   // o resumo do checkout mostra o preço do cartão; a descrição avisa já na primeira tela o preço escolhido
-  const price = input.paymentPreference === "a_vista" ? `${produto.precoAVista} no Pix` : `${produto.parcelas} sem juros`;
+  // e, no Pix, que o desconto só aparece depois de seguir no link
+  const price = input.paymentPreference === "a_vista" ? `${produto.precoAVista} no Pix (o desconto será aplicado no link de pagamento)` : `${produto.parcelas} sem juros`;
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const res = await fetch(`${API}/links`, {
     method: "POST",
