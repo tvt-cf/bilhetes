@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Fragment } from "react";
 import { Eyebrow, Footer, MobileBuyBar, Nav } from "@/components/site/chrome";
+import { Carrossel } from "@/components/site/carrossel";
 import { PresaleForm, SubscribeForm, WaitlistForm } from "@/components/site/forms";
 import { PixIcon } from "@/components/site/pix-icon";
 import { produto } from "@/lib/site";
@@ -138,13 +139,16 @@ function Ritual() {
           <p className="mt-4.5 font-hand text-[17px] text-luz">Volte sempre que precisar.</p>
         </div>
       </div>
-      <div className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:px-0 md:mt-[clamp(40px,6svh,80px)] md:grid md:grid-cols-4 md:overflow-visible">
+      <Carrossel
+        total={faixa.length}
+        className="mt-16 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-px-2 px-2 [scrollbar-width:none] md:px-0 md:mt-[clamp(40px,6svh,80px)] md:grid md:grid-cols-4 md:overflow-visible"
+      >
         {faixa.map(([src, alt, foco]) => (
           <div key={src} className="relative aspect-square w-[66vw] shrink-0 snap-start overflow-hidden rounded-md md:w-auto">
             <Image src={src} alt={alt} fill sizes="(min-width: 768px) 300px, 66vw" className={`object-cover ${foco}`} />
           </div>
         ))}
-      </div>
+      </Carrossel>
       </div>
     </section>
   );
