@@ -78,10 +78,10 @@ async function Pedidos() {
           <p className="px-5 py-14 text-center text-sm text-tinta-suave">Nenhum pedido ainda.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1000px]">
+            <table className="w-full min-w-[1200px]">
               <thead className="border-b border-tinta/8 bg-[#FAF8F5]">
                 <tr>
-                  {["PEDIDO", "PESSOA", "OPÇÃO", "COBRADO", "PAGO", "FORMA", "STATUS", "CONFERIDO", ""].map((h) => (
+                  {["PEDIDO", "PESSOA", "CAIXA E ENTREGA", "OPÇÃO", "COBRADO", "PAGO", "FORMA", "STATUS", "CONFERIDO", ""].map((h) => (
                     <th key={h} className={th}>
                       {h}
                     </th>
@@ -103,6 +103,16 @@ async function Pedidos() {
                           {o.phone ? formatPhone(o.phone) : ""}
                           {o.orderNumber ? ` · ${o.orderNumber}` : ""}
                         </span>
+                      </td>
+                      <td className={td}>
+                        {o.boxColor ? <span className="font-medium">Caixa {o.boxColor}</span> : "—"}
+                        {o.address && (
+                          <span className="block max-w-[260px] text-xs text-tinta-suave">
+                            {o.address.street}, {o.address.number}
+                            {o.address.complement ? ` · ${o.address.complement}` : ""} · {o.address.neighborhood} ·{" "}
+                            {o.address.city}/{o.address.state} · {o.address.cep.replace(/^(\d{5})(\d{3})$/, "$1-$2")}
+                          </span>
+                        )}
                       </td>
                       <td className={td}>{o.paymentPreference === "a_vista" ? "À vista" : "Parcelado"}</td>
                       <td className={td}>{brl(o.amount)}</td>

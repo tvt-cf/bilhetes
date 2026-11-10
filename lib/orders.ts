@@ -2,13 +2,19 @@ import "server-only";
 import { desc, eq, isNotNull, sql } from "drizzle-orm";
 import { markPaid } from "./community";
 import { getDb, schema } from "./db";
-import type { OrderStatus } from "./db/schema";
+import type { BoxColor, DeliveryAddress, OrderStatus } from "./db/schema";
 import { checkPayment, handleFromCheckoutUrl } from "./infinitepay";
 import { produto } from "./site";
 
 const { orders, people } = schema;
 
-export async function createOrder(input: { personId: number; paymentPreference: "a_vista" | "parcelado"; amount?: number }) {
+export async function createOrder(input: {
+  personId: number;
+  paymentPreference: "a_vista" | "parcelado";
+  boxColor: BoxColor;
+  address: DeliveryAddress;
+  amount?: number;
+}) {
   const db = await getDb();
   const [row] = await db
     .insert(orders)
@@ -90,6 +96,8 @@ export async function listOrders(limit = 200) {
       phone: people.phone,
       orderNumber: people.orderNumber,
       paymentPreference: orders.paymentPreference,
+      boxColor: orders.boxColor,
+      address: orders.address,
       amount: orders.amount,
       status: orders.status,
       paidAmount: orders.paidAmount,

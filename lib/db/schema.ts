@@ -17,8 +17,23 @@ export const people = pgTable("people", {
   orderNumber: text("order_number"),
   purchasedAt: timestamp("purchased_at", { withTimezone: true }),
   optedOutAt: timestamp("opted_out_at", { withTimezone: true }),
+  // CEP fora da Grande São Paulo: guardamos o pedido para avisar quando a entrega chegar lá
+  outsideArea: jsonb("outside_area").$type<OutsideArea>(),
+  outsideAreaAt: timestamp("outside_area_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export type BoxColor = "clara" | "escura";
+export type OutsideArea = { cep: string; city: string; uf: string; boxColor: BoxColor };
+export type DeliveryAddress = {
+  cep: string;
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+};
 
 export type CampaignKind = "sabedoria" | "evento" | "pedido" | "lote";
 export type CampaignStatus = "agendado" | "enviando" | "concluido" | "falhou";
@@ -72,6 +87,8 @@ export const orders = pgTable("orders", {
   personId: integer("person_id").notNull(),
   paymentPreference: text("payment_preference").$type<"a_vista" | "parcelado">().notNull(),
   amount: integer("amount").notNull(), // centavos
+  boxColor: text("box_color").$type<BoxColor>(),
+  address: jsonb("address").$type<DeliveryAddress>(),
   checkoutUrl: text("checkout_url"),
   status: text("status").$type<OrderStatus>().notNull().default("aguardando"),
   paidAmount: integer("paid_amount"),
@@ -167,4 +184,8 @@ create table if not exists orders (
   created_at timestamptz not null default now()
 );
 create index if not exists orders_person_idx on orders (person_id);
+alter table people add column if not exists outside_area jsonb;
+alter table people add column if not exists outside_area_at timestamptz;
+alter table orders add column if not exists box_color text;
+alter table orders add column if not exists address jsonb;
 `;

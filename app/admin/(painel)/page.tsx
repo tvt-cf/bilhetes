@@ -190,7 +190,14 @@ async function Comunidade({ searchParams }: { searchParams: PageProps<"/admin">[
                         {p.wantsWisdom && <Chip>Sabedoria</Chip>}
                       </div>
                     </td>
-                    <td className={`${td} whitespace-nowrap`}>{sourceLabel(p.source)}</td>
+                    <td className={`${td} whitespace-nowrap`}>
+                      {sourceLabel(p.source)}
+                      {p.outsideArea && (
+                        <span className="block text-xs text-tinta-suave">
+                          Fora da Grande SP · {p.outsideArea.city}/{p.outsideArea.uf} · caixa {p.outsideArea.boxColor}
+                        </span>
+                      )}
+                    </td>
                     <td className={td}>
                       {p.orderNumber ? (
                         <span className="font-medium">{p.orderNumber}</span>

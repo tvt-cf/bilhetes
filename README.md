@@ -66,8 +66,12 @@ espera”. Para avisar o próximo lote, crie uma mensagem do tipo “Aviso de no
 
 ## Pagamento
 
-“Eu quero” guarda nome, WhatsApp e a forma de pagamento e, com `INFINITEPAY_HANDLE` configurado, leva direto
-para o checkout da InfinitePay (R$ 499 à vista ou R$ 599 parcelado, valores em `produto.precoCentavos`).
+A página pede nome e WhatsApp (o contato já fica salvo como pré-venda) e abre um modal em 3 etapas
+(`components/site/checkout.tsx`): cor da caixa (clara ou escura), endereço pelo CEP (ViaCEP, `lib/cep.ts`) e forma de
+pagamento. A entrega é só na Grande São Paulo (os 39 municípios, pelo código IBGE): CEP de fora vai para a fila de
+espera com cor, CEP e cidade guardados. Com `INFINITEPAY_HANDLE` configurado, “Pagar com InfinitePay” leva direto para
+o checkout já com nome, WhatsApp e endereço preenchidos (R$ 580 no Pix ou 3x de R$ 204 no cartão, valores em
+`produto.precoCentavos`). Cor e endereço de cada pedido aparecem em `/admin/pedidos`.
 Quando a InfinitePay avisa o pagamento em `/api/infinitepay/webhook`, o site confere em `/payment_check` e
 marca a pessoa como “Comprou”. O número da caixa continua sendo dado em `/admin`.
 

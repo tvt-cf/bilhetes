@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { Eyebrow, Footer, MobileBuyBar, Nav } from "@/components/site/chrome";
 import { Carrossel } from "@/components/site/carrossel";
-import { PresaleForm, SubscribeForm, WaitlistForm } from "@/components/site/forms";
+import { CheckoutForm } from "@/components/site/checkout";
+import { SubscribeForm, WaitlistForm } from "@/components/site/forms";
 import { PixIcon } from "@/components/site/pix-icon";
 import { produto } from "@/lib/site";
 import { getStock } from "@/lib/stock";
@@ -351,7 +352,7 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
               </div>
             </div>
             <div className="mt-10 w-full">
-              <PresaleForm tone="dark" />
+              <CheckoutForm />
             </div>
             <PagamentoSeguro />
           </>

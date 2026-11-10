@@ -13,7 +13,7 @@ export const produto = {
   // valores do checkout da InfinitePay, em centavos (manter em sincronia com os textos acima):
   // a_vista é o preço no Pix, parcelado é o preço no cartão
   precoCentavos: { a_vista: 58000, parcelado: 61200 },
-  frete: "Frete incluso para todo o Brasil",
+  frete: "Frete incluso para a Grande São Paulo",
 };
 
 export const instagram = "https://instagram.com/bilhetes.co";

@@ -1,7 +1,7 @@
 import "server-only";
 import { and, count, desc, eq, ilike, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import { getDb, schema } from "./db";
-import type { PersonStatus } from "./db/schema";
+import type { OutsideArea, PersonStatus } from "./db/schema";
 import { produto } from "./site";
 
 const { people, messages, campaigns } = schema;
@@ -30,7 +30,8 @@ export async function subscribe(input: {
     });
 }
 
-export async function joinPresale(input: { name: string; phone: string; paymentPreference: string }) {
+// paymentPreference fica vazia quando a pessoa só deixou o contato e ainda não escolheu como pagar
+export async function joinPresale(input: { name: string; phone: string; paymentPreference?: string }) {
   const db = await getDb();
   const now = new Date();
   const [row] = await db
@@ -40,7 +41,7 @@ export async function joinPresale(input: { name: string; phone: string; paymentP
       target: people.phone,
       set: {
         name: input.name,
-        paymentPreference: input.paymentPreference,
+        paymentPreference: input.paymentPreference ?? sql`${people.paymentPreference}`,
         presaleAt: sql`coalesce(${people.presaleAt}, ${now.toISOString()}::timestamptz)`,
         // quem já comprou continua como comprou
         status: sql`case when ${people.status} = 'comprou' then 'comprou' else 'pre_venda' end`,
@@ -64,6 +65,27 @@ export async function joinWaitlist(input: { name: string; phone: string }) {
         name: input.name,
         waitlistAt: sql`coalesce(${people.waitlistAt}, ${now.toISOString()}::timestamptz)`,
         status: sql`case when ${people.status} in ('pre_venda', 'comprou') then ${people.status} else 'fila_espera' end`,
+        optedOutAt: null,
+      },
+    });
+}
+
+// CEP fora da Grande São Paulo: vai para a fila de espera com o pedido guardado (cor, CEP e cidade).
+export async function joinOutsideArea(input: { name: string; phone: string } & OutsideArea) {
+  const { name, phone, ...outsideArea } = input;
+  const db = await getDb();
+  const now = new Date();
+  await db
+    .insert(people)
+    .values({ name, phone, source: "fora da área", status: "fila_espera", waitlistAt: now, outsideArea, outsideAreaAt: now })
+    .onConflictDoUpdate({
+      target: people.phone,
+      set: {
+        name,
+        outsideArea,
+        outsideAreaAt: now,
+        waitlistAt: sql`coalesce(${people.waitlistAt}, ${now.toISOString()}::timestamptz)`,
+        status: sql`case when ${people.status} = 'comprou' then 'comprou' else 'fila_espera' end`,
         optedOutAt: null,
       },
     });
@@ -181,6 +203,7 @@ export async function listPeople(opts: { segment: SegmentFilter; q?: string; lim
       wantsWisdom: people.wantsWisdom,
       paymentPreference: people.paymentPreference,
       orderNumber: people.orderNumber,
+      outsideArea: people.outsideArea,
       optedOutAt: people.optedOutAt,
       createdAt: people.createdAt,
       lastTitle: last.title,

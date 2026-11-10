@@ -1,8 +1,7 @@
 "use client";
 
 import { useActionState, useState, type ComponentProps } from "react";
-import { presaleAction, subscribeAction, waitlistAction, type FormState } from "@/app/actions";
-import { produto } from "@/lib/site";
+import { subscribeAction, waitlistAction, type FormState } from "@/app/actions";
 
 type Tone = "light" | "dark";
 
@@ -76,47 +75,6 @@ const ui = {
   },
 } as const;
 
-export function PresaleForm({ tone = "light" }: { tone?: Tone }) {
-  const [state, action, pending] = useActionState(presaleAction, null);
-  const t = ui[tone];
-  if (state?.ok) {
-    return (
-      <div className="mx-auto flex max-w-md flex-col items-center gap-3 text-center">
-        <p className={`text-3xl ${t.done}`}>Reservado.</p>
-        <Feedback state={state} tone={tone} />
-      </div>
-    );
-  }
-  return (
-    <form action={action} className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-      <TesteInput />
-      <ContactFields tone={tone} />
-      <fieldset className="flex flex-wrap justify-center gap-3">
-        <legend className="sr-only">Forma de pagamento</legend>
-        {[
-          ["a_vista", produto.precoAVista],
-          ["parcelado", produto.parcelas],
-        ].map(([value, label], i) => (
-          <label
-            key={value}
-            className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm has-[:checked]:font-semibold ${t.chip}`}
-          >
-            <input type="radio" name="payment" value={value} defaultChecked={i === 0} className={t.radio} />
-            {label}
-          </label>
-        ))}
-      </fieldset>
-      <button
-        disabled={pending}
-        className={`mx-auto flex w-full items-center justify-center gap-2.5 rounded-full px-10 py-5 text-base font-semibold transition active:scale-[0.98] disabled:opacity-60 sm:w-auto ${t.button}`}
-      >
-        {pending ? "Abrindo pagamento…" : "Comprar meus Bilhetes"} <span aria-hidden>→</span>
-      </button>
-      <Feedback state={state} tone={tone} />
-    </form>
-  );
-}
-
 // Edição esgotada: guarda o contato para avisar quando o próximo lote chegar.
 export function WaitlistForm({ tone = "light" }: { tone?: Tone }) {
   const [state, action, pending] = useActionState(waitlistAction, null);
@@ -143,20 +101,7 @@ export function WaitlistForm({ tone = "light" }: { tone?: Tone }) {
   );
 }
 
-// TEMPORÁRIO: repassa o ?teste=<token> da URL para a compra de teste a R$ 1
-function TesteInput() {
-  return (
-    <input
-      type="hidden"
-      name="teste"
-      ref={(el) => {
-        if (el) el.value = new URLSearchParams(window.location.search).get("teste") ?? "";
-      }}
-    />
-  );
-}
-
-function ContactFields({ tone }: { tone: Tone }) {
+export function ContactFields({ tone }: { tone: Tone }) {
   const field =
     tone === "dark"
       ? "rounded-full border border-leveza/20 bg-leveza/[0.08] px-6 py-4 text-base text-leveza outline-none placeholder:text-leveza/50 focus:border-leveza/50"

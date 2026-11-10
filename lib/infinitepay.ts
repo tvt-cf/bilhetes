@@ -1,4 +1,5 @@
 import "server-only";
+import type { DeliveryAddress } from "./db/schema";
 import { produto } from "./site";
 
 // Checkout da InfinitePay (link de pagamento via API). Docs: https://www.infinitepay.io/checkout-documentacao
@@ -25,17 +26,6 @@ export function infinitepayConfigured(): boolean {
   return Boolean(process.env.INFINITEPAY_HANDLE && process.env.INFINITEPAY_API_KEY);
 }
 
-// Endereço de entrega, já completo pela API de CEP. Vai junto no link para a pessoa não digitar de novo.
-export type CheckoutAddress = {
-  cep: string;
-  street: string;
-  number: string;
-  complement?: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-};
-
 // O handle fica no link ("checkout.infinitepay.io/<handle>/<slug>"): pedidos abertos antes de uma troca de
 // INFINITEPAY_HANDLE continuam sendo conferidos na conta onde foram pagos.
 export function handleFromCheckoutUrl(url?: string | null): string | undefined {
@@ -48,7 +38,7 @@ export async function createCheckoutLink(input: {
   name: string;
   phone: string;
   paymentPreference: "a_vista" | "parcelado";
-  address?: CheckoutAddress;
+  address?: DeliveryAddress; // vai junto no link para a pessoa não digitar de novo
   teste?: boolean;
 }): Promise<string> {
   // o resumo do checkout mostra o preço do cartão; a descrição avisa já na primeira tela o preço escolhido
