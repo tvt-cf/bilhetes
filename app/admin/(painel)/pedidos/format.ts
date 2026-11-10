@@ -18,6 +18,7 @@ export type OrderRow = {
   checkedAt: Date | null;
   createdAt: Date;
   archivedAt: Date | null;
+  deliveredAt: Date | null;
 };
 
 export const statusStyle: Record<OrderStatus, [string, string]> = {

@@ -117,9 +117,15 @@ export async function checkoutAction(
   };
   if (!address.street) return { ok: false, message: "Falta o nome da rua." };
 
-  if ((await getStockLive()).soldOut) {
+  const stock = await getStockLive();
+  if (stock.soldOut) {
     await joinWaitlist({ name, phone });
     return { ok: false, message: soldOutMessage };
+  }
+  // a cor pode ter esgotado enquanto a pessoa preenchia o endereço
+  const color = boxColor(input.boxColor);
+  if (stock.colorSoldOut[color]) {
+    return { ok: false, message: `A caixa ${color} acabou de esgotar. Volte para a primeira etapa e escolha a outra cor.` };
   }
   const personId = await joinPresale({ name, phone, paymentPreference });
   // TEMPORÁRIO (teste do checkout): quem abre o site com ?teste=<TESTE_CHECKOUT_TOKEN> paga R$ 1.
@@ -134,7 +140,7 @@ export async function checkoutAction(
     const order = await createOrder({
       personId,
       paymentPreference,
-      boxColor: boxColor(input.boxColor),
+      boxColor: color,
       address,
       amount: ehTeste ? 100 : undefined,
     });

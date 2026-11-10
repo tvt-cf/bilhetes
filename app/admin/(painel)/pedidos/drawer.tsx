@@ -1,11 +1,11 @@
 "use client";
 
-import { Archive, ArchiveRestore, ExternalLink, RefreshCw, X } from "lucide-react";
+import { Archive, ArchiveRestore, ExternalLink, PackageCheck, PackageX, RefreshCw, X } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import type { OrderStatus } from "@/lib/db/schema";
 import type { TimelineEvent } from "@/lib/orders";
 import { formatPhone } from "@/lib/phone";
-import { archiveOrdersAction, orderTimelineAction, recheckOrdersAction } from "../../actions";
+import { archiveOrdersAction, deliverOrdersAction, orderTimelineAction, recheckOrdersAction } from "../../actions";
 import { boxStyle, brl, fmtCep, methodLabel, optionLabel, type OrderRow, statusStyle } from "./format";
 
 const fmtFull = new Intl.DateTimeFormat("pt-BR", {
@@ -18,13 +18,25 @@ const fmtFull = new Intl.DateTimeFormat("pt-BR", {
   timeZone: "America/Sao_Paulo",
 });
 
+const fmtShort = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", timeZone: "America/Sao_Paulo" });
+
 const viaLabel = { cliente: "Cliente no site", webhook: "InfinitePay (webhook)", retorno: "Retorno do pagamento", admin: "Admin" };
 const statusName = (s?: OrderStatus) => (s ? statusStyle[s][0] : "—");
 const methodName = (m?: string | null) => (m === "pix" ? "Pix" : m === "credit_card" ? "cartão" : null);
 
+// Por que o pedido ficou divergente (ou por que a conferência não concluiu nada).
+function why(d: NonNullable<TimelineEvent["detail"]>) {
+  if (d.reason === "falha") return "A InfinitePay não respondeu à conferência; nada mudou. Tente conferir de novo.";
+  if (d.reason === "nao_confirmado") return "A InfinitePay não confirma pagamento para essa transação.";
+  if (d.reason === "valor")
+    return `Valor confirmado ${d.amount != null ? brl(d.amount) : "não informado"}, esperado ${(d.expected ?? []).map(brl).join(" ou ")}.`;
+  return null;
+}
+
 function describe(e: TimelineEvent): [title: string, detail: string | null, dot: string] {
   const d = e.detail ?? {};
   const paid = d.paidAmount != null ? `${brl(d.paidAmount)}${methodName(d.method) ? ` no ${methodName(d.method)}` : ""}` : null;
+  const reason = why(d);
   switch (e.kind) {
     case "criado":
       return ["Checkout aberto", "Escolheu a caixa, preencheu o endereço e foi para o pagamento", "bg-tinta/30"];
@@ -33,11 +45,19 @@ function describe(e: TimelineEvent): [title: string, detail: string | null, dot:
     case "status":
       return [
         d.to === "pago" ? "Pagamento confirmado" : d.to === "divergente" ? "Pagamento divergente" : "Status alterado",
-        [`${statusName(d.from)} → ${statusName(d.to)}`, paid].filter(Boolean).join(" · "),
+        [`${statusName(d.from)} → ${statusName(d.to)}`, paid, reason].filter(Boolean).join(" · "),
         d.to === "pago" ? "bg-presenca" : d.to === "divergente" ? "bg-coragem" : "bg-luz",
       ];
     case "conferido":
-      return ["Conferido na InfinitePay", `Sem mudança · ${statusName(d.to)}${paid ? ` · ${paid}` : ""}`, "bg-tinta/30"];
+      return [
+        d.reason === "falha" ? "Conferência sem resposta" : "Conferido na InfinitePay",
+        reason ?? `Sem mudança · ${statusName(d.to)}${paid ? ` · ${paid}` : ""}`,
+        d.reason === "falha" ? "bg-luz" : "bg-tinta/30",
+      ];
+    case "entregue":
+      return ["Entregue", "Saiu de reservados e entrou em entregues no estoque", "bg-presenca"];
+    case "entrega_desfeita":
+      return ["Entrega desfeita", "Voltou para reservados no estoque", "bg-tinta/50"];
     case "arquivado":
       return ["Arquivado", "Saiu da lista e dos números do admin", "bg-tinta/50"];
     case "desarquivado":
@@ -52,7 +72,7 @@ export function PedidoDrawer({ order, onClose }: { order: OrderRow; onClose: () 
   const [error, setError] = useState("");
 
   // Recarrega quando o pedido muda na lista (arquivou, conferiu, chegou pagamento).
-  const version = `${order.id}:${order.status}:${order.checkedAt?.getTime()}:${order.archivedAt?.getTime()}`;
+  const version = `${order.id}:${order.status}:${order.checkedAt?.getTime()}:${order.archivedAt?.getTime()}:${order.deliveredAt?.getTime()}`;
   useEffect(() => {
     let alive = true;
     orderTimelineAction(order.id)
@@ -98,6 +118,7 @@ export function PedidoDrawer({ order, onClose }: { order: OrderRow; onClose: () 
     ["Cobrado", brl(order.amount)],
     ["Pago", order.paidAmount != null ? brl(order.paidAmount) : "—"],
     ["Forma", methodLabel(order) || "—"],
+    ["Envio", order.deliveredAt ? `Entregue ${fmtShort.format(order.deliveredAt)}` : order.status === "pago" ? "A entregar" : "—"],
     ["NSU", order.transactionNsu ?? "—"],
   ];
 
@@ -212,6 +233,12 @@ export function PedidoDrawer({ order, onClose }: { order: OrderRow; onClose: () 
           {order.transactionNsu && (
             <button type="button" onClick={recheck} disabled={pending} className={btn}>
               <RefreshCw className={`size-3.5 ${pending ? "animate-spin" : ""}`} /> Conferir na InfinitePay
+            </button>
+          )}
+          {order.status === "pago" && !order.archivedAt && (
+            <button type="button" onClick={() => run(() => deliverOrdersAction([order.id], !order.deliveredAt))} disabled={pending} className={btn}>
+              {order.deliveredAt ? <PackageX className="size-3.5" /> : <PackageCheck className="size-3.5" />}
+              {order.deliveredAt ? "Desfazer entrega" : "Marcar entregue"}
             </button>
           )}
           <button type="button" onClick={() => run(() => archiveOrdersAction([order.id], !order.archivedAt))} disabled={pending} className={btn}>

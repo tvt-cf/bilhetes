@@ -8,6 +8,7 @@ import { CheckoutForm } from "@/components/site/checkout";
 import { SubscribeForm, WaitlistForm } from "@/components/site/forms";
 import { PixIcon } from "@/components/site/pix-icon";
 import { produto } from "@/lib/site";
+import type { BoxColor } from "@/lib/db/schema";
 import { getStock } from "@/lib/stock";
 
 // cada passo em duas partes: no celular quebra entre elas, no desktop fica numa linha
@@ -34,7 +35,7 @@ const faixa = [
 ] as const;
 
 export default async function Home() {
-  const { soldOut } = await getStock();
+  const { soldOut, colorSoldOut } = await getStock();
   return (
     <>
       <Nav />
@@ -44,7 +45,7 @@ export default async function Home() {
         <Bilhetes />
         <Ritual />
         <Criadoras />
-        <Comprar soldOut={soldOut} />
+        <Comprar soldOut={soldOut} colorSoldOut={colorSoldOut} />
         <Movimento />
       </main>
       <Footer />
@@ -278,7 +279,7 @@ function Criadoras() {
   );
 }
 
-function Comprar({ soldOut }: { soldOut: boolean }) {
+function Comprar({ soldOut, colorSoldOut }: { soldOut: boolean; colorSoldOut: Record<BoxColor, boolean> }) {
   const itens = [
     ["1 caixa de madeira natural", "Feita à mão e numerada"],
     [`${produto.bilhetes} bilhetes frente e verso`, "Mensagens para viver maior"],
@@ -352,7 +353,7 @@ function Comprar({ soldOut }: { soldOut: boolean }) {
               </div>
             </div>
             <div className="mt-10 w-full">
-              <CheckoutForm />
+              <CheckoutForm colorSoldOut={colorSoldOut} />
             </div>
             <PagamentoSeguro />
           </>

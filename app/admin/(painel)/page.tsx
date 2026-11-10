@@ -1,11 +1,11 @@
-import { Download, Search, Send } from "lucide-react";
+import { Boxes, Download, Search, Send } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { requireAdmin } from "@/lib/auth";
 import { getSegmentCounts, getStats, listPeople, type SegmentFilter } from "@/lib/community";
 import { formatPhone } from "@/lib/phone";
 import { getStockLive } from "@/lib/stock";
-import { markPurchasedAction, setSoldOutAction } from "../actions";
+import { markPurchasedAction } from "../actions";
 import { btnPrimary, btnSecondary, Card, DeliveryText, PageHeader, sourceLabel, StatusBadge, td, th } from "./ui";
 
 const tabs: [SegmentFilter, string][] = [
@@ -18,6 +18,9 @@ const tabs: [SegmentFilter, string][] = [
 ];
 
 const fmt = new Intl.NumberFormat("pt-BR");
+const brl = (cents: number) =>
+  (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: cents % 100 ? 2 : 0 });
+const orderStatusLabel: Record<string, string> = { aguardando: "aguardando pagamento", pago: "pago", divergente: "divergente" };
 const fmtDate = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", timeZone: "America/Sao_Paulo" });
 
 export default function ComunidadePage({ searchParams }: PageProps<"/admin">) {
@@ -64,26 +67,16 @@ async function Comunidade({ searchParams }: { searchParams: PageProps<"/admin">[
               {stock.soldOut ? "Esgotado: o site mostra a fila de espera" : "À venda: o site mostra “Eu quero”"}
             </p>
             <p className="text-xs text-tinta-suave">
-              {stock.buyers >= stats.edition
-                ? `As ${stats.edition} caixas foram vendidas.`
-                : `${fmt.format(stats.edition - stock.buyers)} caixas disponíveis · ${fmt.format(stats.waitlist)} ${stats.waitlist === 1 ? "pessoa" : "pessoas"} na fila de espera`}
+              {stock.configured
+                ? `${fmt.format(stock.colors.clara.available)} claras e ${fmt.format(stock.colors.escura.available)} escuras disponíveis`
+                : `${fmt.format(Math.max(stats.edition - stock.buyers, 0))} caixas disponíveis de ${stats.edition}`}
+              {` · ${fmt.format(stats.waitlist)} ${stats.waitlist === 1 ? "pessoa" : "pessoas"} na fila de espera`}
             </p>
           </div>
         </div>
-        {stock.buyers < stats.edition && (
-          <form action={setSoldOutAction}>
-            <input type="hidden" name="soldOut" value={stock.manual ? "0" : "1"} />
-            <button
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
-                stock.manual
-                  ? "bg-presenca text-white hover:bg-presenca/90"
-                  : "border border-coragem/40 text-coragem hover:bg-coragem/5"
-              }`}
-            >
-              {stock.manual ? "Reabrir vendas" : "Marcar como esgotado"}
-            </button>
-          </form>
-        )}
+        <Link href="/admin/estoque" className={btnSecondary}>
+          <Boxes className="size-4" /> Ver estoque
+        </Link>
       </Card>
 
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
@@ -92,7 +85,11 @@ async function Comunidade({ searchParams }: { searchParams: PageProps<"/admin">[
         <Kpi
           label="Compraram"
           value={stats.buyers}
-          sub={`${fmt.format(Math.max(stats.edition - stats.buyers, 0))} caixas restantes de ${stats.edition}`}
+          sub={
+            stock.configured
+              ? `${fmt.format(stock.colors.clara.available + stock.colors.escura.available)} caixas disponíveis no estoque`
+              : `${fmt.format(Math.max(stats.edition - stats.buyers, 0))} caixas restantes de ${stats.edition}`
+          }
         >
           <div className="h-1.5 rounded-full bg-verdade/10">
             <div
@@ -199,7 +196,19 @@ async function Comunidade({ searchParams }: { searchParams: PageProps<"/admin">[
                       )}
                     </td>
                     <td className={td}>
-                      {p.orderNumber ? (
+                      {p.order?.id ? (
+                        <Link href={`/admin/pedidos?pedido=${p.order.id}`} className="group block whitespace-nowrap">
+                          <span className="font-medium group-hover:underline">#{p.order.id}</span>
+                          <span className="text-tinta-suave">
+                            {" "}
+                            · {orderStatusLabel[p.order.status] ?? p.order.status}
+                            {p.order.delivered ? " · entregue" : ""}
+                          </span>
+                          <span className="block text-xs text-tinta-suave">
+                            {[p.order.boxColor && `Caixa ${p.order.boxColor}`, brl(p.order.amount), p.order.city].filter(Boolean).join(" · ")}
+                          </span>
+                        </Link>
+                      ) : p.orderNumber ? (
                         <span className="font-medium">{p.orderNumber}</span>
                       ) : p.status === "pre_venda" ? (
                         <form action={markPurchasedAction} className="flex items-center gap-1.5">

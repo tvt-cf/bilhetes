@@ -10,7 +10,7 @@ import { TabelaPedidos } from "./tabela";
 const fmt = new Intl.NumberFormat("pt-BR");
 const brl = (cents: number) => (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-export default function PedidosPage() {
+export default function PedidosPage({ searchParams }: PageProps<"/admin/pedidos">) {
   return (
     <div className="flex flex-col gap-7">
       <PageHeader title="Pedidos" subtitle="Cada checkout aberto na InfinitePay e o que ela confirmou de pagamento. Os pagamentos chegam pelo webhook.">
@@ -21,14 +21,15 @@ export default function PedidosPage() {
         </form>
       </PageHeader>
       <Suspense fallback={<Card className="h-[560px] animate-pulse" />}>
-        <Pedidos />
+        <Pedidos searchParams={searchParams} />
       </Suspense>
     </div>
   );
 }
 
-async function Pedidos() {
+async function Pedidos({ searchParams }: { searchParams: PageProps<"/admin/pedidos">["searchParams"] }) {
   await requireAdmin();
+  const pedido = Number((await searchParams).pedido) || undefined;
   const [totals, rows] = await Promise.all([getOrderTotals(), listOrders()]);
 
   return (
@@ -59,7 +60,7 @@ async function Pedidos() {
         {rows.length === 0 ? (
           <p className="px-5 py-14 text-center text-sm text-tinta-suave">Nenhum pedido ainda.</p>
         ) : (
-          <TabelaPedidos rows={rows} />
+          <TabelaPedidos rows={rows} initialOpenId={pedido} />
         )}
       </Card>
     </>

@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircleHeart, Package, Users } from "lucide-react";
+import { Boxes, MessageCircleHeart, Package, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { showOnOpen } from "./ui";
@@ -8,6 +8,7 @@ import { showOnOpen } from "./ui";
 const items = [
   ["/admin", "Comunidade", Users],
   ["/admin/pedidos", "Pedidos", Package],
+  ["/admin/estoque", "Estoque", Boxes],
   ["/admin/mensagens", "Mensagens", MessageCircleHeart],
 ] as const;
 

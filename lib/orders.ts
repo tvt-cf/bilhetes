@@ -1,6 +1,6 @@
 import "server-only";
 import { and, asc, desc, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
-import { markPaid } from "./community";
+import { markPaid, refreshBuyerStatus } from "./community";
 import { getDb, schema } from "./db";
 import type { BoxColor, DeliveryAddress, OrderEventKind, OrderEventVia, OrderStatus } from "./db/schema";
 import { checkPayment, handleFromCheckoutUrl } from "./infinitepay";
@@ -57,7 +57,7 @@ export async function reconcileOrder(input: {
   receiptUrl?: string;
   via: Exclude<OrderEventVia, "cliente">;
   actor?: string;
-}): Promise<OrderStatus | "nao_pago" | null> {
+}): Promise<OrderStatus | "nao_pago" | "falha" | null> {
   // "pedido-12". Links da primeira versão usavam o id da pessoa como order_nsu: esses são ignorados
   // aqui (dariam no pedido errado) e precisam ser marcados no /admin.
   const id = /^pedido-(\d+)$/.exec(input.orderNsu)?.[1];
@@ -67,13 +67,23 @@ export async function reconcileOrder(input: {
   if (!order) return null;
 
   const check = await checkPayment({ orderNsu: input.orderNsu, transactionNsu: input.transactionNsu, slug: input.slug, handle: handleFromCheckoutUrl(order.checkoutUrl) });
+  const event = { via: input.via, actor: input.actor };
+  // a InfinitePay não respondeu (rede, API fora): não dá para concluir nada, então nada muda
+  if (!check.answered) {
+    await logEvent(order.id, { kind: "conferido", ...event, detail: { from: order.status, to: order.status, reason: "falha" } });
+    return "falha";
+  }
   // webhook de algo que a InfinitePay não confirma: não muda nada
-  if (!check.paid && order.status === "aguardando") return "nao_pago";
+  if (!check.paid && order.status === "aguardando") {
+    await logEvent(order.id, { kind: "conferido", ...event, detail: { from: order.status, to: order.status, reason: "nao_confirmado" } });
+    return "nao_pago";
+  }
 
   // valor diferente do cobrado, ou pagamento que a InfinitePay deixou de confirmar (ex.: estorno)
   // ponytail: a doc não diz se `amount` vem com o desconto do Pix; aceita o preço cheio ou o do Pix
-  const expected = [order.amount, check.captureMethod === "pix" ? produto.precoCentavos.a_vista : null];
+  const expected = [order.amount, ...(check.captureMethod === "pix" ? [produto.precoCentavos.a_vista] : [])];
   const status: OrderStatus = check.paid && expected.includes(check.amount ?? -1) ? "pago" : "divergente";
+  const reason = status === "pago" ? undefined : check.paid ? ("valor" as const) : ("nao_confirmado" as const);
   const now = new Date();
   await db
     .update(orders)
@@ -90,13 +100,13 @@ export async function reconcileOrder(input: {
     })
     .where(eq(orders.id, order.id));
   if (status === "pago") await markPaid(order.personId);
+  else if (order.status === "pago") await refreshBuyerStatus([order.personId]);
   const paidAmount = check.paidAmount ?? order.paidAmount;
   const method = check.captureMethod ?? order.captureMethod;
   await logEvent(order.id, {
     kind: status === order.status ? "conferido" : "status",
-    via: input.via,
-    actor: input.actor,
-    detail: { from: order.status, to: status, paidAmount, method },
+    ...event,
+    detail: { from: order.status, to: status, paidAmount, method, reason, amount: check.amount ?? null, expected },
   });
   return status;
 }
@@ -111,7 +121,18 @@ export async function recheckOrders(orderId: number | undefined, actor: string) 
     .where(orderId ? eq(orders.id, orderId) : and(isNotNull(orders.transactionNsu), isNull(orders.archivedAt)));
   for (const o of rows) {
     if (!o.transactionNsu || !o.invoiceSlug) continue;
-    await reconcileOrder({ orderNsu: `pedido-${o.id}`, transactionNsu: o.transactionNsu, slug: o.invoiceSlug, via: "admin", actor });
+    // um pedido com erro não impede a conferência dos outros; o erro fica na linha do tempo
+    await reconcileOrder({ orderNsu: `pedido-${o.id}`, transactionNsu: o.transactionNsu, slug: o.invoiceSlug, via: "admin", actor }).catch(
+      async (e) => {
+        console.error(e);
+        await logEvent(o.id, { kind: "conferido", via: "admin", actor, detail: { from: o.status, to: o.status, reason: "falha" } });
+      },
+    );
+  }
+  // conferência geral também acerta quem está como "comprou" sem pedido pago (ex.: testes arquivados antes)
+  if (!orderId) {
+    const buyers = await db.select({ id: people.id }).from(people).where(eq(people.status, "comprou"));
+    await refreshBuyerStatus(buyers.map((b) => b.id));
   }
   return rows.length;
 }
@@ -140,6 +161,7 @@ export async function listOrders(limit = 200) {
       checkedAt: orders.checkedAt,
       createdAt: orders.createdAt,
       archivedAt: orders.archivedAt,
+      deliveredAt: orders.deliveredAt,
     })
     .from(orders)
     .leftJoin(people, eq(people.id, orders.personId))
@@ -155,10 +177,33 @@ export async function setOrdersArchived(ids: number[], archived: boolean, actor:
     .update(orders)
     .set({ archivedAt: archived ? new Date() : null })
     .where(and(inArray(orders.id, ids), archived ? isNull(orders.archivedAt) : isNotNull(orders.archivedAt)))
-    .returning({ id: orders.id });
+    .returning({ id: orders.id, personId: orders.personId });
   await logEvent(
     changed.map((r) => r.id),
     { kind: archived ? "arquivado" : "desarquivado", via: "admin", actor },
+  );
+  // pedido de teste pago arquivado: a pessoa deixa de contar como compradora (e volta se desarquivar)
+  await refreshBuyerStatus(changed.map((r) => r.personId));
+}
+
+// Entrega: o pedido pago sai de "reservados" e passa para "entregues" no estoque.
+export async function setOrdersDelivered(ids: number[], delivered: boolean, actor: string) {
+  if (!ids.length) return;
+  const db = await getDb();
+  const changed = await db
+    .update(orders)
+    .set({ deliveredAt: delivered ? new Date() : null })
+    .where(
+      and(
+        inArray(orders.id, ids),
+        eq(orders.status, "pago"),
+        delivered ? isNull(orders.deliveredAt) : isNotNull(orders.deliveredAt),
+      ),
+    )
+    .returning({ id: orders.id });
+  await logEvent(
+    changed.map((r) => r.id),
+    { kind: delivered ? "entregue" : "entrega_desfeita", via: "admin", actor },
   );
 }
 

@@ -1,12 +1,13 @@
 "use client";
 
-import { Archive, ArchiveRestore, ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, ChevronsUpDown, Search, X } from "lucide-react";
+import { Archive, ArchiveRestore, PackageCheck, ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, ChevronsUpDown, Search, X } from "lucide-react";
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { formatPhone } from "@/lib/phone";
-import { archiveOrdersAction, recheckOrdersAction } from "../../actions";
+import { archiveOrdersAction, deliverOrdersAction, recheckOrdersAction } from "../../actions";
 import { PedidoDrawer } from "./drawer";
 import { boxStyle, brl, fmtCep, methodLabel, optionLabel, type OrderRow, statusStyle } from "./format";
 
+const fmtDay = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", timeZone: "America/Sao_Paulo" });
 const fmtDate = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
   month: "short",
@@ -72,6 +73,8 @@ const columns: [SortKey | null, string, string?][] = [
 const segments = [
   ["todos", "Todos", (o: OrderRow) => !o.archivedAt],
   ["pago", "Pagos", (o: OrderRow) => !o.archivedAt && o.status === "pago"],
+  ["entregar", "A entregar", (o: OrderRow) => !o.archivedAt && o.status === "pago" && !o.deliveredAt],
+  ["entregues", "Entregues", (o: OrderRow) => !o.archivedAt && o.status === "pago" && !!o.deliveredAt],
   ["aguardando", "Aguardando", (o: OrderRow) => !o.archivedAt && o.status === "aguardando"],
   ["divergente", "Divergentes", (o: OrderRow) => !o.archivedAt && o.status === "divergente"],
   ["arquivados", "Arquivados", (o: OrderRow) => !!o.archivedAt],
@@ -97,7 +100,7 @@ const bulkBtn =
   "inline-flex h-8 items-center gap-1.5 rounded-lg bg-tinta px-3 text-[12px] font-semibold text-white transition hover:bg-tinta/85 disabled:opacity-50";
 const dash = <span className="text-[#c4bdb5]">—</span>;
 
-export function TabelaPedidos({ rows }: { rows: OrderRow[] }) {
+export function TabelaPedidos({ rows, initialOpenId }: { rows: OrderRow[]; initialOpenId?: number }) {
   const [q, setQ] = useState("");
   const [segment, setSegment] = useState<Segment>("todos");
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "id", dir: -1 });
@@ -105,7 +108,8 @@ export function TabelaPedidos({ rows }: { rows: OrderRow[] }) {
   const [anchor, setAnchor] = useState<number | null>(null);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
-  const [openId, setOpenId] = useState<number | null>(null);
+  // ?pedido=12 (link da Comunidade) já abre o drawer desse pedido
+  const [openId, setOpenId] = useState<number | null>(initialOpenId ?? null);
   const closeDrawer = useCallback(() => setOpenId(null), []);
   // Procura em todas as linhas: o pedido continua aberto mesmo se sair do filtro (ex.: ao arquivar).
   const openOrder = openId != null ? rows.find((o) => o.id === openId) : undefined;
@@ -165,11 +169,14 @@ export function TabelaPedidos({ rows }: { rows: OrderRow[] }) {
 
   const pickAll = () => setSelected(allChosen ? new Set() : new Set(visible.map((o) => o.id)));
 
-  const archive = () =>
+  // só pedidos pagos (e não arquivados) podem ser entregues
+  const deliverable = visible.filter((o) => selected.has(o.id) && o.status === "pago" && !o.archivedAt && !o.deliveredAt).map((o) => o.id);
+
+  const bulk = (fn: () => Promise<unknown>) =>
     startTransition(async () => {
       setError("");
       try {
-        await archiveOrdersAction(chosen, archiving);
+        await fn();
         setSelected(new Set());
         setAnchor(null);
       } catch {
@@ -187,7 +194,13 @@ export function TabelaPedidos({ rows }: { rows: OrderRow[] }) {
             <span className="text-[13px] font-semibold">
               {chosen.length} {chosen.length === 1 ? "pedido selecionado" : "pedidos selecionados"}
             </span>
-            <button type="button" onClick={archive} disabled={pending} className={bulkBtn}>
+            {deliverable.length > 0 && (
+              <button type="button" onClick={() => bulk(() => deliverOrdersAction(deliverable, true))} disabled={pending} className={bulkBtn}>
+                <PackageCheck className="size-3.5" />
+                Marcar entregue{deliverable.length < chosen.length ? ` (${deliverable.length})` : ""}
+              </button>
+            )}
+            <button type="button" onClick={() => bulk(() => archiveOrdersAction(chosen, archiving))} disabled={pending} className={bulkBtn}>
               {archiving ? <Archive className="size-3.5" /> : <ArchiveRestore className="size-3.5" />}
               {pending ? "Salvando…" : archiving ? "Arquivar" : "Desarquivar"}
             </button>
@@ -373,6 +386,7 @@ export function TabelaPedidos({ rows }: { rows: OrderRow[] }) {
                     <td className={`${td} whitespace-nowrap`}>{methodLabel(o) || dash}</td>
                     <td className={td}>
                       <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ${cls}`}>{label}</span>
+                      {o.deliveredAt && <span className={`${sub} mt-1 whitespace-nowrap`}>Entregue {fmtDay.format(o.deliveredAt)}</span>}
                     </td>
                     <td className={`${td} whitespace-nowrap`}>{o.checkedAt ? fmtDate.format(o.checkedAt) : dash}</td>
                     <td className={`${td} whitespace-nowrap`}>

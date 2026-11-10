@@ -7,10 +7,10 @@ import { after } from "next/server";
 import { endSession, normalizeEmail, requestLogin, requireAdmin, verifyCode, verifyToken } from "@/lib/auth";
 import { cancelCampaign, createCampaign, dispatchCampaign, personalize } from "@/lib/campaigns";
 import { markPurchased } from "@/lib/community";
-import type { CampaignKind, Segment } from "@/lib/db/schema";
-import { getOrderTimeline, recheckOrders, setOrdersArchived } from "@/lib/orders";
+import type { BoxColor, CampaignKind, Segment } from "@/lib/db/schema";
+import { getOrderTimeline, recheckOrders, setOrdersArchived, setOrdersDelivered } from "@/lib/orders";
 import { normalizePhone } from "@/lib/phone";
-import { STOCK_TAG, setManualSoldOut } from "@/lib/stock";
+import { STOCK_TAG, addStockLot, setManualSoldOut } from "@/lib/stock";
 import { sendTemplate } from "@/lib/whatsapp";
 
 export type ActionState = { ok: boolean; message: string } | null;
@@ -78,14 +78,34 @@ export async function recheckOrdersAction(form: FormData) {
   const id = Number(form.get("orderId")) || undefined;
   await recheckOrders(id, admin.email);
   updateTag(STOCK_TAG);
-  revalidatePath("/admin/pedidos");
+  revalidatePath("/admin", "layout");
 }
 
 export async function archiveOrdersAction(ids: number[], archived: boolean) {
   const admin = await requireAdmin();
   const valid = ids.filter((id) => Number.isInteger(id) && id > 0);
   await setOrdersArchived(valid, archived, admin.email);
-  revalidatePath("/admin/pedidos");
+  updateTag(STOCK_TAG); // pedido pago arquivado devolve a caixa ao estoque
+  revalidatePath("/admin", "layout");
+}
+
+export async function deliverOrdersAction(ids: number[], delivered: boolean) {
+  const admin = await requireAdmin();
+  const valid = ids.filter((id) => Number.isInteger(id) && id > 0);
+  await setOrdersDelivered(valid, delivered, admin.email);
+  revalidatePath("/admin", "layout");
+}
+
+// Entrada de estoque por cor: lote recebido (positivo) ou correção (negativo).
+export async function addStockLotAction(form: FormData) {
+  const admin = await requireAdmin();
+  const boxColor: BoxColor = form.get("boxColor") === "escura" ? "escura" : "clara";
+  const quantity = Math.trunc(Number(form.get("quantity")));
+  if (!quantity || Math.abs(quantity) > 10000) return;
+  const note = String(form.get("note") ?? "").trim().slice(0, 200) || null;
+  await addStockLot({ boxColor, quantity, note, actor: admin.email });
+  updateTag(STOCK_TAG); // o site passa a mostrar a cor disponível (ou esgotada)
+  revalidatePath("/admin", "layout");
 }
 
 export async function orderTimelineAction(orderId: number) {
@@ -97,7 +117,7 @@ export async function setSoldOutAction(form: FormData) {
   await requireAdmin();
   await setManualSoldOut(form.get("soldOut") === "1");
   updateTag(STOCK_TAG); // o site público passa a mostrar a fila de espera (ou volta a vender)
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 const KINDS: CampaignKind[] = ["sabedoria", "evento", "pedido", "lote"];

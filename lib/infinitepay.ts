@@ -80,6 +80,7 @@ export async function createCheckoutLink(input: {
 }
 
 export type PaymentCheck = {
+  answered: boolean; // a InfinitePay respondeu à conferência (false = erro de rede ou da API: não dá para concluir nada)
   paid: boolean;
   amount?: number;
   paidAmount?: number;
@@ -112,6 +113,7 @@ export async function checkPayment(input: {
     capture_method?: string;
   };
   return {
+    answered: res.ok && data.success === true,
     paid: res.ok && data.success === true && data.paid === true,
     amount: data.amount,
     paidAmount: data.paid_amount,

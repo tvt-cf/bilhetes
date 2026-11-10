@@ -23,7 +23,7 @@ import { PixIcon } from "./pix-icon";
 import { ContactFields, maskPhone } from "./forms";
 
 // Compra em duas partes: a página pede nome e WhatsApp e o modal pede cor da caixa, endereço e pagamento.
-export function CheckoutForm() {
+export function CheckoutForm({ colorSoldOut }: { colorSoldOut: Record<BoxColor, boolean> }) {
   const [contact, setContact] = useState<Contact | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -55,7 +55,7 @@ export function CheckoutForm() {
           </p>
         )}
       </form>
-      {contact && <CheckoutModal contact={contact} onClose={() => setContact(null)} />}
+      {contact && <CheckoutModal contact={contact} colorSoldOut={colorSoldOut} onClose={() => setContact(null)} />}
     </>
   );
 }
@@ -78,9 +78,18 @@ function maskCep(v: string) {
   return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
 }
 
-function CheckoutModal({ contact, onClose }: { contact: Contact; onClose: () => void }) {
+function CheckoutModal({
+  contact,
+  colorSoldOut,
+  onClose,
+}: {
+  contact: Contact;
+  colorSoldOut: Record<BoxColor, boolean>;
+  onClose: () => void;
+}) {
   const [step, setStep] = useState(1);
-  const [color, setColor] = useState<BoxColor>("clara");
+  // começa na primeira cor com estoque (a página só abre o checkout se alguma tiver)
+  const [color, setColor] = useState<BoxColor>(() => cores.find((c) => !colorSoldOut[c.value])?.value ?? "clara");
   const [cep, setCep] = useState("");
   const [lookup, setLookup] = useState<Lookup>({ status: "idle" });
   const [street, setStreet] = useState("");
@@ -250,24 +259,48 @@ function CheckoutModal({ contact, onClose }: { contact: Contact; onClose: () => 
             sub="Feitas à mão em madeira natural. O tom e veios mudam a cada peça, preservando sua originalidade."
           >
             <div className="grid grid-cols-2 gap-3">
-              {cores.map((c) => (
-                <label
-                  key={c.value}
-                  className="flex cursor-pointer flex-col gap-3 rounded-2xl border border-[#E3DAD2] p-2 pb-3.5 transition has-[:checked]:border-2 has-[:checked]:border-vinho has-[:checked]:bg-white has-[:checked]:p-[7px] has-[:checked]:pb-[13px]"
-                >
-                  <input type="radio" name="cor" value={c.value} checked={color === c.value} onChange={() => setColor(c.value)} className="sr-only" />
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-[10px]">
-                    <Image src={c.foto} alt={`Caixa ${c.nome.toLowerCase()}`} fill sizes="(min-width: 768px) 240px, 45vw" className="object-cover" />
-                  </div>
-                  <div className="flex items-center gap-2.5 px-1.5">
-                    <Radio checked={color === c.value} />
-                    <div>
-                      <p className="text-[15px] font-semibold leading-tight">{c.nome}</p>
-                      <p className="text-xs text-[#7A6E68]">{c.desc}</p>
+              {cores.map((c) => {
+                const esgotada = colorSoldOut[c.value];
+                return (
+                  <label
+                    key={c.value}
+                    className={`flex flex-col gap-3 rounded-2xl border border-[#E3DAD2] p-2 pb-3.5 transition has-[:checked]:border-2 has-[:checked]:border-vinho has-[:checked]:bg-white has-[:checked]:p-[7px] has-[:checked]:pb-[13px] ${
+                      esgotada ? "cursor-not-allowed" : "cursor-pointer"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="cor"
+                      value={c.value}
+                      checked={color === c.value}
+                      disabled={esgotada}
+                      onChange={() => setColor(c.value)}
+                      className="sr-only"
+                    />
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-[10px]">
+                      <Image
+                        src={c.foto}
+                        alt={`Caixa ${c.nome.toLowerCase()}`}
+                        fill
+                        sizes="(min-width: 768px) 240px, 45vw"
+                        className={`object-cover ${esgotada ? "opacity-45 grayscale-[60%]" : ""}`}
+                      />
+                      {esgotada && (
+                        <span className="absolute left-2 top-2 rounded-full bg-vinho px-2.5 py-1 text-[11px] font-semibold tracking-[0.06em] text-leveza">
+                          ESGOTADA
+                        </span>
+                      )}
                     </div>
-                  </div>
-                </label>
-              ))}
+                    <div className={`flex items-center gap-2.5 px-1.5 ${esgotada ? "opacity-55" : ""}`}>
+                      <Radio checked={color === c.value} />
+                      <div>
+                        <p className="text-[15px] font-semibold leading-tight">{c.nome}</p>
+                        <p className="text-xs text-[#7A6E68]">{esgotada ? "Esgotada nesta edição" : c.desc}</p>
+                      </div>
+                    </div>
+                  </label>
+                );
+              })}
             </div>
           </Section>
         ) : step === 2 ? (

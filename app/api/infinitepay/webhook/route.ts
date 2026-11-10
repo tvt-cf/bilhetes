@@ -20,6 +20,7 @@ export async function POST(request: Request) {
   });
   if (status === null) return Response.json({ ok: true, ignored: "pedido desconhecido" }); // 2xx: não adianta repetir
   if (status === "nao_pago") return new Response("not paid", { status: 400 });
+  if (status === "falha") return new Response("payment check failed", { status: 502 }); // fora de 2xx: a InfinitePay tenta de novo
   if (status === "pago") revalidateTag(STOCK_TAG, { expire: 0 }); // a venda pode ter esgotado a edição
   return Response.json({ ok: true, status });
 }

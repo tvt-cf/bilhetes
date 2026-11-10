@@ -101,19 +101,49 @@ export const orders = pgTable("orders", {
   checkedAt: timestamp("checked_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   archivedAt: timestamp("archived_at", { withTimezone: true }), // arquivado no admin (ex.: pedido de teste)
+  deliveredAt: timestamp("delivered_at", { withTimezone: true }), // caixa entregue: sai de "reservados" e vai para "entregues"
+});
+
+// Entradas de estoque por cor (lotes recebidos ou correções, que podem ser negativas). O total é a soma.
+export const stockLots = pgTable("stock_lots", {
+  id: serial("id").primaryKey(),
+  boxColor: text("box_color").$type<BoxColor>().notNull(),
+  quantity: integer("quantity").notNull(),
+  note: text("note"),
+  actor: text("actor"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 // Histórico de cada pedido, mostrado na linha do tempo do /admin/pedidos.
 // via: quem disparou (cliente, webhook da InfinitePay, retorno para /obrigada, admin); actor: e-mail do admin.
-export type OrderEventKind = "criado" | "link" | "status" | "conferido" | "arquivado" | "desarquivado";
+export type OrderEventKind =
+  | "criado"
+  | "link"
+  | "status"
+  | "conferido"
+  | "arquivado"
+  | "desarquivado"
+  | "entregue"
+  | "entrega_desfeita";
 export type OrderEventVia = "cliente" | "webhook" | "retorno" | "admin";
+// reason explica a conferência: "valor" (pago, mas valor diferente do esperado), "nao_confirmado"
+// (a InfinitePay disse que não está pago) ou "falha" (a InfinitePay não respondeu; nada mudou).
+export type OrderEventDetail = {
+  from?: OrderStatus;
+  to?: OrderStatus;
+  paidAmount?: number | null;
+  method?: string | null;
+  reason?: "valor" | "nao_confirmado" | "falha";
+  amount?: number | null; // valor que a InfinitePay informou
+  expected?: number[]; // valores aceitos para o pedido
+};
 export const orderEvents = pgTable("order_events", {
   id: serial("id").primaryKey(),
   orderId: integer("order_id").notNull(),
   kind: text("kind").$type<OrderEventKind>().notNull(),
   via: text("via").$type<OrderEventVia>().notNull(),
   actor: text("actor"),
-  detail: jsonb("detail").$type<{ from?: OrderStatus; to?: OrderStatus; paidAmount?: number | null; method?: string | null }>(),
+  detail: jsonb("detail").$type<OrderEventDetail>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -214,4 +244,13 @@ create table if not exists order_events (
   created_at timestamptz not null default now()
 );
 create index if not exists order_events_order_idx on order_events (order_id, created_at);
+alter table orders add column if not exists delivered_at timestamptz;
+create table if not exists stock_lots (
+  id serial primary key,
+  box_color text not null,
+  quantity integer not null,
+  note text,
+  actor text,
+  created_at timestamptz not null default now()
+);
 `;
