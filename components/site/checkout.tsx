@@ -171,6 +171,8 @@ function CheckoutModal({ contact, onClose }: { contact: Contact; onClose: () => 
   const addressOk = lookup.status === "found" && street.trim() && number.trim();
   const corNome = cores.find((c) => c.value === color)!.nome;
   const total = payment === "a_vista" ? produto.precoAVista.replace(/ à vista$/, "") : produto.preco;
+  // no resumo do Pix, a linha do desconto explica a conta: preço do cartão menos o desconto
+  const descontoPix = (produto.precoCentavos.parcelado - produto.precoCentavos.a_vista) / 100;
 
   return (
     <div
@@ -241,7 +243,10 @@ function CheckoutModal({ contact, onClose }: { contact: Contact; onClose: () => 
             <p className="max-w-sm text-sm text-[#7A6E68]">{reserved}</p>
           </div>
         ) : step === 1 ? (
-          <Section title="Escolha a cor da sua caixa" sub="As duas são de madeira natural, feitas à mão. Os veios mudam de peça para peça.">
+          <Section
+            title="Escolha a cor da sua caixa"
+            sub="Feitas à mão em madeira natural. O tom e veios mudam a cada peça, preservando sua originalidade."
+          >
             <div className="grid grid-cols-2 gap-3">
               {cores.map((c) => (
                 <label
@@ -367,14 +372,14 @@ function CheckoutModal({ contact, onClose }: { contact: Contact; onClose: () => 
                         Ainda não entregamos em {lookup.city}, {lookup.state}
                       </p>
                       <p className="text-[13px] leading-relaxed text-[#7A6E68]">
-                        Por enquanto, a Caixa de {produto.nome} chega só na Grande São Paulo. Já guardamos seu pedido e avisamos
-                        você no WhatsApp assim que a entrega chegar aí.
+                        Essa edição só entrega na Grande São Paulo, mas em breve chegará em todo Brasil. Já guardamos seu pedido
+                        e avisamos você no WhatsApp assim que ficar disponível.
                       </p>
                     </div>
                   </div>
                   <div className="h-px bg-[#E6D6B8]" />
                   <div className="flex flex-col gap-2">
-                    <p className="text-[11px] font-semibold tracking-[0.1em] text-[#9A7A45]">GUARDAMOS PARA VOCÊ</p>
+                    <p className="text-[11px] font-semibold tracking-[0.1em] text-[#9A7A45]">FILA DE ESPERA</p>
                     {[
                       `Caixa ${corNome.toLowerCase()}`,
                       `${contact.name} · ${maskPhone(contact.phone)}`,
@@ -400,7 +405,7 @@ function CheckoutModal({ contact, onClose }: { contact: Contact; onClose: () => 
             <div className="flex flex-col gap-2.5">
               {(
                 [
-                  ["a_vista", "À vista no Pix", "O desconto aparece na tela do Pix", produto.precoAVista.replace(/ à vista$/, "")],
+                  ["a_vista", "À vista no Pix", "O desconto vai aparecer na tela final do Pix", produto.precoAVista.replace(/ à vista$/, "")],
                   ["parcelado", "Em até 3x no cartão", `Sem juros · total de ${produto.preco}`, produto.parcelas.replace(/ de /, " ")],
                 ] as const
               ).map(([value, nome, detalhe, valor]) => (
@@ -419,14 +424,17 @@ function CheckoutModal({ contact, onClose }: { contact: Contact; onClose: () => 
               ))}
             </div>
             <dl className="flex flex-col gap-2.5 rounded-[14px] bg-[#F1EBE4] px-[18px] py-3.5 text-[13px]">
-              <Row label={`Caixa de ${produto.nome} · ${corNome}`}>{total}</Row>
+              <Row label={`Caixa de ${produto.nome} · ${corNome}`}>{produto.preco}</Row>
+              {payment === "a_vista" && <Row label="Desconto Pix">−R$ {descontoPix}</Row>}
               <Row label="Entrega">
                 {street}, {number}
                 {complement ? ` · ${complement}` : ""}
                 <br />
                 {[neighborhood, lookup.status === "found" && `${lookup.city}, ${lookup.state}`, cep].filter(Boolean).join(" · ")}
               </Row>
-              <Row label="Frete">Grátis</Row>
+              <Row label="Frete">
+                <span className="text-[#4E7A52]">Grátis</span>
+              </Row>
               <div className="h-px bg-[#DCD2C9]" />
               <div className="flex items-center justify-between font-semibold">
                 <dt>Total</dt>
