@@ -47,8 +47,8 @@ export async function createCheckoutLink(input: {
   const description = input.teste
     ? `TESTE · Caixa de ${produto.nome} Nº 01 · R$ 1`
     : input.paymentPreference === "a_vista"
-      ? `Caixa de ${produto.nome} Nº01 • desconto no Pix: ${pix}`
-      : `Caixa de ${produto.nome} ${produto.edicao.replace(/^Edição /, "")} · ${produto.parcelas} sem juros`;
+      ? `Caixa de ${produto.nome} Nº1 • desconto Pix: ${pix}`
+      : `Caixa de ${produto.nome} Nº1 • cartão ${produto.parcelas.replace(" de ", ": ")}`;
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const res = await fetch(`${API}/links`, {
     method: "POST",

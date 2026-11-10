@@ -66,8 +66,8 @@ type Lookup =
   | { status: "found" | "outside"; city: string; state: string; neighborhood: string; street: string };
 
 const cores: { value: BoxColor; nome: string; desc: string; foto: string }[] = [
-  { value: "clara", nome: "Clara", desc: "Tom mel, veios suaves", foto: "/images/caixa-clara.jpg" },
-  { value: "escura", nome: "Escura", desc: "Tom café, veios marcados", foto: "/images/caixa-escura.jpg" },
+  { value: "clara", nome: "Clara", desc: "Tom mel, veios suaves", foto: "/images/caixa-clara-2.jpg" },
+  { value: "escura", nome: "Escura", desc: "Tom café, veios marcados", foto: "/images/caixa-escura-2.jpg" },
 ];
 const etapas = ["Cor da caixa", "Endereço", "Pagamento"];
 const field =
@@ -175,15 +175,17 @@ function CheckoutModal({ contact, onClose }: { contact: Contact; onClose: () => 
   const descontoPix = (produto.precoCentavos.parcelado - produto.precoCentavos.a_vista) / 100;
 
   return (
+    // no celular o modal fica no topo (e não preso embaixo): em navegadores com barra, como o do Instagram,
+    // o rodapé ia para baixo da dobra. O rodapé com o botão gruda embaixo quando o conteúdo rola.
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-[#1E0B12]/70 backdrop-blur-[6px] md:items-center md:p-6"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-[#1E0B12]/70 px-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-[6px] md:items-center md:p-6"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="checkout-title"
-        className="flex max-h-[94svh] w-full flex-col gap-6 overflow-y-auto rounded-t-3xl bg-[#FBF8F4] px-5 pb-[max(24px,env(safe-area-inset-bottom))] pt-5 text-left text-vinho shadow-[0_24px_64px_rgba(0,0,0,0.35)] md:max-w-[560px] md:gap-7 md:rounded-3xl md:px-8 md:pb-8 md:pt-6"
+        className="flex max-h-[calc(100svh-24px)] w-full flex-col gap-6 overflow-y-auto rounded-3xl bg-[#FBF8F4] px-5 pt-5 text-left text-vinho shadow-[0_24px_64px_rgba(0,0,0,0.35)] md:max-w-[560px] md:gap-7 md:rounded-3xl md:px-8 md:pb-8 md:pt-6"
       >
         {/* topo: o pedido e o contato, para dar confiança */}
         <div className="flex items-center justify-between gap-4">
@@ -254,7 +256,7 @@ function CheckoutModal({ contact, onClose }: { contact: Contact; onClose: () => 
                   className="flex cursor-pointer flex-col gap-3 rounded-2xl border border-[#E3DAD2] p-2 pb-3.5 transition has-[:checked]:border-2 has-[:checked]:border-vinho has-[:checked]:bg-white has-[:checked]:p-[7px] has-[:checked]:pb-[13px]"
                 >
                   <input type="radio" name="cor" value={c.value} checked={color === c.value} onChange={() => setColor(c.value)} className="sr-only" />
-                  <div className="relative aspect-[12/7] overflow-hidden rounded-[10px]">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[10px]">
                     <Image src={c.foto} alt={`Caixa ${c.nome.toLowerCase()}`} fill sizes="(min-width: 768px) 240px, 45vw" className="object-cover" />
                   </div>
                   <div className="flex items-center gap-2.5 px-1.5">
@@ -406,7 +408,7 @@ function CheckoutModal({ contact, onClose }: { contact: Contact; onClose: () => 
               {(
                 [
                   ["a_vista", "À vista no Pix", "O desconto vai aparecer na tela final do Pix", produto.precoAVista.replace(/ à vista$/, "")],
-                  ["parcelado", "Em até 3x no cartão", `Sem juros · total de ${produto.preco}`, produto.parcelas.replace(/ de /, " ")],
+                  ["parcelado", "Em até 3x no cartão", `Sem juros · total de ${produto.preco.replace(" ", "\u00a0")}`, produto.parcelas.replace(/ de /, " ")],
                 ] as const
               ).map(([value, nome, detalhe, valor]) => (
                 <label
@@ -446,7 +448,7 @@ function CheckoutModal({ contact, onClose }: { contact: Contact; onClose: () => 
         )}
 
         {/* rodapé: voltar e seguir */}
-        <div className="flex flex-col gap-4">
+        <div className="sticky bottom-0 -mx-5 mt-auto flex flex-col gap-4 bg-[#FBF8F4] px-5 pb-5 pt-3 shadow-[0_-12px_16px_-14px_rgba(30,11,18,0.35)] md:static md:mx-0 md:p-0 md:shadow-none">
           <div className="flex items-center justify-between gap-4">
             {reserved || outside ? (
               <span />
@@ -542,7 +544,7 @@ function PrimaryButton({ children, ...props }: React.ComponentProps<"button">) {
     <button
       type="button"
       {...props}
-      className="flex items-center gap-2.5 rounded-full bg-vinho px-7 py-4 text-[15px] font-medium text-leveza transition hover:bg-vinho/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+      className="flex items-center gap-2.5 whitespace-nowrap rounded-full bg-vinho px-5 py-4 text-[15px] md:px-7 font-medium text-leveza transition hover:bg-vinho/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
     >
       {children}
     </button>
