@@ -16,6 +16,7 @@ export async function POST(request: Request) {
     transactionNsu: transaction_nsu,
     slug: invoice_slug,
     receiptUrl: receipt_url,
+    via: "webhook",
   });
   if (status === null) return Response.json({ ok: true, ignored: "pedido desconhecido" }); // 2xx: não adianta repetir
   if (status === "nao_pago") return new Response("not paid", { status: 400 });

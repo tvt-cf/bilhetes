@@ -1,42 +1,12 @@
 "use client";
 
-import { ArrowDown, ArrowUp, ChevronsUpDown, Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
-import type { BoxColor, DeliveryAddress, OrderStatus } from "@/lib/db/schema";
+import { Archive, ArchiveRestore, ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, ChevronsUpDown, Search, X } from "lucide-react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { formatPhone } from "@/lib/phone";
-import { recheckOrdersAction } from "../../actions";
+import { archiveOrdersAction, recheckOrdersAction } from "../../actions";
+import { PedidoDrawer } from "./drawer";
+import { boxStyle, brl, fmtCep, methodLabel, optionLabel, type OrderRow, statusStyle } from "./format";
 
-export type OrderRow = {
-  id: number;
-  name: string | null;
-  phone: string | null;
-  orderNumber: string | null;
-  paymentPreference: "a_vista" | "parcelado";
-  boxColor: BoxColor | null;
-  address: DeliveryAddress | null;
-  amount: number;
-  status: OrderStatus;
-  paidAmount: number | null;
-  installments: number | null;
-  captureMethod: string | null;
-  transactionNsu: string | null;
-  receiptUrl: string | null;
-  checkedAt: Date | null;
-  createdAt: Date;
-};
-
-const statusStyle: Record<OrderStatus, [string, string]> = {
-  aguardando: ["Aguardando", "bg-luz/20 text-[#7A5A1E]"],
-  pago: ["Pago", "bg-presenca/15 text-[#4F5636]"],
-  divergente: ["Divergente", "bg-coragem/12 text-[#A2402B]"],
-};
-
-const boxStyle: Record<BoxColor, [string, string]> = {
-  clara: ["Clara", "#C9A06A"],
-  escura: ["Escura", "#5B3B27"],
-};
-
-const brl = (cents: number) => (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const fmtDate = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
   month: "short",
@@ -44,15 +14,6 @@ const fmtDate = new Intl.DateTimeFormat("pt-BR", {
   minute: "2-digit",
   timeZone: "America/Sao_Paulo",
 });
-const fmtCep = (cep: string) => cep.replace(/^(\d{5})(\d{3})$/, "$1-$2");
-const optionLabel = (o: OrderRow) => (o.paymentPreference === "a_vista" ? "À vista" : "Parcelado");
-const methodLabel = (o: OrderRow) =>
-  o.captureMethod === "pix"
-    ? "Pix"
-    : o.captureMethod === "credit_card"
-      ? `Cartão${o.installments ? ` ${o.installments}x` : ""}`
-      : "";
-
 // Busca sem acento e sem caixa: "sao paulo" encontra "São Paulo".
 const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
@@ -107,71 +68,221 @@ const columns: [SortKey | null, string, string?][] = [
   [null, ""],
 ];
 
+// Filtros rápidos (chips): arquivados só aparecem no próprio filtro.
+const segments = [
+  ["todos", "Todos", (o: OrderRow) => !o.archivedAt],
+  ["pago", "Pagos", (o: OrderRow) => !o.archivedAt && o.status === "pago"],
+  ["aguardando", "Aguardando", (o: OrderRow) => !o.archivedAt && o.status === "aguardando"],
+  ["divergente", "Divergentes", (o: OrderRow) => !o.archivedAt && o.status === "divergente"],
+  ["arquivados", "Arquivados", (o: OrderRow) => !!o.archivedAt],
+] as const;
+type Segment = (typeof segments)[number][0];
+
+const sortOptions: [SortKey, 1 | -1, string][] = [
+  ["id", -1, "Pedido, mais recente"],
+  ["id", 1, "Pedido, mais antigo"],
+  ["paid", -1, "Pago, maior valor"],
+  ["amount", -1, "Cobrado, maior valor"],
+  ["name", 1, "Pessoa, A–Z"],
+  ["cep", 1, "CEP, menor primeiro"],
+  ["status", 1, "Status"],
+  ["checked", -1, "Conferido, mais recente"],
+];
+
 const th = "px-2.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-[#9a938c] first:pl-5 last:pr-5";
 const td = "px-2.5 py-2.5 align-top text-[12px] leading-snug first:pl-5 last:pr-5";
 const sub = "block text-[11px] text-tinta-suave";
+const checkbox = "size-4 cursor-pointer rounded accent-verdade align-middle";
+const bulkBtn =
+  "inline-flex h-8 items-center gap-1.5 rounded-lg bg-tinta px-3 text-[12px] font-semibold text-white transition hover:bg-tinta/85 disabled:opacity-50";
 const dash = <span className="text-[#c4bdb5]">—</span>;
 
 export function TabelaPedidos({ rows }: { rows: OrderRow[] }) {
   const [q, setQ] = useState("");
+  const [segment, setSegment] = useState<Segment>("todos");
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "id", dir: -1 });
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [anchor, setAnchor] = useState<number | null>(null);
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState("");
+  const [openId, setOpenId] = useState<number | null>(null);
+  const closeDrawer = useCallback(() => setOpenId(null), []);
+  // Procura em todas as linhas: o pedido continua aberto mesmo se sair do filtro (ex.: ao arquivar).
+  const openOrder = openId != null ? rows.find((o) => o.id === openId) : undefined;
 
   const indexed = useMemo(() => rows.map((o) => ({ o, text: haystack(o) })), [rows]);
 
-  const visible = useMemo(() => {
+  // Busca primeiro; os chips contam dentro do que a busca encontrou.
+  const found = useMemo(() => {
     const terms = norm(q).split(/\s+/).filter(Boolean);
-    const found = terms.length ? indexed.filter(({ text }) => terms.every((t) => text.includes(t))) : indexed;
+    return (terms.length ? indexed.filter(({ text }) => terms.every((t) => text.includes(t))) : indexed).map(({ o }) => o);
+  }, [indexed, q]);
+
+  const counts = useMemo(
+    () => Object.fromEntries(segments.map(([key, , test]) => [key, found.filter(test).length])) as Record<Segment, number>,
+    [found],
+  );
+
+  const visible = useMemo(() => {
+    const test = segments.find(([key]) => key === segment)![2];
     const get = sortValue[sort.key];
     // Vazios ficam sempre no fim, qualquer que seja a direção.
-    return found
-      .map(({ o }) => o)
-      .sort((a, b) => {
-        const va = get(a);
-        const vb = get(b);
-        if (va == null || vb == null) return va == null ? (vb == null ? 0 : 1) : -1;
-        return (va < vb ? -1 : va > vb ? 1 : 0) * sort.dir;
-      });
-  }, [indexed, q, sort]);
+    return found.filter(test).sort((a, b) => {
+      const va = get(a);
+      const vb = get(b);
+      if (va == null || vb == null) return va == null ? (vb == null ? 0 : 1) : -1;
+      return (va < vb ? -1 : va > vb ? 1 : 0) * sort.dir;
+    });
+  }, [found, segment, sort]);
+
+  // Só conta como selecionado o que está na tela (a busca ou o filtro podem esconder alguns).
+  const chosen = visible.filter((o) => selected.has(o.id)).map((o) => o.id);
+  const allChosen = chosen.length > 0 && chosen.length === visible.length;
+  const archiving = segment !== "arquivados";
 
   const toggle = (key: SortKey) =>
     setSort((s) => (s.key === key ? { key, dir: s.dir === 1 ? -1 : 1 } : { key, dir: key === "name" || key === "cep" ? 1 : -1 }));
 
+  const pickSegment = (key: Segment) => {
+    setSegment(key);
+    setSelected(new Set());
+    setAnchor(null);
+  };
+
+  // Shift+clique marca o intervalo desde o último marcado.
+  const pick = (index: number, shift: boolean) => {
+    const id = visible[index].id;
+    const next = new Set(selected);
+    const on = !selected.has(id);
+    const [from, to] = shift && anchor != null ? [Math.min(anchor, index), Math.max(anchor, index)] : [index, index];
+    for (let i = from; i <= to; i++) {
+      if (on) next.add(visible[i].id);
+      else next.delete(visible[i].id);
+    }
+    setSelected(next);
+    setAnchor(index);
+  };
+
+  const pickAll = () => setSelected(allChosen ? new Set() : new Set(visible.map((o) => o.id)));
+
+  const archive = () =>
+    startTransition(async () => {
+      setError("");
+      try {
+        await archiveOrdersAction(chosen, archiving);
+        setSelected(new Set());
+        setAnchor(null);
+      } catch {
+        setError("Não deu para salvar. Tente de novo.");
+      }
+    });
+
+  const sortLabel = sortOptions.find(([k, d]) => k === sort.key && d === sort.dir)?.[2];
+
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-tinta/8 px-5 py-3">
-        <div className="flex items-baseline gap-2.5">
-          <h2 className="text-[14px] font-semibold">Pedidos</h2>
-          <span className="text-[12px] text-tinta-suave">
-            {q ? `${visible.length} de ${rows.length}` : rows.length}
-          </span>
-        </div>
-        <label className="flex w-80 items-center gap-2 rounded-lg bg-leveza px-3 py-1.5 focus-within:ring-1 focus-within:ring-verdade/30">
-          <Search className="size-3.5 shrink-0 text-[#9a938c]" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar nome, telefone, CEP, cidade, cor, NSU…"
-            aria-label="Buscar pedidos"
-            className="min-w-0 flex-1 bg-transparent text-[12px] outline-none placeholder:text-[#9a938c]"
-          />
-          {q && (
-            <button type="button" onClick={() => setQ("")} aria-label="Limpar busca" className="text-[#9a938c] hover:text-tinta">
-              <X className="size-3.5" />
+      <div className="flex min-h-[60px] flex-wrap items-center justify-between gap-3 px-5 pb-2 pt-4">
+        {chosen.length ? (
+          <div className="flex items-center gap-3">
+            <span className="text-[13px] font-semibold">
+              {chosen.length} {chosen.length === 1 ? "pedido selecionado" : "pedidos selecionados"}
+            </span>
+            <button type="button" onClick={archive} disabled={pending} className={bulkBtn}>
+              {archiving ? <Archive className="size-3.5" /> : <ArchiveRestore className="size-3.5" />}
+              {pending ? "Salvando…" : archiving ? "Arquivar" : "Desarquivar"}
             </button>
-          )}
+            <button type="button" onClick={() => setSelected(new Set())} className="text-[12px] text-tinta-suave hover:text-tinta hover:underline">
+              Limpar seleção
+            </button>
+            {error && <span className="text-[12px] text-coragem">{error}</span>}
+          </div>
+        ) : (
+          <label className="flex h-9 w-80 items-center gap-2 rounded-lg border border-tinta/12 bg-white px-3 focus-within:border-verdade/40">
+            <Search className="size-3.5 shrink-0 text-[#9a938c]" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Buscar nome, telefone, CEP, cidade, cor, NSU…"
+              aria-label="Buscar pedidos"
+              className="min-w-0 flex-1 bg-transparent text-[12px] outline-none placeholder:text-[#9a938c]"
+            />
+            {q && (
+              <button type="button" onClick={() => setQ("")} aria-label="Limpar busca" className="text-[#9a938c] hover:text-tinta">
+                <X className="size-3.5" />
+              </button>
+            )}
+          </label>
+        )}
+        <label className="relative flex items-center gap-2 text-[13px] text-tinta">
+          <ArrowUpDown className="size-3.5 text-tinta-suave" />
+          <span>{sortLabel ?? `${columns.find(([k]) => k === sort.key)?.[1]}, ${sort.dir === 1 ? "crescente" : "decrescente"}`}</span>
+          <ChevronDown className="size-3.5 text-tinta-suave" />
+          <select
+            aria-label="Ordenar pedidos"
+            value={sortLabel ? `${sort.key}:${sort.dir}` : ""}
+            onChange={(e) => {
+              const [key, dir] = e.target.value.split(":");
+              setSort({ key: key as SortKey, dir: Number(dir) as 1 | -1 });
+            }}
+            className="absolute inset-0 cursor-pointer opacity-0"
+          >
+            {!sortLabel && <option value="">Ordem pela coluna</option>}
+            {sortOptions.map(([k, d, label]) => (
+              <option key={label} value={`${k}:${d}`}>
+                {label}
+              </option>
+            ))}
+          </select>
         </label>
       </div>
 
+      <div className="flex flex-wrap gap-2 px-5 pb-4">
+        {segments.map(([key, label]) => {
+          const active = key === segment;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => pickSegment(key)}
+              className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition ${
+                active ? "bg-tinta text-white" : "bg-tinta/[0.045] text-tinta hover:bg-tinta/[0.08]"
+              }`}
+            >
+              {label}
+              <span className={`tabular-nums ${active ? "text-white/65" : "text-[#9a938c]"}`}>{counts[key]}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {visible.length === 0 ? (
-        <div className="flex flex-col items-center gap-1 px-5 py-14 text-center">
-          <p className="font-serif text-xl">Nenhum pedido para “{q}”.</p>
-          <p className="text-[13px] text-tinta-suave">Dá para buscar por nome, telefone, #pedido, CEP, cidade, bairro, cor, forma ou NSU.</p>
+        <div className="flex flex-col items-center gap-1 border-t border-tinta/8 px-5 py-14 text-center">
+          <p className="font-serif text-xl">{q ? `Nenhum pedido para “${q}”.` : "Nenhum pedido neste filtro."}</p>
+          <p className="text-[13px] text-tinta-suave">
+            {q
+              ? "Dá para buscar por nome, telefone, #pedido, CEP, cidade, bairro, cor, forma ou NSU."
+              : segment === "arquivados"
+                ? "Selecione pedidos de teste em Todos e use Arquivar."
+                : "Troque o filtro acima para ver os outros pedidos."}
+          </p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[1080px]">
+        <div className="overflow-x-auto border-t border-tinta/8">
+          <table className="w-full min-w-[1100px]">
             <thead className="border-b border-tinta/8 bg-[#FAF8F5]">
               <tr>
+                <th className={`${th} w-0 !pr-1`}>
+                  <input
+                    type="checkbox"
+                    aria-label="Selecionar todos"
+                    checked={allChosen}
+                    ref={(el) => {
+                      if (el) el.indeterminate = chosen.length > 0 && !allChosen;
+                    }}
+                    onChange={pickAll}
+                    className={checkbox}
+                  />
+                </th>
                 {columns.map(([key, label, align = ""], i) => (
                   <th key={i} className={`${th} ${align}`} aria-sort={key && sort.key === key ? (sort.dir === 1 ? "ascending" : "descending") : undefined}>
                     {key ? (
@@ -195,13 +306,35 @@ export function TabelaPedidos({ rows }: { rows: OrderRow[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-tinta/6">
-              {visible.map((o) => {
+              {visible.map((o, i) => {
                 const [label, cls] = statusStyle[o.status];
                 const a = o.address;
+                const on = selected.has(o.id);
                 return (
-                  <tr key={o.id} className="hover:bg-[#FCFBF9]">
+                  <tr
+                    key={o.id}
+                    onClick={(e) => {
+                      // checkbox, links e botões da linha fazem a própria ação
+                      if (!(e.target as HTMLElement).closest("input, a, button, form")) setOpenId(o.id);
+                    }}
+                    className={`cursor-pointer ${
+                      openId === o.id ? "bg-verdade/[0.07]" : on ? "bg-verdade/[0.04]" : "hover:bg-[#FCFBF9]"
+                    }`}
+                  >
+                    <td className={`${td} w-0 !pr-1`}>
+                      <input
+                        type="checkbox"
+                        aria-label={`Selecionar pedido #${o.id}`}
+                        checked={on}
+                        onChange={() => {}}
+                        onClick={(e) => pick(i, e.shiftKey)}
+                        className={checkbox}
+                      />
+                    </td>
                     <td className={td}>
-                      <span className="font-medium">#{o.id}</span>
+                      <button type="button" onClick={() => setOpenId(o.id)} className="font-medium hover:underline">
+                        #{o.id}
+                      </button>
                       <span className={`${sub} whitespace-nowrap`}>{fmtDate.format(o.createdAt)}</span>
                     </td>
                     <td className={td}>
@@ -221,7 +354,7 @@ export function TabelaPedidos({ rows }: { rows: OrderRow[] }) {
                         dash
                       )}
                     </td>
-                    <td className={td}>
+                    <td className={`${td} min-w-[220px]`}>
                       {a ? (
                         <>
                           <span className="font-medium tabular-nums">{fmtCep(a.cep)}</span>
@@ -264,6 +397,7 @@ export function TabelaPedidos({ rows }: { rows: OrderRow[] }) {
           </table>
         </div>
       )}
+      {openOrder && <PedidoDrawer key={openOrder.id} order={openOrder} onClose={closeDrawer} />}
     </>
   );
 }

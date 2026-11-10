@@ -8,7 +8,7 @@ import { endSession, normalizeEmail, requestLogin, requireAdmin, verifyCode, ver
 import { cancelCampaign, createCampaign, dispatchCampaign, personalize } from "@/lib/campaigns";
 import { markPurchased } from "@/lib/community";
 import type { CampaignKind, Segment } from "@/lib/db/schema";
-import { recheckOrders } from "@/lib/orders";
+import { getOrderTimeline, recheckOrders, setOrdersArchived } from "@/lib/orders";
 import { normalizePhone } from "@/lib/phone";
 import { STOCK_TAG, setManualSoldOut } from "@/lib/stock";
 import { sendTemplate } from "@/lib/whatsapp";
@@ -74,11 +74,23 @@ export async function markPurchasedAction(form: FormData) {
 
 // Conferência com a InfinitePay: um pedido (orderId) ou todos que já tiveram pagamento avisado.
 export async function recheckOrdersAction(form: FormData) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const id = Number(form.get("orderId")) || undefined;
-  await recheckOrders(id);
+  await recheckOrders(id, admin.email);
   updateTag(STOCK_TAG);
   revalidatePath("/admin/pedidos");
+}
+
+export async function archiveOrdersAction(ids: number[], archived: boolean) {
+  const admin = await requireAdmin();
+  const valid = ids.filter((id) => Number.isInteger(id) && id > 0);
+  await setOrdersArchived(valid, archived, admin.email);
+  revalidatePath("/admin/pedidos");
+}
+
+export async function orderTimelineAction(orderId: number) {
+  await requireAdmin();
+  return Number.isInteger(orderId) && orderId > 0 ? getOrderTimeline(orderId) : [];
 }
 
 export async function setSoldOutAction(form: FormData) {

@@ -100,6 +100,21 @@ export const orders = pgTable("orders", {
   paidAt: timestamp("paid_at", { withTimezone: true }),
   checkedAt: timestamp("checked_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  archivedAt: timestamp("archived_at", { withTimezone: true }), // arquivado no admin (ex.: pedido de teste)
+});
+
+// Histórico de cada pedido, mostrado na linha do tempo do /admin/pedidos.
+// via: quem disparou (cliente, webhook da InfinitePay, retorno para /obrigada, admin); actor: e-mail do admin.
+export type OrderEventKind = "criado" | "link" | "status" | "conferido" | "arquivado" | "desarquivado";
+export type OrderEventVia = "cliente" | "webhook" | "retorno" | "admin";
+export const orderEvents = pgTable("order_events", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").notNull(),
+  kind: text("kind").$type<OrderEventKind>().notNull(),
+  via: text("via").$type<OrderEventVia>().notNull(),
+  actor: text("actor"),
+  detail: jsonb("detail").$type<{ from?: OrderStatus; to?: OrderStatus; paidAmount?: number | null; method?: string | null }>(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 // Configurações do site editáveis no /admin (ex.: vendas esgotadas).
@@ -188,4 +203,15 @@ alter table people add column if not exists outside_area jsonb;
 alter table people add column if not exists outside_area_at timestamptz;
 alter table orders add column if not exists box_color text;
 alter table orders add column if not exists address jsonb;
+alter table orders add column if not exists archived_at timestamptz;
+create table if not exists order_events (
+  id serial primary key,
+  order_id integer not null,
+  kind text not null,
+  via text not null,
+  actor text,
+  detail jsonb,
+  created_at timestamptz not null default now()
+);
+create index if not exists order_events_order_idx on order_events (order_id, created_at);
 `;

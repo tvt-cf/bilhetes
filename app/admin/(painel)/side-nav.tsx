@@ -3,6 +3,7 @@
 import { MessageCircleHeart, Package, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { showOnOpen } from "./ui";
 
 const items = [
   ["/admin", "Comunidade", Users],
@@ -20,12 +21,13 @@ export function SideNav() {
           <Link
             key={href}
             href={href}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
+            title={label}
+            className={`flex items-center gap-3 rounded-lg px-[11px] py-2.5 text-sm transition ${
               active ? "bg-leveza/12 font-semibold text-leveza" : "text-leveza/70 hover:bg-leveza/6 hover:text-leveza"
             }`}
           >
-            <Icon className={`size-[18px] ${active ? "text-leveza" : "text-leveza/60"}`} strokeWidth={1.75} />
-            {label}
+            <Icon className={`size-[18px] shrink-0 ${active ? "text-leveza" : "text-leveza/60"}`} strokeWidth={1.75} />
+            <span className={showOnOpen}>{label}</span>
           </Link>
         );
       })}

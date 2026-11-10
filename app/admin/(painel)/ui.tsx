@@ -76,3 +76,8 @@ export const btnSecondary =
 
 export const th = "px-3 py-3 text-left text-[11px] font-semibold tracking-wider text-[#9a938c] first:pl-5 last:pr-5";
 export const td = "px-3 py-3.5 text-[13px] first:pl-5 last:pr-5";
+
+// Rótulos do menu: somem com ele recolhido e aparecem quando ele abre.
+export const fadeOnOpen =
+  "opacity-0 transition-opacity duration-150 group-hover/nav:opacity-100 group-hover/nav:delay-75 group-has-[:focus-visible]/nav:opacity-100";
+export const showOnOpen = `whitespace-nowrap ${fadeOnOpen}`;
