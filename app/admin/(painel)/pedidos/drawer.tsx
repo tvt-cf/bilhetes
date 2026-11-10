@@ -1,12 +1,13 @@
 "use client";
 
-import { Archive, ArchiveRestore, ExternalLink, PackageCheck, PackageX, RefreshCw, X } from "lucide-react";
+import { Archive, ArchiveRestore, ExternalLink, RefreshCw, X } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
-import type { OrderStatus } from "@/lib/db/schema";
+import type { DeliveryStatus, OrderStatus } from "@/lib/db/schema";
 import type { TimelineEvent } from "@/lib/orders";
 import { formatPhone } from "@/lib/phone";
-import { archiveOrdersAction, deliverOrdersAction, orderTimelineAction, recheckOrdersAction } from "../../actions";
-import { boxStyle, brl, fmtCep, methodLabel, optionLabel, type OrderRow, statusStyle } from "./format";
+import { archiveOrdersAction, orderTimelineAction, recheckOrdersAction, updateDeliveryAction } from "../../actions";
+import { dotOk } from "../ui";
+import { boxStyle, brl, deliveryOf, deliveryOrder, deliveryStyle, fmtCep, methodLabel, optionLabel, type OrderRow, statusStyle } from "./format";
 
 const fmtFull = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
@@ -22,6 +23,7 @@ const fmtShort = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "shor
 
 const viaLabel = { cliente: "Cliente no site", webhook: "InfinitePay (webhook)", retorno: "Retorno do pagamento", admin: "Admin" };
 const statusName = (s?: OrderStatus) => (s ? statusStyle[s][0] : "—");
+const deliveryName = (s?: DeliveryStatus) => (s ? deliveryStyle[s][0] : "—");
 const methodName = (m?: string | null) => (m === "pix" ? "Pix" : m === "credit_card" ? "cartão" : null);
 
 // Por que o pedido ficou divergente (ou por que a conferência não concluiu nada).
@@ -46,7 +48,7 @@ function describe(e: TimelineEvent): [title: string, detail: string | null, dot:
       return [
         d.to === "pago" ? "Pagamento confirmado" : d.to === "divergente" ? "Pagamento divergente" : "Status alterado",
         [`${statusName(d.from)} → ${statusName(d.to)}`, paid, reason].filter(Boolean).join(" · "),
-        d.to === "pago" ? "bg-presenca" : d.to === "divergente" ? "bg-coragem" : "bg-luz",
+        d.to === "pago" ? dotOk : d.to === "divergente" ? "bg-coragem" : "bg-luz",
       ];
     case "conferido":
       return [
@@ -55,9 +57,22 @@ function describe(e: TimelineEvent): [title: string, detail: string | null, dot:
         d.reason === "falha" ? "bg-luz" : "bg-tinta/30",
       ];
     case "entregue":
-      return ["Entregue", "Saiu de reservados e entrou em entregues no estoque", "bg-presenca"];
+      return ["Entregue", "Saiu de reservados e entrou em entregues no estoque", dotOk];
     case "entrega_desfeita":
       return ["Entrega desfeita", "Voltou para reservados no estoque", "bg-tinta/50"];
+    case "entrega": {
+      const moved = d.deliveryTo && d.deliveryFrom !== d.deliveryTo;
+      const fields = [
+        d.carrier !== undefined && `Transporte: ${d.carrier ?? "(apagado)"}`,
+        d.owner !== undefined && `Responsável: ${d.owner ?? "(apagado)"}`,
+        d.complaint !== undefined && (d.complaint ? `Reclamação: “${d.complaint}”` : "Reclamação apagada"),
+      ].filter(Boolean);
+      return [
+        moved ? `Entrega: ${deliveryName(d.deliveryFrom)} → ${deliveryName(d.deliveryTo)}` : "Dados da entrega atualizados",
+        fields.join(" · ") || null,
+        d.deliveryTo === "entregue" ? dotOk : d.deliveryTo === "reclamacao" ? "bg-coragem" : "bg-recomeco/60",
+      ];
+    }
     case "arquivado":
       return ["Arquivado", "Saiu da lista e dos números do admin", "bg-tinta/50"];
     case "desarquivado":
@@ -72,7 +87,8 @@ export function PedidoDrawer({ order, onClose }: { order: OrderRow; onClose: () 
   const [error, setError] = useState("");
 
   // Recarrega quando o pedido muda na lista (arquivou, conferiu, chegou pagamento).
-  const version = `${order.id}:${order.status}:${order.checkedAt?.getTime()}:${order.archivedAt?.getTime()}:${order.deliveredAt?.getTime()}`;
+  const deliveryVersion = [order.deliveryStatus, order.carrier, order.deliveryOwner, order.complaint].join("|");
+  const version = `${order.id}:${order.status}:${order.checkedAt?.getTime()}:${order.archivedAt?.getTime()}:${deliveryVersion}`;
   useEffect(() => {
     let alive = true;
     orderTimelineAction(order.id)
@@ -118,7 +134,6 @@ export function PedidoDrawer({ order, onClose }: { order: OrderRow; onClose: () 
     ["Cobrado", brl(order.amount)],
     ["Pago", order.paidAmount != null ? brl(order.paidAmount) : "—"],
     ["Forma", methodLabel(order) || "—"],
-    ["Envio", order.deliveredAt ? `Entregue ${fmtShort.format(order.deliveredAt)}` : order.status === "pago" ? "A entregar" : "—"],
     ["NSU", order.transactionNsu ?? "—"],
   ];
 
@@ -190,6 +205,15 @@ export function PedidoDrawer({ order, onClose }: { order: OrderRow; onClose: () 
             )}
           </section>
 
+          {deliveryOf(order) && (
+            <EntregaForm
+              key={deliveryVersion}
+              order={order}
+              pending={pending}
+              onSave={(patch) => run(() => updateDeliveryAction([order.id], patch))}
+            />
+          )}
+
           <section className="px-6 py-5">
             <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-wider text-[#9a938c]">Linha do tempo</h3>
             {timeline === null ? (
@@ -235,12 +259,6 @@ export function PedidoDrawer({ order, onClose }: { order: OrderRow; onClose: () 
               <RefreshCw className={`size-3.5 ${pending ? "animate-spin" : ""}`} /> Conferir na InfinitePay
             </button>
           )}
-          {order.status === "pago" && !order.archivedAt && (
-            <button type="button" onClick={() => run(() => deliverOrdersAction([order.id], !order.deliveredAt))} disabled={pending} className={btn}>
-              {order.deliveredAt ? <PackageX className="size-3.5" /> : <PackageCheck className="size-3.5" />}
-              {order.deliveredAt ? "Desfazer entrega" : "Marcar entregue"}
-            </button>
-          )}
           <button type="button" onClick={() => run(() => archiveOrdersAction([order.id], !order.archivedAt))} disabled={pending} className={btn}>
             {order.archivedAt ? <ArchiveRestore className="size-3.5" /> : <Archive className="size-3.5" />}
             {order.archivedAt ? "Desarquivar" : "Arquivar"}
@@ -254,3 +272,83 @@ export function PedidoDrawer({ order, onClose }: { order: OrderRow; onClose: () 
 
 const btn =
   "inline-flex h-8 items-center gap-1.5 rounded-lg border border-tinta/15 bg-white px-3 text-[12px] font-medium transition hover:border-tinta/30 disabled:opacity-50";
+
+// Entrega do pedido pago: etapa, transporte, responsável e reclamação. Salvar registra na linha do tempo.
+function EntregaForm({
+  order,
+  pending,
+  onSave,
+}: {
+  order: OrderRow;
+  pending: boolean;
+  onSave: (patch: { status: DeliveryStatus; carrier: string; owner: string; complaint: string }) => void;
+}) {
+  const initial = {
+    status: deliveryOf(order)!,
+    carrier: order.carrier ?? "",
+    owner: order.deliveryOwner ?? "",
+    complaint: order.complaint ?? "",
+  };
+  const [form, setForm] = useState(initial);
+  const changed = (Object.keys(initial) as (keyof typeof initial)[]).some((k) => form[k].trim() !== initial[k]);
+  const set = (k: keyof typeof initial) => (e: { target: { value: string } }) => {
+    const v = e.target.value;
+    setForm((f) => ({ ...f, [k]: v }));
+  };
+
+  return (
+    <section className="flex flex-col gap-3 border-b border-tinta/8 px-6 py-5">
+      <div className="flex items-center justify-between">
+        <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[#9a938c]">Entrega</h3>
+        {order.deliveredAt && <span className="text-[11px] text-tinta-suave">Entregue em {fmtShort.format(order.deliveredAt)}</span>}
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {deliveryOrder.map((d) => (
+          <button
+            key={d}
+            type="button"
+            onClick={() => setForm((f) => ({ ...f, status: d }))}
+            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
+              form.status === d ? `${deliveryStyle[d][1]} ring-1 ring-current` : "bg-tinta/[0.04] text-tinta-suave hover:bg-tinta/[0.08]"
+            }`}
+          >
+            {deliveryStyle[d][0]}
+          </button>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <label className={label}>
+          Transporte
+          <input value={form.carrier} onChange={set("carrier")} maxLength={300} placeholder="Ex.: motoboy, Loggi" className={field} />
+        </label>
+        <label className={label}>
+          Responsável
+          <input value={form.owner} onChange={set("owner")} maxLength={300} placeholder="Quem cuida da entrega" className={field} />
+        </label>
+      </div>
+      <label className={label}>
+        Reclamação
+        <textarea
+          value={form.complaint}
+          onChange={set("complaint")}
+          maxLength={300}
+          rows={form.status === "reclamacao" || form.complaint ? 3 : 1}
+          placeholder="O que a pessoa relatou (fica no histórico)"
+          className={`${field} h-auto resize-none py-1.5`}
+        />
+      </label>
+      <button
+        type="button"
+        disabled={!changed || pending}
+        onClick={() => onSave(form)}
+        className="self-start rounded-lg bg-verdade px-3.5 py-1.5 text-[12px] font-semibold text-leveza transition hover:bg-verdade/90 disabled:opacity-40"
+      >
+        {pending ? "Salvando…" : "Salvar entrega"}
+      </button>
+    </section>
+  );
+}
+
+const label = "flex flex-col gap-1 text-[10px] font-semibold uppercase tracking-wider text-[#9a938c]";
+const field =
+  "h-8 rounded-md border border-tinta/15 bg-white px-2 text-[12px] font-normal normal-case tracking-normal text-tinta outline-none focus:border-verdade/40";

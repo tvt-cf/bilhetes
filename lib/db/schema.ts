@@ -81,6 +81,9 @@ export const messages = pgTable("messages", {
 // Um pedido por checkout aberto na InfinitePay. order_nsu = "pedido-<id>". "divergente": a InfinitePay confirmou
 // um valor diferente do cobrado, ou deixou de confirmar um pagamento numa nova conferência.
 export type OrderStatus = "aguardando" | "pago" | "divergente";
+// Etapa da entrega de um pedido pago (vazio = preparar). "entregue" dá baixa de reservado no estoque.
+export const deliveryStatuses = ["preparar", "coletar", "despachado", "entregue", "reclamacao"] as const;
+export type DeliveryStatus = (typeof deliveryStatuses)[number];
 
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
@@ -102,6 +105,10 @@ export const orders = pgTable("orders", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   archivedAt: timestamp("archived_at", { withTimezone: true }), // arquivado no admin (ex.: pedido de teste)
   deliveredAt: timestamp("delivered_at", { withTimezone: true }), // caixa entregue: sai de "reservados" e vai para "entregues"
+  deliveryStatus: text("delivery_status").$type<DeliveryStatus>(),
+  carrier: text("carrier"), // transporte (texto livre por enquanto)
+  deliveryOwner: text("delivery_owner"), // responsável pela entrega
+  complaint: text("complaint"), // comentário da reclamação
 });
 
 // Livro de estoque por cor: só entra registro, nada é editado nem apagado. Um lote recebido tem
@@ -127,7 +134,8 @@ export type OrderEventKind =
   | "arquivado"
   | "desarquivado"
   | "entregue"
-  | "entrega_desfeita";
+  | "entrega_desfeita"
+  | "entrega";
 export type OrderEventVia = "cliente" | "webhook" | "retorno" | "admin";
 // reason explica a conferência: "valor" (pago, mas valor diferente do esperado), "nao_confirmado"
 // (a InfinitePay disse que não está pago) ou "falha" (a InfinitePay não respondeu; nada mudou).
@@ -139,6 +147,12 @@ export type OrderEventDetail = {
   reason?: "valor" | "nao_confirmado" | "falha";
   amount?: number | null; // valor que a InfinitePay informou
   expected?: number[]; // valores aceitos para o pedido
+  // entrega: etapa antes/depois e os campos que mudaram
+  deliveryFrom?: DeliveryStatus;
+  deliveryTo?: DeliveryStatus;
+  carrier?: string | null;
+  owner?: string | null;
+  complaint?: string | null;
 };
 export const orderEvents = pgTable("order_events", {
   id: serial("id").primaryKey(),
@@ -257,4 +271,9 @@ create table if not exists stock_lots (
   created_at timestamptz not null default now()
 );
 alter table stock_lots add column if not exists corrects_id integer;
+alter table orders add column if not exists delivery_status text;
+alter table orders add column if not exists carrier text;
+alter table orders add column if not exists delivery_owner text;
+alter table orders add column if not exists complaint text;
+update orders set delivery_status = 'entregue' where delivered_at is not null and delivery_status is null;
 `;

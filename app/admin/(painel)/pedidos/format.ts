@@ -1,4 +1,5 @@
-import type { BoxColor, DeliveryAddress, OrderStatus } from "@/lib/db/schema";
+import type { BoxColor, DeliveryAddress, DeliveryStatus, OrderStatus } from "@/lib/db/schema";
+import { tagOk } from "../ui";
 
 export type OrderRow = {
   id: number;
@@ -19,11 +20,15 @@ export type OrderRow = {
   createdAt: Date;
   archivedAt: Date | null;
   deliveredAt: Date | null;
+  deliveryStatus: DeliveryStatus | null;
+  carrier: string | null;
+  deliveryOwner: string | null;
+  complaint: string | null;
 };
 
 export const statusStyle: Record<OrderStatus, [string, string]> = {
   aguardando: ["Aguardando", "bg-luz/20 text-[#7A5A1E]"],
-  pago: ["Pago", "bg-presenca/15 text-[#4F5636]"],
+  pago: ["Pago", tagOk],
   divergente: ["Divergente", "bg-coragem/12 text-[#A2402B]"],
 };
 
@@ -41,3 +46,15 @@ export const methodLabel = (o: OrderRow) =>
     : o.captureMethod === "credit_card"
       ? `Cartão${o.installments ? ` ${o.installments}x` : ""}`
       : "";
+
+// Etapas da entrega (pedido pago sem etapa = preparar), na ordem do fluxo.
+export const deliveryStyle: Record<DeliveryStatus, [string, string]> = {
+  preparar: ["Preparar", "bg-tinta/8 text-tinta"],
+  coletar: ["Coletar", "bg-luz/25 text-[#7A5A1E]"],
+  despachado: ["Despachado", "bg-recomeco/12 text-recomeco"],
+  entregue: ["Entregue", tagOk],
+  reclamacao: ["Reclamação", "bg-coragem/12 text-[#A2402B]"],
+};
+export const deliveryOf = (o: OrderRow): DeliveryStatus | null =>
+  o.status === "pago" && !o.archivedAt ? (o.deliveryStatus ?? "preparar") : null;
+export const deliveryOrder = Object.keys(deliveryStyle) as DeliveryStatus[];

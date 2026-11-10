@@ -1,11 +1,12 @@
 "use client";
 
-import { Archive, ArchiveRestore, PackageCheck, ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, ChevronsUpDown, Search, X } from "lucide-react";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { Archive, ArchiveRestore, ArrowDown, MessageSquareWarning, ArrowUp, ArrowUpDown, ChevronDown, ChevronsUpDown, Search, X } from "lucide-react";
+import { Fragment, useCallback, useMemo, useState, useTransition } from "react";
 import { formatPhone } from "@/lib/phone";
-import { archiveOrdersAction, deliverOrdersAction, recheckOrdersAction } from "../../actions";
+import { archiveOrdersAction, recheckOrdersAction, updateDeliveryAction } from "../../actions";
 import { PedidoDrawer } from "./drawer";
-import { boxStyle, brl, fmtCep, methodLabel, optionLabel, type OrderRow, statusStyle } from "./format";
+import type { DeliveryStatus } from "@/lib/db/schema";
+import { boxStyle, brl, deliveryOf, deliveryOrder, deliveryStyle, fmtCep, methodLabel, optionLabel, type OrderRow, statusStyle } from "./format";
 
 const fmtDay = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", timeZone: "America/Sao_Paulo" });
 const fmtDate = new Intl.DateTimeFormat("pt-BR", {
@@ -32,6 +33,10 @@ function haystack(o: OrderRow) {
       optionLabel(o),
       methodLabel(o),
       statusStyle[o.status][0],
+      deliveryOf(o) && `entrega ${deliveryStyle[deliveryOf(o)!][0]}`,
+      o.carrier,
+      o.deliveryOwner,
+      o.complaint,
       o.transactionNsu,
       fmtDate.format(o.createdAt),
     ]
@@ -40,7 +45,7 @@ function haystack(o: OrderRow) {
   );
 }
 
-type SortKey = "id" | "name" | "box" | "cep" | "option" | "amount" | "paid" | "method" | "status" | "checked";
+type SortKey = "id" | "name" | "box" | "cep" | "option" | "amount" | "paid" | "method" | "status" | "delivery" | "checked";
 
 const sortValue: Record<SortKey, (o: OrderRow) => string | number | null> = {
   id: (o) => o.id,
@@ -52,6 +57,7 @@ const sortValue: Record<SortKey, (o: OrderRow) => string | number | null> = {
   paid: (o) => o.paidAmount,
   method: (o) => methodLabel(o) || null,
   status: (o) => o.status,
+  delivery: (o) => (deliveryOf(o) ? deliveryOrder.indexOf(deliveryOf(o)!) : null),
   checked: (o) => o.checkedAt?.getTime() ?? null,
 };
 
@@ -65,6 +71,7 @@ const columns: [SortKey | null, string, string?][] = [
   ["paid", "Pago", "text-right"],
   ["method", "Forma"],
   ["status", "Status"],
+  ["delivery", "Entrega"],
   ["checked", "Conferido"],
   [null, ""],
 ];
@@ -73,13 +80,16 @@ const columns: [SortKey | null, string, string?][] = [
 const segments = [
   ["todos", "Todos", (o: OrderRow) => !o.archivedAt],
   ["pago", "Pagos", (o: OrderRow) => !o.archivedAt && o.status === "pago"],
-  ["entregar", "A entregar", (o: OrderRow) => !o.archivedAt && o.status === "pago" && !o.deliveredAt],
-  ["entregues", "Entregues", (o: OrderRow) => !o.archivedAt && o.status === "pago" && !!o.deliveredAt],
   ["aguardando", "Aguardando", (o: OrderRow) => !o.archivedAt && o.status === "aguardando"],
   ["divergente", "Divergentes", (o: OrderRow) => !o.archivedAt && o.status === "divergente"],
+  // etapas da entrega (só pedidos pagos)
+  ...deliveryOrder.map((d) => [`entrega:${d}`, deliveryStyle[d][0], (o: OrderRow) => deliveryOf(o) === d] as const),
   ["arquivados", "Arquivados", (o: OrderRow) => !!o.archivedAt],
 ] as const;
 type Segment = (typeof segments)[number][0];
+const deliverySelect =
+  "cursor-pointer appearance-none rounded-full py-0.5 pl-2 pr-5 text-[11px] font-semibold outline-none bg-[length:10px] bg-[right_6px_center] bg-no-repeat focus-visible:ring-2 focus-visible:ring-verdade/30";
+const chevron = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-opacity='.45' stroke-width='3'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`;
 
 const sortOptions: [SortKey, 1 | -1, string][] = [
   ["id", -1, "Pedido, mais recente"],
@@ -170,7 +180,7 @@ export function TabelaPedidos({ rows, initialOpenId }: { rows: OrderRow[]; initi
   const pickAll = () => setSelected(allChosen ? new Set() : new Set(visible.map((o) => o.id)));
 
   // só pedidos pagos (e não arquivados) podem ser entregues
-  const deliverable = visible.filter((o) => selected.has(o.id) && o.status === "pago" && !o.archivedAt && !o.deliveredAt).map((o) => o.id);
+  const deliverable = visible.filter((o) => selected.has(o.id) && deliveryOf(o)).map((o) => o.id);
 
   const bulk = (fn: () => Promise<unknown>) =>
     startTransition(async () => {
@@ -195,10 +205,23 @@ export function TabelaPedidos({ rows, initialOpenId }: { rows: OrderRow[]; initi
               {chosen.length} {chosen.length === 1 ? "pedido selecionado" : "pedidos selecionados"}
             </span>
             {deliverable.length > 0 && (
-              <button type="button" onClick={() => bulk(() => deliverOrdersAction(deliverable, true))} disabled={pending} className={bulkBtn}>
-                <PackageCheck className="size-3.5" />
-                Marcar entregue{deliverable.length < chosen.length ? ` (${deliverable.length})` : ""}
-              </button>
+              <select
+                aria-label="Mover entrega dos selecionados"
+                value=""
+                disabled={pending}
+                onChange={(e) => {
+                  const status = e.target.value as DeliveryStatus;
+                  if (status) bulk(() => updateDeliveryAction(deliverable, { status }));
+                }}
+                className={`${bulkBtn} cursor-pointer appearance-none pr-3`}
+              >
+                <option value="">Mover entrega para…{deliverable.length < chosen.length ? ` (${deliverable.length} pagos)` : ""}</option>
+                {deliveryOrder.map((d) => (
+                  <option key={d} value={d}>
+                    {deliveryStyle[d][0]}
+                  </option>
+                ))}
+              </select>
             )}
             <button type="button" onClick={() => bulk(() => archiveOrdersAction(chosen, archiving))} disabled={pending} className={bulkBtn}>
               {archiving ? <Archive className="size-3.5" /> : <ArchiveRestore className="size-3.5" />}
@@ -253,8 +276,12 @@ export function TabelaPedidos({ rows, initialOpenId }: { rows: OrderRow[]; initi
         {segments.map(([key, label]) => {
           const active = key === segment;
           return (
+            <Fragment key={key}>
+            {key === `entrega:${deliveryOrder[0]}` && (
+              <span className="ml-2 self-center text-[10px] font-semibold uppercase tracking-wider text-[#9a938c]">Entrega</span>
+            )}
+            {key === "arquivados" && <span className="mx-1 w-px self-stretch bg-tinta/10" aria-hidden />}
             <button
-              key={key}
               type="button"
               onClick={() => pickSegment(key)}
               className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium transition ${
@@ -264,6 +291,7 @@ export function TabelaPedidos({ rows, initialOpenId }: { rows: OrderRow[]; initi
               {label}
               <span className={`tabular-nums ${active ? "text-white/65" : "text-[#9a938c]"}`}>{counts[key]}</span>
             </button>
+            </Fragment>
           );
         })}
       </div>
@@ -328,7 +356,7 @@ export function TabelaPedidos({ rows, initialOpenId }: { rows: OrderRow[]; initi
                     key={o.id}
                     onClick={(e) => {
                       // checkbox, links e botões da linha fazem a própria ação
-                      if (!(e.target as HTMLElement).closest("input, a, button, form")) setOpenId(o.id);
+                      if (!(e.target as HTMLElement).closest("input, a, button, form, select")) setOpenId(o.id);
                     }}
                     className={`cursor-pointer ${
                       openId === o.id ? "bg-verdade/[0.07]" : on ? "bg-verdade/[0.04]" : "hover:bg-[#FCFBF9]"
@@ -386,7 +414,41 @@ export function TabelaPedidos({ rows, initialOpenId }: { rows: OrderRow[]; initi
                     <td className={`${td} whitespace-nowrap`}>{methodLabel(o) || dash}</td>
                     <td className={td}>
                       <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ${cls}`}>{label}</span>
-                      {o.deliveredAt && <span className={`${sub} mt-1 whitespace-nowrap`}>Entregue {fmtDay.format(o.deliveredAt)}</span>}
+                    </td>
+                    <td className={td}>
+                      {deliveryOf(o) ? (
+                        <>
+                          <select
+                            aria-label={`Entrega do pedido #${o.id}`}
+                            value={deliveryOf(o)!}
+                            disabled={pending}
+                            onChange={(e) => bulk(() => updateDeliveryAction([o.id], { status: e.target.value as DeliveryStatus }))}
+                            className={`${deliverySelect} ${deliveryStyle[deliveryOf(o)!][1]}`}
+                            style={{ backgroundImage: chevron }}
+                          >
+                            {deliveryOrder.map((d) => (
+                              <option key={d} value={d}>
+                                {deliveryStyle[d][0]}
+                              </option>
+                            ))}
+                          </select>
+                          {(o.carrier || o.deliveryOwner || o.deliveredAt) && (
+                            <span className={`${sub} mt-1 whitespace-nowrap`}>
+                              {[o.carrier, o.deliveryOwner, deliveryOf(o) === "entregue" && o.deliveredAt && fmtDay.format(o.deliveredAt)]
+                                .filter(Boolean)
+                                .join(" · ")}
+                            </span>
+                          )}
+                          {o.complaint && (
+                            <span className="mt-1 flex max-w-[180px] items-start gap-1 text-[11px] text-[#A2402B]" title={o.complaint}>
+                              <MessageSquareWarning className="mt-px size-3 shrink-0" />
+                              <span className="truncate">{o.complaint}</span>
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        dash
+                      )}
                     </td>
                     <td className={`${td} whitespace-nowrap`}>{o.checkedAt ? fmtDate.format(o.checkedAt) : dash}</td>
                     <td className={`${td} whitespace-nowrap`}>

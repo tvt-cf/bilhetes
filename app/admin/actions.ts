@@ -7,8 +7,8 @@ import { after } from "next/server";
 import { endSession, normalizeEmail, requestLogin, requireAdmin, verifyCode, verifyToken } from "@/lib/auth";
 import { cancelCampaign, createCampaign, dispatchCampaign, personalize } from "@/lib/campaigns";
 import { markPurchased } from "@/lib/community";
-import type { BoxColor, CampaignKind, Segment } from "@/lib/db/schema";
-import { getOrderTimeline, recheckOrders, setOrdersArchived, setOrdersDelivered } from "@/lib/orders";
+import { type BoxColor, type CampaignKind, deliveryStatuses, type Segment } from "@/lib/db/schema";
+import { type DeliveryPatch, getOrderTimeline, recheckOrders, setOrdersArchived, updateDelivery } from "@/lib/orders";
 import { normalizePhone } from "@/lib/phone";
 import { STOCK_TAG, addStockLot, correctStockLot, setManualSoldOut } from "@/lib/stock";
 import { sendTemplate } from "@/lib/whatsapp";
@@ -89,10 +89,16 @@ export async function archiveOrdersAction(ids: number[], archived: boolean) {
   revalidatePath("/admin", "layout");
 }
 
-export async function deliverOrdersAction(ids: number[], delivered: boolean) {
+export async function updateDeliveryAction(ids: number[], patch: DeliveryPatch) {
   const admin = await requireAdmin();
   const valid = ids.filter((id) => Number.isInteger(id) && id > 0);
-  await setOrdersDelivered(valid, delivered, admin.email);
+  const status = deliveryStatuses.find((s) => s === patch.status); // só etapas conhecidas
+  const text = (v: unknown) => (typeof v === "string" ? v : v === null ? null : undefined);
+  await updateDelivery(
+    valid,
+    { status, carrier: text(patch.carrier), owner: text(patch.owner), complaint: text(patch.complaint) },
+    admin.email,
+  );
   revalidatePath("/admin", "layout");
 }
 

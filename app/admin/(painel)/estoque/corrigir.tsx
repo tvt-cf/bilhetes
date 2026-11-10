@@ -1,5 +1,6 @@
 "use client";
 
+import { Pencil } from "lucide-react";
 import { useActionState, useState } from "react";
 import { type CorrectState, correctStockLotAction } from "../../actions";
 
@@ -14,8 +15,12 @@ export function CorrigirLote({ lotId, current, maxReduce }: { lotId: number; cur
 
   if (!open)
     return (
-      <button type="button" onClick={() => setOpen(true)} className="text-[12px] text-tinta-suave hover:text-tinta hover:underline">
-        Corrigir
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1.5 rounded-md border border-tinta/15 bg-white px-2.5 py-1 text-[12px] font-medium transition hover:border-tinta/30"
+      >
+        <Pencil className="size-3" /> Corrigir
       </button>
     );
 

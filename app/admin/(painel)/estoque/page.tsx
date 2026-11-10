@@ -170,7 +170,8 @@ async function Estoque() {
         {lots.length === 0 ? (
           <p className="px-5 py-10 text-center text-sm text-tinta-suave">Nenhum lote registrado.</p>
         ) : (
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[860px]">
             <thead className="border-b border-tinta/8 bg-[#FAF8F5]">
               <tr>
                 {["DATA", "COR", "QUANTIDADE", "OBSERVAÇÃO", "QUEM REGISTROU", ""].map((h, i) => (
@@ -205,7 +206,7 @@ async function Estoque() {
                     {/* correções: ficam para sempre ligadas ao lote, com motivo, quem e quando */}
                     {l.corrections.map((c) => (
                       <span key={c.id} className="mt-1.5 block text-[12px] leading-snug">
-                        <span className={`font-medium tabular-nums ${c.quantity < 0 ? "text-coragem" : "text-[#4F5636]"}`}>
+                        <span className={`font-medium tabular-nums ${c.quantity < 0 ? "text-coragem" : "text-[#2B6A32]"}`}>
                           {c.quantity > 0 ? `+${fmt.format(c.quantity)}` : `−${fmt.format(-c.quantity)}`}
                         </span>{" "}
                         · {c.note} <span className="text-tinta-suave">· {fmtDate.format(c.createdAt)} · {c.actor}</span>
@@ -220,6 +221,7 @@ async function Estoque() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </Card>
     </>

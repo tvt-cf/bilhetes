@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { countAudience, listCampaigns } from "@/lib/campaigns";
 import type { CampaignKind, CampaignStatus, Segment } from "@/lib/db/schema";
 import { cancelCampaignAction } from "../../actions";
-import { Card, PageHeader, td, th } from "../ui";
+import { Card, PageHeader, tagOk, td, th } from "../ui";
 import { Composer } from "./composer";
 
 const KINDS: CampaignKind[] = ["sabedoria", "evento", "pedido", "lote"];
@@ -18,7 +18,7 @@ const segmentLabel: Record<Segment, string> = {
 const statusStyle: Record<CampaignStatus, [string, string]> = {
   agendado: ["Agendado", "bg-luz/20 text-[#7A5A1E]"],
   enviando: ["Enviando", "bg-recomeco/12 text-recomeco"],
-  concluido: ["Concluído", "bg-presenca/15 text-[#4F5636]"],
+  concluido: ["Concluído", tagOk],
   falhou: ["Falhou", "bg-coragem/12 text-[#A2402B]"],
 };
 

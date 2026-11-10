@@ -24,8 +24,12 @@ export function Card({ children, className = "" }: { children?: React.ReactNode;
   return <div className={`rounded-xl border border-tinta/8 bg-white ${className}`}>{children}</div>;
 }
 
+// Tag de sucesso (pago, comprou, concluído): verde claro de verdade, não o oliva da marca.
+export const tagOk = "bg-[#DDF0D9] text-[#2B6A32]";
+export const dotOk = "bg-[#4E9F57]";
+
 const statusStyle: Record<PersonStatus, [string, string]> = {
-  comprou: ["Comprou", "bg-presenca/15 text-[#4F5636]"],
+  comprou: ["Comprou", tagOk],
   pre_venda: ["Pré-venda", "bg-luz/20 text-[#7A5A1E]"],
   fila_espera: ["Fila de espera", "bg-intuicao/35 text-verdade"],
   comunidade: ["Comunidade", "bg-recomeco/12 text-recomeco"],

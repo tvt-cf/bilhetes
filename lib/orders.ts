@@ -2,7 +2,7 @@ import "server-only";
 import { and, asc, desc, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import { markPaid, refreshBuyerStatus } from "./community";
 import { getDb, schema } from "./db";
-import type { BoxColor, DeliveryAddress, OrderEventKind, OrderEventVia, OrderStatus } from "./db/schema";
+import type { BoxColor, DeliveryAddress, DeliveryStatus, OrderEventDetail, OrderEventKind, OrderEventVia, OrderStatus } from "./db/schema";
 import { checkPayment, handleFromCheckoutUrl } from "./infinitepay";
 import { produto } from "./site";
 
@@ -162,6 +162,10 @@ export async function listOrders(limit = 200) {
       createdAt: orders.createdAt,
       archivedAt: orders.archivedAt,
       deliveredAt: orders.deliveredAt,
+      deliveryStatus: orders.deliveryStatus,
+      carrier: orders.carrier,
+      deliveryOwner: orders.deliveryOwner,
+      complaint: orders.complaint,
     })
     .from(orders)
     .leftJoin(people, eq(people.id, orders.personId))
@@ -186,25 +190,43 @@ export async function setOrdersArchived(ids: number[], archived: boolean, actor:
   await refreshBuyerStatus(changed.map((r) => r.personId));
 }
 
-// Entrega: o pedido pago sai de "reservados" e passa para "entregues" no estoque.
-export async function setOrdersDelivered(ids: number[], delivered: boolean, actor: string) {
+export type DeliveryPatch = { status?: DeliveryStatus; carrier?: string | null; owner?: string | null; complaint?: string | null };
+
+// Entrega de pedidos pagos: etapa, transporte, responsável e reclamação. Cada pedido alterado ganha um
+// registro na linha do tempo com quem mudou e o antes/depois. "Entregue" marca a data de entrega (sai de
+// reservados no estoque); voltar para uma etapa anterior desfaz; reclamação mantém a data.
+export async function updateDelivery(ids: number[], patch: DeliveryPatch, actor: string) {
   if (!ids.length) return;
   const db = await getDb();
-  const changed = await db
-    .update(orders)
-    .set({ deliveredAt: delivered ? new Date() : null })
-    .where(
-      and(
-        inArray(orders.id, ids),
-        eq(orders.status, "pago"),
-        delivered ? isNull(orders.deliveredAt) : isNotNull(orders.deliveredAt),
-      ),
-    )
-    .returning({ id: orders.id });
-  await logEvent(
-    changed.map((r) => r.id),
-    { kind: delivered ? "entregue" : "entrega_desfeita", via: "admin", actor },
-  );
+  const rows = await db
+    .select()
+    .from(orders)
+    .where(and(inArray(orders.id, ids), eq(orders.status, "pago"), isNull(orders.archivedAt)));
+  const clean = (v: string | null | undefined) => (v === undefined ? undefined : v?.trim().slice(0, 300) || null);
+  const next = { carrier: clean(patch.carrier), owner: clean(patch.owner), complaint: clean(patch.complaint) };
+  for (const o of rows) {
+    const from = o.deliveryStatus ?? "preparar";
+    const to = patch.status ?? from;
+    const detail: OrderEventDetail = {};
+    if (to !== from) Object.assign(detail, { deliveryFrom: from, deliveryTo: to });
+    if (next.carrier !== undefined && next.carrier !== o.carrier) detail.carrier = next.carrier;
+    if (next.owner !== undefined && next.owner !== o.deliveryOwner) detail.owner = next.owner;
+    if (next.complaint !== undefined && next.complaint !== o.complaint) detail.complaint = next.complaint;
+    if (!Object.keys(detail).length) continue;
+    const deliveredAt =
+      to === "entregue" ? (o.deliveredAt ?? new Date()) : to === "reclamacao" ? o.deliveredAt : null;
+    await db
+      .update(orders)
+      .set({
+        deliveryStatus: to,
+        deliveredAt,
+        ...(detail.carrier !== undefined && { carrier: detail.carrier }),
+        ...(detail.owner !== undefined && { deliveryOwner: detail.owner }),
+        ...(detail.complaint !== undefined && { complaint: detail.complaint }),
+      })
+      .where(eq(orders.id, o.id));
+    await logEvent(o.id, { kind: "entrega", via: "admin", actor, detail });
+  }
 }
 
 export type TimelineEvent = {
