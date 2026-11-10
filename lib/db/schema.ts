@@ -104,11 +104,14 @@ export const orders = pgTable("orders", {
   deliveredAt: timestamp("delivered_at", { withTimezone: true }), // caixa entregue: sai de "reservados" e vai para "entregues"
 });
 
-// Entradas de estoque por cor (lotes recebidos ou correções, que podem ser negativas). O total é a soma.
+// Livro de estoque por cor: só entra registro, nada é editado nem apagado. Um lote recebido tem
+// correctsId vazio; uma correção aponta para o lote que corrige e guarda a diferença (pode ser negativa)
+// e o motivo em note. O total de cada cor é a soma de tudo.
 export const stockLots = pgTable("stock_lots", {
   id: serial("id").primaryKey(),
   boxColor: text("box_color").$type<BoxColor>().notNull(),
   quantity: integer("quantity").notNull(),
+  correctsId: integer("corrects_id"),
   note: text("note"),
   actor: text("actor"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -253,4 +256,5 @@ create table if not exists stock_lots (
   actor text,
   created_at timestamptz not null default now()
 );
+alter table stock_lots add column if not exists corrects_id integer;
 `;

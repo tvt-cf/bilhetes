@@ -81,9 +81,46 @@ export async function addStockLot(input: { boxColor: BoxColor; quantity: number;
   await db.insert(stockLots).values(input);
 }
 
+export type StockLot = typeof stockLots.$inferSelect;
+
+// Lotes recebidos (mais recentes primeiro), cada um com as correções e a quantidade que vale hoje.
 export async function listStockLots(limit = 50) {
   const db = await getDb();
-  return db.select().from(stockLots).orderBy(desc(stockLots.createdAt)).limit(limit);
+  const rows = await db.select().from(stockLots).orderBy(desc(stockLots.createdAt));
+  const corrections = rows.filter((r) => r.correctsId != null).reverse(); // mais antigas primeiro
+  return rows
+    .filter((r) => r.correctsId == null)
+    .slice(0, limit)
+    .map((lot) => {
+      const fixes = corrections.filter((c) => c.correctsId === lot.id);
+      return { ...lot, corrections: fixes, current: lot.quantity + fixes.reduce((a, c) => a + c.quantity, 0) };
+    });
+}
+
+// Corrige um lote registrando a diferença, nunca editando o registro original. Não deixa tirar
+// caixas que já foram vendidas: a redução máxima é o que está disponível da cor.
+export async function correctStockLot(input: { lotId: number; quantity: number; reason: string; actor: string }) {
+  const db = await getDb();
+  const [lot] = await db.select().from(stockLots).where(eq(stockLots.id, input.lotId));
+  if (!lot || lot.correctsId != null) return { ok: false as const, message: "Lote não encontrado." };
+  const fixes = await db.select({ q: stockLots.quantity }).from(stockLots).where(eq(stockLots.correctsId, lot.id));
+  const current = lot.quantity + fixes.reduce((a, f) => a + f.q, 0);
+  const delta = input.quantity - current;
+  if (delta === 0) return { ok: false as const, message: "A quantidade é a mesma de agora." };
+  if (input.quantity < 0) return { ok: false as const, message: "A quantidade não pode ser negativa." };
+  if (delta < 0) {
+    const { colors } = await getStockLive();
+    const max = colors[lot.boxColor].available;
+    if (-delta > max)
+      return {
+        ok: false as const,
+        message: max
+          ? `Dá para tirar no máximo ${max} ${max === 1 ? "caixa" : "caixas"}: as outras desta cor já foram vendidas.`
+          : "Não dá para reduzir: todas as caixas desta cor já foram vendidas.",
+      };
+  }
+  await db.insert(stockLots).values({ boxColor: lot.boxColor, quantity: delta, correctsId: lot.id, note: input.reason, actor: input.actor });
+  return { ok: true as const };
 }
 
 // Fila de espera para orientar a próxima produção: por cor (quem estava fora da área já escolheu a cor;

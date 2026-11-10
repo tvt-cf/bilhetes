@@ -10,7 +10,7 @@ import { markPurchased } from "@/lib/community";
 import type { BoxColor, CampaignKind, Segment } from "@/lib/db/schema";
 import { getOrderTimeline, recheckOrders, setOrdersArchived, setOrdersDelivered } from "@/lib/orders";
 import { normalizePhone } from "@/lib/phone";
-import { STOCK_TAG, addStockLot, setManualSoldOut } from "@/lib/stock";
+import { STOCK_TAG, addStockLot, correctStockLot, setManualSoldOut } from "@/lib/stock";
 import { sendTemplate } from "@/lib/whatsapp";
 
 export type ActionState = { ok: boolean; message: string } | null;
@@ -101,7 +101,7 @@ export async function addStockLotAction(form: FormData) {
   const admin = await requireAdmin();
   const boxColor: BoxColor = form.get("boxColor") === "escura" ? "escura" : "clara";
   const quantity = Math.trunc(Number(form.get("quantity")));
-  if (!quantity || Math.abs(quantity) > 10000) return;
+  if (!(quantity > 0 && quantity <= 10000)) return; // lote é sempre entrada; para tirar, corrija um lote
   const note = String(form.get("note") ?? "").trim().slice(0, 200) || null;
   await addStockLot({ boxColor, quantity, note, actor: admin.email });
   updateTag(STOCK_TAG); // o site passa a mostrar a cor disponível (ou esgotada)
@@ -111,6 +111,24 @@ export async function addStockLotAction(form: FormData) {
 export async function orderTimelineAction(orderId: number) {
   await requireAdmin();
   return Number.isInteger(orderId) && orderId > 0 ? getOrderTimeline(orderId) : [];
+}
+
+export type CorrectState = { ok: boolean; message: string } | null;
+
+// Correção de um lote com motivo obrigatório; fica no histórico ligada ao lote original.
+export async function correctStockLotAction(_: CorrectState, form: FormData): Promise<CorrectState> {
+  const admin = await requireAdmin();
+  const lotId = Number(form.get("lotId"));
+  const raw = String(form.get("quantity") ?? "").trim();
+  const quantity = Number(raw);
+  const reason = String(form.get("reason") ?? "").trim().slice(0, 200);
+  if (!raw || !Number.isInteger(quantity)) return { ok: false, message: "Informe a quantidade certa do lote." };
+  if (!reason) return { ok: false, message: "Conte o motivo da correção." };
+  const r = await correctStockLot({ lotId, quantity, reason, actor: admin.email });
+  if (!r.ok) return r;
+  updateTag(STOCK_TAG);
+  revalidatePath("/admin", "layout");
+  return { ok: true, message: "Correção registrada." };
 }
 
 export async function setSoldOutAction(form: FormData) {

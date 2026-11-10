@@ -4,6 +4,7 @@ import type { BoxColor } from "@/lib/db/schema";
 import { boxColors, getStockLive, getWaitlistDemand, listStockLots } from "@/lib/stock";
 import { addStockLotAction, setSoldOutAction } from "../../actions";
 import { boxStyle } from "../pedidos/format";
+import { CorrigirLote } from "./corrigir";
 import { btnPrimary, Card, PageHeader, td, th } from "../ui";
 
 const fmt = new Intl.NumberFormat("pt-BR");
@@ -85,7 +86,7 @@ async function Estoque() {
           <div>
             <h2 className="text-[15px] font-semibold">Registrar lote</h2>
             <p className="text-xs text-tinta-suave">
-              Chegou caixa nova? Some aqui. Para corrigir uma contagem, use um número negativo (ex.: −2).
+              Chegou caixa nova? Some aqui. Errou um número? Use “Corrigir” no lote, no histórico abaixo.
             </p>
           </div>
           <form action={addStockLotAction} className="flex flex-col gap-3">
@@ -106,6 +107,7 @@ async function Estoque() {
                 name="quantity"
                 type="number"
                 required
+                min={1}
                 step={1}
                 placeholder="Quantidade"
                 className="h-10 w-32 rounded-lg border border-tinta/15 px-3 text-[13px] tabular-nums outline-none focus:border-verdade/40"
@@ -171,8 +173,8 @@ async function Estoque() {
           <table className="w-full">
             <thead className="border-b border-tinta/8 bg-[#FAF8F5]">
               <tr>
-                {["DATA", "COR", "QUANTIDADE", "OBSERVAÇÃO", "QUEM REGISTROU"].map((h) => (
-                  <th key={h} className={th}>
+                {["DATA", "COR", "QUANTIDADE", "OBSERVAÇÃO", "QUEM REGISTROU", ""].map((h, i) => (
+                  <th key={i} className={th}>
                     {h}
                   </th>
                 ))}
@@ -180,7 +182,7 @@ async function Estoque() {
             </thead>
             <tbody className="divide-y divide-tinta/6">
               {lots.map((l) => (
-                <tr key={l.id}>
+                <tr key={l.id} className="align-top">
                   <td className={`${td} whitespace-nowrap`}>{fmtDate.format(l.createdAt)}</td>
                   <td className={td}>
                     <span className="inline-flex items-center gap-1.5">
@@ -188,11 +190,32 @@ async function Estoque() {
                       {boxStyle[l.boxColor][0]}
                     </span>
                   </td>
-                  <td className={`${td} tabular-nums font-medium ${l.quantity < 0 ? "text-coragem" : ""}`}>
-                    {l.quantity > 0 ? `+${fmt.format(l.quantity)}` : `−${fmt.format(-l.quantity)}`}
+                  <td className={`${td} whitespace-nowrap tabular-nums`}>
+                    {l.corrections.length ? (
+                      <>
+                        <span className="text-tinta-suave line-through">+{fmt.format(l.quantity)}</span>
+                        <span className="font-medium"> → +{fmt.format(l.current)}</span>
+                      </>
+                    ) : (
+                      <span className="font-medium">+{fmt.format(l.quantity)}</span>
+                    )}
                   </td>
-                  <td className={`${td} text-tinta-suave`}>{l.note ?? "—"}</td>
+                  <td className={td}>
+                    <span className="text-tinta-suave">{l.note ?? "—"}</span>
+                    {/* correções: ficam para sempre ligadas ao lote, com motivo, quem e quando */}
+                    {l.corrections.map((c) => (
+                      <span key={c.id} className="mt-1.5 block text-[12px] leading-snug">
+                        <span className={`font-medium tabular-nums ${c.quantity < 0 ? "text-coragem" : "text-[#4F5636]"}`}>
+                          {c.quantity > 0 ? `+${fmt.format(c.quantity)}` : `−${fmt.format(-c.quantity)}`}
+                        </span>{" "}
+                        · {c.note} <span className="text-tinta-suave">· {fmtDate.format(c.createdAt)} · {c.actor}</span>
+                      </span>
+                    ))}
+                  </td>
                   <td className={`${td} text-tinta-suave`}>{l.actor ?? "—"}</td>
+                  <td className={`${td} text-right`}>
+                    <CorrigirLote lotId={l.id} current={l.current} maxReduce={Math.min(l.current, stock.colors[l.boxColor].available)} />
+                  </td>
                 </tr>
               ))}
             </tbody>
