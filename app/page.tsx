@@ -1,4 +1,4 @@
-import { CreditCard, Lock } from "lucide-react";
+import { CreditCard, Flame, Lock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Fragment } from "react";
@@ -57,17 +57,12 @@ export default async function Home() {
 function Hero({ soldOut }: { soldOut: boolean }) {
   return (
     <section className="flex flex-col items-center px-5 pt-11 text-center md:px-16 md:pt-9">
-      {soldOut ? (
-        <span className="flex items-center gap-2.5 rounded-full bg-coragem px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.18em] text-white">
-          ESGOTADO · {produto.edicao.toUpperCase()}
-        </span>
-      ) : (
-        <span className="flex items-center gap-2 whitespace-nowrap rounded-full border border-verdade/25 px-3 py-1.5 text-[min(10px,2.9vw)] font-semibold tracking-[0.1em] text-verdade sm:gap-2.5 sm:px-3.5 sm:text-[11px] sm:tracking-[0.18em]">
-          EDIÇÃO LIMITADA
-          <span className="size-1.5 rounded-full bg-coragem" aria-hidden />
-          CAIXAS NUMERADAS À MÃO
-        </span>
-      )}
+      {/* mesma tag com ou sem estoque: o esgotado aparece na seção de compra, não logo na entrada */}
+      <span className="flex items-center gap-2 whitespace-nowrap rounded-full border border-verdade/25 px-3 py-1.5 text-[min(10px,2.9vw)] font-semibold tracking-[0.1em] text-verdade sm:gap-2.5 sm:px-3.5 sm:text-[11px] sm:tracking-[0.18em]">
+        EDIÇÃO LIMITADA
+        <span className="size-1.5 rounded-full bg-coragem" aria-hidden />
+        CAIXAS NUMERADAS À MÃO
+      </span>
       <h1 className="mt-8 font-display text-[72px] font-semibold leading-none tracking-[-0.04em] text-tinta md:mt-6 md:text-[clamp(88px,8.6vw,120px)]">
         {produto.nome}.
       </h1>
@@ -287,19 +282,19 @@ function Comprar({ soldOut, colorSoldOut }: { soldOut: boolean; colorSoldOut: Re
   return (
     <section id="comprar" className="scroll-mt-20 bg-vinho px-5 py-24 text-center text-leveza md:px-16 md:py-[clamp(56px,8svh,112px)]">
       <div className="largura @container flex flex-col items-center">
-        <Eyebrow className="text-luz">
-          EDIÇÃO LIMITADA · {soldOut ? "ESGOTADA" : "COMPRE ONLINE"}
-        </Eyebrow>
+        {soldOut ? (
+          // esgotado vira prova de procura: selo cheio com foguinho
+          <span className="flex items-center gap-2 rounded-full bg-luz px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-vinho">
+            <Flame className="size-4 fill-coragem text-coragem" strokeWidth={1.75} aria-hidden />
+            Edição limitada · Esgotada
+          </span>
+        ) : (
+          <Eyebrow className="text-luz">EDIÇÃO LIMITADA · COMPRE ONLINE</Eyebrow>
+        )}
         {/* a partir do tablet o título fica sempre em 2 linhas: a fonte acompanha a largura do conteúdo para a linha mais longa caber */}
         <h2 className="mt-6 text-[34px] leading-[1.1] tracking-[-0.02em] md:text-[min(46px,calc(100cqw/20))]">
-          {soldOut ? (
-            "Esgotou. O próximo lote já está a caminho."
-          ) : (
-            <>
-              <span className="block md:whitespace-nowrap">Poucas unidades, muito carinho.</span>
-              <span className="block md:whitespace-nowrap">Garanta sua Caixa de Bilhetes.</span>
-            </>
-          )}
+          <span className="block md:whitespace-nowrap">Poucas unidades, muito carinho.</span>
+          <span className="block md:whitespace-nowrap">{soldOut ? "Entre na fila de espera." : "Garanta sua Caixa de Bilhetes."}</span>
         </h2>
         <ul className="mt-14 flex w-full flex-col items-center gap-5 border-y border-leveza/20 py-8 md:flex-row md:justify-center md:gap-16">
           {itens.map(([titulo, desc], i) => (
@@ -316,9 +311,37 @@ function Comprar({ soldOut, colorSoldOut }: { soldOut: boolean; colorSoldOut: Re
             </Fragment>
           ))}
         </ul>
+        <div className="mt-14 flex items-center justify-center gap-7">
+          <div className="relative aspect-[4/3] w-[176px] shrink-0 overflow-hidden rounded-2xl ring-1 ring-leveza/15">
+            <Image
+              src="/images/caixa-cartas-thumb.jpg"
+              alt="A caixa de madeira fechada ao lado de um leque de bilhetes coloridos"
+              fill
+              sizes="176px"
+              className="object-cover"
+            />
+          </div>
+          {soldOut ? (
+            <p className="max-w-[200px] text-left text-[22px] leading-snug md:max-w-[240px] md:text-[26px]">O próximo lote já está a caminho.</p>
+          ) : (
+            <div className="flex flex-col items-start gap-1 text-left">
+              {/* no celular o valor fica numa linha e "à vista" na de baixo */}
+              <span className="text-[28px] leading-none md:text-[31px]">
+                {produto.precoAVista.replace(/ à vista$/, "")}
+                <br className="md:hidden" /> à vista
+              </span>
+              <span className="text-sm text-leveza/70">ou {produto.parcelas}</span>
+              <span className="mt-1.5 text-xs text-leveza/70">
+                {/* no celular quebra depois de "incluso" */}
+                {produto.frete.replace(/ para .*/, "")}
+                <br className="md:hidden" /> {produto.frete.replace(/^.*? (para .*)$/, "$1")}
+              </span>
+            </div>
+          )}
+        </div>
         {soldOut ? (
           <>
-            <p className="mt-14 max-w-md text-[17px] leading-relaxed text-leveza/75">
+            <p className="mt-10 max-w-md text-[17px] leading-relaxed text-leveza/75">
               Cada caixa é feita à mão, então os lotes são pequenos. Deixe seu nome e WhatsApp: você fica na fila e
               recebe o aviso antes de todo mundo.
             </p>
@@ -328,30 +351,6 @@ function Comprar({ soldOut, colorSoldOut }: { soldOut: boolean; colorSoldOut: Re
           </>
         ) : (
           <>
-            <div className="mt-14 flex items-center justify-center gap-7">
-              <div className="relative aspect-[4/3] w-[176px] shrink-0 overflow-hidden rounded-2xl ring-1 ring-leveza/15">
-                <Image
-                  src="/images/caixa-cartas-thumb.jpg"
-                  alt="A caixa de madeira fechada ao lado de um leque de bilhetes coloridos"
-                  fill
-                  sizes="176px"
-                  className="object-cover"
-                />
-              </div>
-              <div className="flex flex-col items-start gap-1 text-left">
-                {/* no celular o valor fica numa linha e "à vista" na de baixo */}
-                <span className="text-[28px] leading-none md:text-[31px]">
-                  {produto.precoAVista.replace(/ à vista$/, "")}
-                  <br className="md:hidden" /> à vista
-                </span>
-                <span className="text-sm text-leveza/70">ou {produto.parcelas}</span>
-                <span className="mt-1.5 text-xs text-leveza/70">
-                  {/* no celular quebra depois de "incluso" */}
-                  {produto.frete.replace(/ para .*/, "")}
-                  <br className="md:hidden" /> {produto.frete.replace(/^.*? (para .*)$/, "$1")}
-                </span>
-              </div>
-            </div>
             <div className="mt-10 w-full">
               <CheckoutForm colorSoldOut={colorSoldOut} />
             </div>
