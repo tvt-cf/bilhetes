@@ -25,12 +25,30 @@ export function infinitepayConfigured(): boolean {
   return Boolean(process.env.INFINITEPAY_HANDLE && process.env.INFINITEPAY_API_KEY);
 }
 
+// Endereço de entrega, já completo pela API de CEP. Vai junto no link para a pessoa não digitar de novo.
+export type CheckoutAddress = {
+  cep: string;
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+};
+
+// O handle fica no link ("checkout.infinitepay.io/<handle>/<slug>"): pedidos abertos antes de uma troca de
+// INFINITEPAY_HANDLE continuam sendo conferidos na conta onde foram pagos.
+export function handleFromCheckoutUrl(url?: string | null): string | undefined {
+  return url?.match(/checkout\.infinitepay\.io\/([^/?#]+)\//)?.[1];
+}
+
 export async function createCheckoutLink(input: {
   orderId: number;
   amount: number;
   name: string;
   phone: string;
   paymentPreference: "a_vista" | "parcelado";
+  address?: CheckoutAddress;
   teste?: boolean;
 }): Promise<string> {
   // o resumo do checkout mostra o preço do cartão; a descrição avisa já na primeira tela o preço escolhido
@@ -58,6 +76,11 @@ export async function createCheckoutLink(input: {
       webhook_url: `${site}/api/infinitepay/webhook`,
       redirect_url: `${site}/obrigada`, // depois de pagar e tocar em "Continuar", volta para a página de obrigada
       customer: { name: input.name, phone_number: `+${input.phone}` },
+      address: input.address && {
+        ...input.address,
+        cep: input.address.cep.replace(/\D/g, ""),
+        complement: input.address.complement ?? "",
+      },
       options: input.teste ? { single_payment: true } : options,
     }),
   });
@@ -78,12 +101,13 @@ export async function checkPayment(input: {
   orderNsu: string;
   transactionNsu: string;
   slug: string;
+  handle?: string;
 }): Promise<PaymentCheck> {
   const res = await fetch(`${API}/payment_check`, {
     method: "POST",
     headers: headers(),
     body: JSON.stringify({
-      handle: process.env.INFINITEPAY_HANDLE,
+      handle: input.handle ?? process.env.INFINITEPAY_HANDLE,
       order_nsu: input.orderNsu,
       transaction_nsu: input.transactionNsu,
       slug: input.slug,

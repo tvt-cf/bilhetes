@@ -3,7 +3,7 @@ import { desc, eq, isNotNull, sql } from "drizzle-orm";
 import { markPaid } from "./community";
 import { getDb, schema } from "./db";
 import type { OrderStatus } from "./db/schema";
-import { checkPayment } from "./infinitepay";
+import { checkPayment, handleFromCheckoutUrl } from "./infinitepay";
 import { produto } from "./site";
 
 const { orders, people } = schema;
@@ -38,7 +38,7 @@ export async function reconcileOrder(input: {
   const [order] = await db.select().from(orders).where(eq(orders.id, Number(id)));
   if (!order) return null;
 
-  const check = await checkPayment(input);
+  const check = await checkPayment({ ...input, handle: handleFromCheckoutUrl(order.checkoutUrl) });
   // webhook de algo que a InfinitePay não confirma: não muda nada
   if (!check.paid && order.status === "aguardando") return "nao_pago";
 
