@@ -67,9 +67,7 @@ async function Comunidade({ searchParams }: { searchParams: PageProps<"/admin">[
               {stock.soldOut ? "Esgotado: o site mostra a fila de espera" : "À venda: o site mostra “Eu quero”"}
             </p>
             <p className="text-xs text-tinta-suave">
-              {stock.configured
-                ? `${fmt.format(stock.colors.clara.available)} claras e ${fmt.format(stock.colors.escura.available)} escuras disponíveis`
-                : `${fmt.format(Math.max(stats.edition - stock.buyers, 0))} caixas disponíveis de ${stats.edition}`}
+              {`${fmt.format(stock.colors.clara.available)} claras e ${fmt.format(stock.colors.escura.available)} escuras disponíveis`}
               {` · ${fmt.format(stats.waitlist)} ${stats.waitlist === 1 ? "pessoa" : "pessoas"} na fila de espera`}
             </p>
           </div>
@@ -85,11 +83,7 @@ async function Comunidade({ searchParams }: { searchParams: PageProps<"/admin">[
         <Kpi
           label="Compraram"
           value={stats.buyers}
-          sub={
-            stock.configured
-              ? `${fmt.format(stock.colors.clara.available + stock.colors.escura.available)} caixas disponíveis no estoque`
-              : `${fmt.format(Math.max(stats.edition - stats.buyers, 0))} caixas restantes de ${stats.edition}`
-          }
+          sub={`${fmt.format(stock.colors.clara.available + stock.colors.escura.available)} caixas disponíveis no estoque`}
         >
           <div className="h-1.5 rounded-full bg-verdade/10">
             <div

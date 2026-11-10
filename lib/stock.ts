@@ -3,7 +3,6 @@ import { desc, eq, sql } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { getDb, schema } from "./db";
 import type { BoxColor } from "./db/schema";
-import { produto } from "./site";
 
 const { orders, people, settings, stockLots } = schema;
 
@@ -18,11 +17,11 @@ export type ColorStock = {
 };
 
 // Estoque por cor. Cada pedido pago (não arquivado) desconta uma caixa da cor escolhida, entregue ou não.
-// Enquanto nenhum lote foi registrado no /admin/estoque, vale a regra antiga: esgota ao vender a tiragem.
-// Esgota de vez quando as duas cores acabam ou quando alguém marca "esgotado" no /admin.
+// Cor sem caixa disponível aparece esgotada no checkout; sem nenhuma das duas (inclusive antes de registrar
+// o primeiro lote), o site mostra esgotado e a fila de espera. Também esgota quando alguém marca no /admin.
 export async function getStockLive() {
   const db = await getDb();
-  const [[flag], lots, sold, [buyersRow]] = await Promise.all([
+  const [[flag], lots, sold] = await Promise.all([
     db.select({ value: settings.value }).from(settings).where(eq(settings.key, "esgotado")),
     db
       .select({ color: stockLots.boxColor, total: sql<number>`sum(${stockLots.quantity})` })
@@ -37,11 +36,8 @@ export async function getStockLive() {
       .from(orders)
       .where(sql`${orders.status} = 'pago' and ${orders.archivedAt} is null`)
       .groupBy(orders.boxColor),
-    db.select({ buyers: sql<number>`count(*) filter (where ${people.status} = 'comprou')` }).from(people),
   ]);
   const manual = flag?.value === true;
-  const buyers = Number(buyersRow?.buyers ?? 0);
-  const configured = lots.length > 0;
   const colors = Object.fromEntries(
     boxColors.map((c) => {
       const total = Number(lots.find((l) => l.color === c)?.total ?? 0);
@@ -52,10 +48,10 @@ export async function getStockLive() {
     }),
   ) as Record<BoxColor, ColorStock>;
   const colorSoldOut = Object.fromEntries(
-    boxColors.map((c) => [c, configured && colors[c].available <= 0]),
+    boxColors.map((c) => [c, colors[c].available <= 0]),
   ) as Record<BoxColor, boolean>;
-  const allGone = configured ? boxColors.every((c) => colorSoldOut[c]) : buyers >= produto.tiragem;
-  return { soldOut: manual || allGone, manual, buyers, configured, colors, colorSoldOut };
+  const allGone = boxColors.every((c) => colorSoldOut[c]);
+  return { soldOut: manual || allGone, manual, colors, colorSoldOut };
 }
 
 // Versão em cache para o site público, que continua estático. Invalidada pela tag ao vender ou ao mudar no admin.

@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { requireAdmin } from "@/lib/auth";
 import type { BoxColor } from "@/lib/db/schema";
-import { produto } from "@/lib/site";
 import { boxColors, getStockLive, getWaitlistDemand, listStockLots } from "@/lib/stock";
 import { addStockLotAction, setSoldOutAction } from "../../actions";
 import { boxStyle } from "../pedidos/format";
@@ -41,7 +40,7 @@ async function Estoque() {
     : stock.soldOut
       ? [
           "Esgotado",
-          stock.configured ? "As duas cores acabaram: o site mostra a fila de espera." : `As ${produto.tiragem} caixas da tiragem foram vendidas.`,
+          "Nenhuma caixa disponível nas duas cores: o site mostra a fila de espera. Registre um lote para voltar a vender.",
           "bg-coragem",
         ]
       : [
@@ -74,17 +73,10 @@ async function Estoque() {
         </form>
       </Card>
 
-      {!stock.configured && (
-        <Card className="border-luz/50 bg-luz/10 px-5 py-4 text-[13px] leading-relaxed">
-          <strong className="font-semibold">Nenhum lote registrado ainda.</strong> Enquanto isso, o site segue a regra antiga
-          (esgota com {produto.tiragem} vendas, sem separar por cor). Registre abaixo quantas caixas de cada cor vocês têm hoje,
-          contando as já vendidas, para ligar o controle por cor.
-        </Card>
-      )}
 
       <div className="grid gap-4 lg:grid-cols-2">
         {boxColors.map((c) => (
-          <ColorCard key={c} color={c} stock={stock.colors[c]} soldOut={stock.colorSoldOut[c]} waiting={demand[c]} configured={stock.configured} />
+          <ColorCard key={c} color={c} stock={stock.colors[c]} soldOut={stock.colorSoldOut[c]} waiting={demand[c]} />
         ))}
       </div>
 
@@ -216,13 +208,11 @@ function ColorCard({
   stock,
   soldOut,
   waiting,
-  configured,
 }: {
   color: BoxColor;
   stock: { total: number; reserved: number; delivered: number; available: number };
   soldOut: boolean;
   waiting: number;
-  configured: boolean;
 }) {
   const [name, swatch] = boxStyle[color];
   const base = Math.max(stock.total, stock.reserved + stock.delivered, 1);
@@ -239,7 +229,7 @@ function ColorCard({
       <div className="flex items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <span className="text-[13px] text-tinta-suave">Disponível para venda</span>
-          <span className="font-serif text-[48px] leading-none">{configured ? fmt.format(stock.available) : "—"}</span>
+          <span className="font-serif text-[48px] leading-none">{fmt.format(stock.available)}</span>
         </div>
         <span className="text-right text-xs text-tinta-suave">
           {fmt.format(waiting)} na fila de espera
