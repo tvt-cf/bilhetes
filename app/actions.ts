@@ -1,5 +1,6 @@
 "use server";
 
+import { isAdmin } from "@/lib/auth";
 import { type CepInfo, lookupCep } from "@/lib/cep";
 import { joinOutsideArea, joinPresale, joinWaitlist, subscribe } from "@/lib/community";
 import type { BoxColor, DeliveryAddress } from "@/lib/db/schema";
@@ -128,10 +129,10 @@ export async function checkoutAction(
     return { ok: false, message: `A caixa ${color} acabou de esgotar. Volte para a primeira etapa e escolha a outra cor.` };
   }
   const personId = await joinPresale({ name, phone, paymentPreference });
-  // TEMPORÁRIO (teste do checkout): quem abre o site com ?teste=<TESTE_CHECKOUT_TOKEN> paga R$ 1.
-  // O token fica só na Vercel (o repositório é público). Sem a variável, o teste fica desligado.
+  // Teste do checkout: paga R$ 1 quem abre o site com ?teste=1 estando logado no /admin no mesmo navegador
+  // (ou com ?teste=<TESTE_CHECKOUT_TOKEN>, se a variável existir na Vercel). Para o público, o ?teste= é ignorado.
   const token = process.env.TESTE_CHECKOUT_TOKEN;
-  const ehTeste = Boolean(token) && input.teste === token;
+  const ehTeste = Boolean(input.teste) && ((Boolean(token) && input.teste === token) || (input.teste === "1" && (await isAdmin())));
   const reserved = "Sua caixa de Bilhetes está reservada. Vamos te chamar no WhatsApp para finalizar o pagamento.";
 
   // com a InfinitePay configurada, vai direto para o checkout; sem ela, segue a reserva pelo WhatsApp
